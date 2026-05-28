@@ -8,13 +8,20 @@ A meta-engine for static site generation in Go. Define custom DSLs (`.trivia`, `
 
 Most SSGs are Markdown-first. Fuego is format-agnostic. You define the content format, the parsing rules, and the templates. Fuego handles discovery, routing, taxonomy indexing, collections, and the build pipeline. Markdown works out of the box with GFM support, but the real power is custom formats.
 
+## Install
+
+```bash
+go install github.com/FabioSol/fuego/cmd/fuego@latest
+```
+
+Requires Go 1.23+. Adds `fuego` to `$GOPATH/bin` (usually `~/go/bin`).
+
 ## Quick Start
 
 ```bash
-go run github.com/FabioSol/fuego/cmd/fuego@latest init mysite
-
+fuego init mysite
 cd mysite
-go run . build
+fuego build
 ```
 
 This scaffolds a working project with a `.card` flashcard DSL, a Markdown homepage, styled templates, and a dev server:
@@ -36,7 +43,7 @@ mysite/
 ```
 
 ```bash
-go run . serve       # dev server at http://localhost:8080
+fuego serve          # dev server at http://localhost:8080
 ```
 
 ## Key Features

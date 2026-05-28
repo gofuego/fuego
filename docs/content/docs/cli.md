@@ -6,6 +6,20 @@ tags:
   - cli
 ---
 
+## Install
+
+```bash
+go install github.com/FabioSol/fuego/cmd/fuego@latest
+```
+
+Requires Go 1.23+. The binary is placed in `$GOPATH/bin` (usually `~/go/bin`). Ensure this directory is in your `PATH`.
+
+Alternatively, run any command without installing:
+
+```bash
+go run github.com/FabioSol/fuego/cmd/fuego@latest <command>
+```
+
 ## Commands
 
 ### build

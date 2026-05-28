@@ -11,7 +11,25 @@ tags:
 Fuego requires Go 1.23 or later.
 
 ```bash
+go install github.com/FabioSol/fuego/cmd/fuego@latest
+```
+
+This adds the `fuego` binary to your `$GOPATH/bin` (usually `~/go/bin`). Make sure it's in your PATH:
+
+```bash
+export PATH="$HOME/go/bin:$PATH"
+```
+
+You can also run without installing:
+
+```bash
 go run github.com/FabioSol/fuego/cmd/fuego@latest init mysite
+```
+
+## Scaffold a Project
+
+```bash
+fuego init mysite
 ```
 
 This scaffolds a working project with a `.card` flashcard DSL, a Markdown homepage, styled templates, and a dev server ready to go:
@@ -36,15 +54,15 @@ mysite/
 
 ```bash
 cd mysite
-go run . build
+fuego build
 ```
 
-Output is written to `build/` by default.
+Output is written to `build/` by default. If you didn't install the CLI globally, use `go run . build` instead.
 
 ## Dev Server
 
 ```bash
-go run . serve
+fuego serve
 ```
 
 Starts a local server at `http://localhost:8080` with file watching. Edit any content or theme file and the site rebuilds automatically.
