@@ -1,0 +1,147 @@
+{
+  "pages": [
+    {
+      "url": "/blog/welcome/",
+      "type": "md",
+      "layout": "post",
+      "title": "Welcome",
+      "summary": "Welcome to the site.",
+      "envelope": {
+        "layout": "post",
+        "summary": "Welcome to the site.",
+        "tags": [
+          "meta"
+        ],
+        "title": "Welcome"
+      }
+    },
+    {
+      "url": "/cards/go-basics/",
+      "type": "card",
+      "title": "Go Basics",
+      "envelope": {
+        "tags": [
+          "programming"
+        ],
+        "title": "Go Basics"
+      }
+    },
+    {
+      "url": "/history-quiz/",
+      "type": "collection",
+      "layout": "listing",
+      "title": "History-quiz",
+      "envelope": {
+        "collection": "history-quiz",
+        "title": "History-quiz"
+      }
+    },
+    {
+      "url": "/quiz/trivia/history/napoleon/",
+      "type": "trivia",
+      "title": "Napoleon",
+      "envelope": {
+        "points": 20,
+        "tags": [
+          "history",
+          "europe"
+        ],
+        "title": "Napoleon"
+      }
+    },
+    {
+      "url": "/quiz/trivia/history/roman-empire/",
+      "type": "trivia",
+      "title": "Fall of Rome",
+      "envelope": {
+        "points": 10,
+        "slug": "roman-empire",
+        "tags": [
+          "history"
+        ],
+        "title": "Fall of Rome"
+      }
+    },
+    {
+      "url": "/tags/",
+      "type": "taxonomy-index",
+      "layout": "tag-index",
+      "title": "All Tags",
+      "envelope": {
+        "taxonomy": "tags",
+        "title": "All Tags"
+      }
+    },
+    {
+      "url": "/tags/europe/",
+      "type": "taxonomy-term",
+      "layout": "tag",
+      "title": "Tags: europe",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "europe",
+        "title": "Tags: europe"
+      }
+    },
+    {
+      "url": "/tags/history/",
+      "type": "taxonomy-term",
+      "layout": "tag",
+      "title": "Tags: history",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "history",
+        "title": "Tags: history"
+      }
+    },
+    {
+      "url": "/tags/meta/",
+      "type": "taxonomy-term",
+      "layout": "tag",
+      "title": "Tags: meta",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "meta",
+        "title": "Tags: meta"
+      }
+    },
+    {
+      "url": "/tags/programming/",
+      "type": "taxonomy-term",
+      "layout": "tag",
+      "title": "Tags: programming",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "programming",
+        "title": "Tags: programming"
+      }
+    }
+  ],
+  "taxonomies": {
+    "tags": {
+      "terms": {
+        "europe": [
+          3
+        ],
+        "history": [
+          3,
+          4
+        ],
+        "meta": [
+          0
+        ],
+        "programming": [
+          1
+        ]
+      }
+    }
+  },
+  "collections": {
+    "history-quiz": {
+      "pages": [
+        4,
+        3
+      ]
+    }
+  }
+}

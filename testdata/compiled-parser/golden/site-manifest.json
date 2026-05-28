@@ -1,0 +1,30 @@
+{
+  "pages": [
+    {
+      "url": "/concurrency/",
+      "type": "card",
+      "title": "Concurrency",
+      "envelope": {
+        "title": "Concurrency",
+        "type": "card"
+      }
+    },
+    {
+      "url": "/go-basics/",
+      "type": "card",
+      "title": "Go Basics",
+      "envelope": {
+        "title": "Go Basics"
+      }
+    },
+    {
+      "url": "/override/",
+      "type": "card",
+      "title": "Override Test",
+      "envelope": {
+        "title": "Override Test",
+        "type": "card"
+      }
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+site:
+  name: "Collision Test"
+
+parsers:
+  card:
+    rules:
+      - match: '^\?\s*(.+)$'
+        emit:
+          type: question
+          content: "$1"

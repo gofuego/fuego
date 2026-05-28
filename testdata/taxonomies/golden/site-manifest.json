@@ -1,0 +1,87 @@
+{
+  "pages": [
+    {
+      "url": "/post1/",
+      "type": "md",
+      "title": "Learning Go",
+      "envelope": {
+        "tags": [
+          "go",
+          "programming"
+        ],
+        "title": "Learning Go"
+      }
+    },
+    {
+      "url": "/post2/",
+      "type": "md",
+      "title": "Web Development",
+      "envelope": {
+        "tags": [
+          "web",
+          "go"
+        ],
+        "title": "Web Development"
+      }
+    },
+    {
+      "url": "/tags/",
+      "type": "taxonomy-index",
+      "layout": "tag-index",
+      "title": "All Tags",
+      "envelope": {
+        "taxonomy": "tags",
+        "title": "All Tags"
+      }
+    },
+    {
+      "url": "/tags/go/",
+      "type": "taxonomy-term",
+      "layout": "tag",
+      "title": "Tags: go",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "go",
+        "title": "Tags: go"
+      }
+    },
+    {
+      "url": "/tags/programming/",
+      "type": "taxonomy-term",
+      "layout": "tag",
+      "title": "Tags: programming",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "programming",
+        "title": "Tags: programming"
+      }
+    },
+    {
+      "url": "/tags/web/",
+      "type": "taxonomy-term",
+      "layout": "tag",
+      "title": "Tags: web",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "web",
+        "title": "Tags: web"
+      }
+    }
+  ],
+  "taxonomies": {
+    "tags": {
+      "terms": {
+        "go": [
+          0,
+          1
+        ],
+        "programming": [
+          0
+        ],
+        "web": [
+          1
+        ]
+      }
+    }
+  }
+}

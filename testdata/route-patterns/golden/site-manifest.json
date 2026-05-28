@@ -1,0 +1,29 @@
+{
+  "pages": [
+    {
+      "url": "/about/",
+      "type": "md",
+      "title": "About",
+      "envelope": {
+        "title": "About"
+      }
+    },
+    {
+      "url": "/quiz/fundamentals/",
+      "type": "trivia",
+      "title": "Trivia Basics",
+      "envelope": {
+        "slug": "fundamentals",
+        "title": "Trivia Basics"
+      }
+    },
+    {
+      "url": "/quiz/history/nash-eq/",
+      "type": "trivia",
+      "title": "Nash Equilibrium",
+      "envelope": {
+        "title": "Nash Equilibrium"
+      }
+    }
+  ]
+}

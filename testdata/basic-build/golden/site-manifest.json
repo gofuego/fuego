@@ -1,0 +1,33 @@
+{
+  "pages": [
+    {
+      "url": "/about/",
+      "type": "md",
+      "title": "About",
+      "envelope": {
+        "title": "About"
+      }
+    },
+    {
+      "url": "/docs/quickstart/",
+      "type": "md",
+      "layout": "default",
+      "title": "Getting Started",
+      "envelope": {
+        "layout": "default",
+        "slug": "quickstart",
+        "title": "Getting Started"
+      }
+    },
+    {
+      "url": "/hello/",
+      "type": "md",
+      "layout": "default",
+      "title": "Hello World",
+      "envelope": {
+        "layout": "default",
+        "title": "Hello World"
+      }
+    }
+  ]
+}

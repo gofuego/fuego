@@ -1,0 +1,10 @@
+site:
+  name: "Bad Config"
+
+parsers:
+  broken:
+    rules:
+      - match: '[invalid regex'
+        emit:
+          type: line
+          content: "$0"

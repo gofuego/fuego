@@ -1,0 +1,6 @@
+site:
+  name: "Static Test"
+
+ignore:
+  - "**/.DS_Store"
+  - "**/drafts/*"

@@ -1,0 +1,6 @@
+---
+title: Override Test
+type: card
+---
+front: Can a .txt file use the card parser?
+back: Yes, via frontmatter type override.

@@ -1,0 +1,17 @@
+site:
+  name: "Collection Test"
+
+parsers:
+  trivia:
+    rules:
+      - match: '^\?\s*(.+)$'
+        emit:
+          type: question
+          content: "$1"
+
+collections:
+  history-trivia:
+    match: "history/**"
+    sort_by: "points"
+    layout: "listing"
+    path: "/history-trivia"

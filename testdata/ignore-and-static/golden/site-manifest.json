@@ -1,0 +1,12 @@
+{
+  "pages": [
+    {
+      "url": "/blog/post/",
+      "type": "md",
+      "title": "Published Post",
+      "envelope": {
+        "title": "Published Post"
+      }
+    }
+  ]
+}

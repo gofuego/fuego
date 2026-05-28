@@ -1,0 +1,12 @@
+{
+  "pages": [
+    {
+      "url": "/test/",
+      "type": "card",
+      "title": "Collision Test",
+      "envelope": {
+        "title": "Collision Test"
+      }
+    }
+  ]
+}

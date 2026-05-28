@@ -1,0 +1,13 @@
+site:
+  name: "Collision Test"
+
+parsers:
+  trivia:
+    rules:
+      - match: '.+'
+        emit:
+          type: line
+          content: "$0"
+
+routes:
+  trivia: "/quiz/{slug}"

@@ -1,0 +1,49 @@
+{
+  "pages": [
+    {
+      "url": "/history-trivia/",
+      "type": "collection",
+      "layout": "listing",
+      "title": "History-trivia",
+      "envelope": {
+        "collection": "history-trivia",
+        "title": "History-trivia"
+      }
+    },
+    {
+      "url": "/history/q1/",
+      "type": "trivia",
+      "title": "Nash Equilibrium",
+      "envelope": {
+        "points": 30,
+        "title": "Nash Equilibrium"
+      }
+    },
+    {
+      "url": "/history/q2/",
+      "type": "trivia",
+      "title": "Ancient Rome",
+      "envelope": {
+        "points": 10,
+        "title": "Ancient Rome"
+      }
+    },
+    {
+      "url": "/science/q1/",
+      "type": "trivia",
+      "title": "Gravity",
+      "envelope": {
+        "points": 20,
+        "title": "Gravity"
+      }
+    }
+  ],
+  "collections": {
+    "history-trivia": {
+      "pages": [
+        2,
+        1
+      ]
+    }
+  }
+}

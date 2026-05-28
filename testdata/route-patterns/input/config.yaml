@@ -1,0 +1,19 @@
+site:
+  name: "Route Test"
+
+parsers:
+  trivia:
+    rules:
+      - match: '^\?\s*(.+)$'
+        emit:
+          type: question
+          content: "$1"
+      - match: '^\[([A-Z])\]\s+(.+)$'
+        emit:
+          type: answer
+          content: "$2"
+          attributes:
+            letter: "$1"
+
+routes:
+  trivia: "/quiz/{dir}/{slug}"

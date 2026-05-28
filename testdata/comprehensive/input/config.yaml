@@ -1,0 +1,43 @@
+site:
+  name: "Fuego Comprehensive"
+  base_url: "https://example.com"
+
+parsers:
+  trivia:
+    rules:
+      - match: '^\?\s*(.+)$'
+        emit:
+          type: question
+          content: "$1"
+      - match: '^\[([A-Z])\]\s+(.+)$'
+        emit:
+          type: answer
+          content: "$2"
+          attributes:
+            letter: "$1"
+      - match: '^>\s*(.+)$'
+        emit:
+          type: hint
+          content: "$1"
+
+routes:
+  trivia: "/quiz/{dir}/{slug}"
+  card: "/cards/{slug}"
+
+ignore:
+  - "**/.DS_Store"
+  - "**/drafts/*"
+
+taxonomies:
+  tags:
+    path: "/tags/{term}"
+    layout: "tag"
+    index_path: "/tags"
+    index_layout: "tag-index"
+
+collections:
+  history-quiz:
+    match: "trivia/history/**"
+    sort_by: "points"
+    layout: "listing"
+    path: "/history-quiz"

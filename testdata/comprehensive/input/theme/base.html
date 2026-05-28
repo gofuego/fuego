@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{.Page.Envelope.title}} | {{.Site.Name}}</title>
+</head>
+<body data-layout="{{.Page.Layout}}">
+{{block "content" .}}<div id="root">{{.Page.Content}}</div>{{end}}
+<script type="application/json" id="fuego-data">{{.JSON}}</script>
+</body>
+</html>

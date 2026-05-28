@@ -1,0 +1,12 @@
+{
+  "pages": [
+    {
+      "url": "/geography/",
+      "type": "trivia",
+      "title": "World Capitals",
+      "envelope": {
+        "title": "World Capitals"
+      }
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+site:
+  name: "{{.Name}}"
+  base_url: "http://localhost:8080"
+
+parsers:
+  card:
+    rules:
+      - match: '^front:\s*(.+)$'
+        emit:
+          type: front
+          content: "$1"
+      - match: '^back:\s*(.+)$'
+        emit:
+          type: back
+          content: "$1"
+
+dev:
+  port: 8080
