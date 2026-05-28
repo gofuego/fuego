@@ -69,20 +69,28 @@ func Generate(dir string, data Data) error {
 		}
 	}
 
-	// Generate go.mod
-	goMod := fmt.Sprintf("module %s\n\ngo 1.23\n\nrequire github.com/FabioSol/fuego v0.0.0\n", data.Module)
+	// Generate go.mod with just the module declaration
+	goMod := fmt.Sprintf("module %s\n\ngo 1.23\n", data.Module)
 	if err := os.WriteFile(filepath.Join(dir, "go.mod"), []byte(goMod), 0644); err != nil {
 		return fmt.Errorf("writing go.mod: %w", err)
 	}
 
-	// Run go mod tidy if Go is available
+	// Resolve fuego dependency via `go get` so it picks up the latest published version
 	if goPath, err := exec.LookPath("go"); err == nil {
-		cmd := exec.Command(goPath, "mod", "tidy")
-		cmd.Dir = dir
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
+		getCmd := exec.Command(goPath, "get", "github.com/FabioSol/fuego@latest")
+		getCmd.Dir = dir
+		getCmd.Stdout = os.Stdout
+		getCmd.Stderr = os.Stderr
+		if err := getCmd.Run(); err != nil {
+			fmt.Fprintf(os.Stderr, "fuego: warning: could not resolve dependency — run 'go get github.com/FabioSol/fuego@latest' manually\n")
+		}
+
+		tidyCmd := exec.Command(goPath, "mod", "tidy")
+		tidyCmd.Dir = dir
+		tidyCmd.Stdout = os.Stdout
+		tidyCmd.Stderr = os.Stderr
 		// Best effort — don't fail init if tidy fails
-		cmd.Run()
+		tidyCmd.Run()
 	}
 
 	return nil
