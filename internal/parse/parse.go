@@ -12,26 +12,11 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-// PageData is the central data carrier flowing through the pipeline.
-// It is progressively enriched by each phase: DISCOVER sets paths,
-// PARSE sets envelope/nodes, ROUTE sets URL, INDEX may annotate further.
-type PageData struct {
-	SourcePath string          // absolute path to the source file
-	RelPath    string          // path relative to content dir
-	Ext        string          // file extension without dot
-	Envelope   core.Envelope // parsed frontmatter metadata
-	Nodes      []core.Node   // parsed AST body
-	URL        string          // resolved output URL (set by route phase)
-	Layout     string          // layout name from envelope
-	Type       string          // content type (from envelope or extension)
-	IsRaw      bool            // true if no parser matched (raw passthrough)
-}
-
 // ParseAll processes all content files in parallel, splitting frontmatter
 // and dispatching to the appropriate parser. Files with no matching parser
 // are passed through as raw content nodes.
-func ParseAll(ctx context.Context, files []discover.FileEntry, parsers map[string]core.Parser) ([]*PageData, []core.EngineError) {
-	pages := make([]*PageData, len(files))
+func ParseAll(ctx context.Context, files []discover.FileEntry, parsers map[string]core.Parser) ([]*core.Page, []core.EngineError) {
+	pages := make([]*core.Page, len(files))
 	errs := make([]core.EngineError, len(files))
 	hasErr := make([]bool, len(files))
 
@@ -57,7 +42,7 @@ func ParseAll(ctx context.Context, files []discover.FileEntry, parsers map[strin
 	g.Wait()
 
 	// Compact results
-	var validPages []*PageData
+	var validPages []*core.Page
 	var validErrs []core.EngineError
 
 	for i := range files {
@@ -71,7 +56,7 @@ func ParseAll(ctx context.Context, files []discover.FileEntry, parsers map[strin
 	return validPages, validErrs
 }
 
-func parseFile(file discover.FileEntry, parsers map[string]core.Parser) (*PageData, *core.EngineError) {
+func parseFile(file discover.FileEntry, parsers map[string]core.Parser) (*core.Page, *core.EngineError) {
 	raw, err := os.ReadFile(file.Path)
 	if err != nil {
 		return nil, &core.EngineError{
@@ -95,7 +80,7 @@ func parseFile(file discover.FileEntry, parsers map[string]core.Parser) (*PageDa
 		envelope = make(core.Envelope)
 	}
 
-	page := &PageData{
+	page := &core.Page{
 		SourcePath: file.Path,
 		RelPath:    file.RelPath,
 		Ext:        file.Ext,

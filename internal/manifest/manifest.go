@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"sort"
 
+	"github.com/FabioSol/fuego/core"
 	"github.com/FabioSol/fuego/internal/config"
-	"github.com/FabioSol/fuego/internal/parse"
 )
 
 // PageEntry is a single page in the manifest.
@@ -39,9 +39,9 @@ type Manifest struct {
 }
 
 // Generate builds a Manifest from the pipeline results.
-func Generate(pages []*parse.PageData, cfg *config.Config) *Manifest {
+func Generate(pages []*core.Page, cfg *config.Config) *Manifest {
 	// Sort pages by URL for deterministic output
-	sorted := make([]*parse.PageData, len(pages))
+	sorted := make([]*core.Page, len(pages))
 	copy(sorted, pages)
 	sort.Slice(sorted, func(i, j int) bool {
 		return sorted[i].URL < sorted[j].URL
@@ -105,7 +105,7 @@ func Write(m *Manifest, outputDir string) error {
 	return nil
 }
 
-func buildTaxonomySections(pages []*parse.PageData, urlIndex map[string]int, taxonomies map[string]config.TaxonomyConfig) map[string]TaxonomyEntry {
+func buildTaxonomySections(pages []*core.Page, urlIndex map[string]int, taxonomies map[string]config.TaxonomyConfig) map[string]TaxonomyEntry {
 	result := make(map[string]TaxonomyEntry)
 
 	// Sorted taxonomy names for determinism
@@ -141,7 +141,7 @@ func buildTaxonomySections(pages []*parse.PageData, urlIndex map[string]int, tax
 	return result
 }
 
-func buildCollectionSections(pages []*parse.PageData, urlIndex map[string]int, collections map[string]config.CollectionConfig) map[string]CollectionEntry {
+func buildCollectionSections(pages []*core.Page, urlIndex map[string]int, collections map[string]config.CollectionConfig) map[string]CollectionEntry {
 	result := make(map[string]CollectionEntry)
 
 	colNames := make([]string, 0, len(collections))

@@ -5,11 +5,10 @@ import (
 
 	"github.com/FabioSol/fuego/core"
 	"github.com/FabioSol/fuego/internal/config"
-	"github.com/FabioSol/fuego/internal/parse"
 )
 
 func TestResolveFilesystemMirror(t *testing.T) {
-	pages := []*parse.PageData{
+	pages := []*core.Page{
 		{RelPath: "hello.md", Ext: "md", Envelope: core.Envelope{}},
 		{RelPath: "trivia/history/q1.trivia", Ext: "trivia", Envelope: core.Envelope{}},
 		{RelPath: "chess/puzzle1.chess", Ext: "chess", Envelope: core.Envelope{}},
@@ -40,7 +39,7 @@ func TestResolveFilesystemMirror(t *testing.T) {
 }
 
 func TestResolveSlugOverride(t *testing.T) {
-	pages := []*parse.PageData{
+	pages := []*core.Page{
 		{
 			RelPath:  "trivia/history/nash-eq.trivia",
 			Ext:      "trivia",
@@ -60,7 +59,7 @@ func TestResolveSlugOverride(t *testing.T) {
 }
 
 func TestDetectCollisions(t *testing.T) {
-	pages := []*parse.PageData{
+	pages := []*core.Page{
 		{RelPath: "about.md", Ext: "md", Envelope: core.Envelope{}},
 		{RelPath: "about.html", Ext: "html", Envelope: core.Envelope{}},
 	}
@@ -80,7 +79,7 @@ func TestDetectCollisions(t *testing.T) {
 }
 
 func TestNoCollisionDifferentPaths(t *testing.T) {
-	pages := []*parse.PageData{
+	pages := []*core.Page{
 		{RelPath: "a/about.md", Ext: "md", Envelope: core.Envelope{}},
 		{RelPath: "b/about.md", Ext: "md", Envelope: core.Envelope{}},
 	}
@@ -93,7 +92,7 @@ func TestNoCollisionDifferentPaths(t *testing.T) {
 }
 
 func TestResolveRootFile(t *testing.T) {
-	pages := []*parse.PageData{
+	pages := []*core.Page{
 		{RelPath: "index.md", Ext: "md", Envelope: core.Envelope{}},
 	}
 
@@ -108,7 +107,7 @@ func TestResolveRootFile(t *testing.T) {
 // --- Phase 4: Route pattern tests ---
 
 func TestRoutePattern_DirAndSlug(t *testing.T) {
-	pages := []*parse.PageData{
+	pages := []*core.Page{
 		{RelPath: "history/nash-eq.trivia", Ext: "trivia", Type: "trivia", Envelope: core.Envelope{}},
 	}
 	cfg := &config.Config{
@@ -124,7 +123,7 @@ func TestRoutePattern_DirAndSlug(t *testing.T) {
 }
 
 func TestRoutePattern_NestedDir(t *testing.T) {
-	pages := []*parse.PageData{
+	pages := []*core.Page{
 		{RelPath: "science/physics/gravity.trivia", Ext: "trivia", Type: "trivia", Envelope: core.Envelope{}},
 	}
 	cfg := &config.Config{
@@ -137,7 +136,7 @@ func TestRoutePattern_NestedDir(t *testing.T) {
 }
 
 func TestRoutePattern_RootLevel_EmptyDir(t *testing.T) {
-	pages := []*parse.PageData{
+	pages := []*core.Page{
 		{RelPath: "basics.trivia", Ext: "trivia", Type: "trivia", Envelope: core.Envelope{}},
 	}
 	cfg := &config.Config{
@@ -151,7 +150,7 @@ func TestRoutePattern_RootLevel_EmptyDir(t *testing.T) {
 }
 
 func TestRoutePattern_FilenameExpansion(t *testing.T) {
-	pages := []*parse.PageData{
+	pages := []*core.Page{
 		{RelPath: "history/nash-eq.trivia", Ext: "trivia", Type: "trivia",
 			Envelope: core.Envelope{"slug": "game-theory"}},
 	}
@@ -166,7 +165,7 @@ func TestRoutePattern_FilenameExpansion(t *testing.T) {
 }
 
 func TestRoutePattern_SlugOverrideWithPattern(t *testing.T) {
-	pages := []*parse.PageData{
+	pages := []*core.Page{
 		{RelPath: "history/nash-eq.trivia", Ext: "trivia", Type: "trivia",
 			Envelope: core.Envelope{"slug": "game-theory"}},
 	}
@@ -181,7 +180,7 @@ func TestRoutePattern_SlugOverrideWithPattern(t *testing.T) {
 }
 
 func TestRoutePattern_MissingPattern_FallbackToMirror(t *testing.T) {
-	pages := []*parse.PageData{
+	pages := []*core.Page{
 		{RelPath: "docs/readme.md", Ext: "md", Type: "md", Envelope: core.Envelope{}},
 	}
 	cfg := &config.Config{
@@ -195,7 +194,7 @@ func TestRoutePattern_MissingPattern_FallbackToMirror(t *testing.T) {
 }
 
 func TestRoutePattern_CollisionBetweenPatternResolved(t *testing.T) {
-	pages := []*parse.PageData{
+	pages := []*core.Page{
 		{RelPath: "a/q1.trivia", Ext: "trivia", Type: "trivia", Envelope: core.Envelope{}},
 		{RelPath: "b/q1.trivia", Ext: "trivia", Type: "trivia", Envelope: core.Envelope{}},
 	}
@@ -212,7 +211,7 @@ func TestRoutePattern_CollisionBetweenPatternResolved(t *testing.T) {
 }
 
 func TestRoutePattern_SlugOnlyPattern(t *testing.T) {
-	pages := []*parse.PageData{
+	pages := []*core.Page{
 		{RelPath: "deep/nested/file.card", Ext: "card", Type: "card", Envelope: core.Envelope{}},
 	}
 	cfg := &config.Config{

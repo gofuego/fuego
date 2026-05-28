@@ -9,13 +9,13 @@ import (
 var Version = "dev"
 
 // Execute runs the Cobra command tree with the given arguments and parser registry.
-func Execute(args []string, parsers map[string]core.Parser) error {
-	root := newRootCmd(parsers)
+func Execute(args []string, parsers map[string]core.Parser, hooks *core.Hooks) error {
+	root := newRootCmd(parsers, hooks)
 	root.SetArgs(args[1:]) // strip the binary name
 	return root.Execute()
 }
 
-func newRootCmd(parsers map[string]core.Parser) *cobra.Command {
+func newRootCmd(parsers map[string]core.Parser, hooks *core.Hooks) *cobra.Command {
 	var configPath string
 
 	cmd := &cobra.Command{
@@ -29,10 +29,10 @@ func newRootCmd(parsers map[string]core.Parser) *cobra.Command {
 	cmd.PersistentFlags().StringVar(&configPath, "config", "config.yaml", "path to configuration file")
 
 	cmd.AddCommand(
-		newBuildCmd(parsers, &configPath),
-		newValidateCmd(parsers, &configPath),
-		newListCmd(parsers, &configPath),
-		newServeCmd(parsers, &configPath),
+		newBuildCmd(parsers, hooks, &configPath),
+		newValidateCmd(parsers, hooks, &configPath),
+		newListCmd(parsers, hooks, &configPath),
+		newServeCmd(parsers, hooks, &configPath),
 		newInitCmd(),
 	)
 

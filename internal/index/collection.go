@@ -7,14 +7,13 @@ import (
 
 	"github.com/FabioSol/fuego/core"
 	"github.com/FabioSol/fuego/internal/config"
-	"github.com/FabioSol/fuego/internal/parse"
 	"github.com/bmatcuk/doublestar/v4"
 )
 
 // BuildCollections creates virtual collection pages by matching pages against
 // glob patterns and sorting by a configured envelope field.
-func BuildCollections(pages []*parse.PageData, collections map[string]config.CollectionConfig) []*parse.PageData {
-	var virtual []*parse.PageData
+func BuildCollections(pages []*core.Page, collections map[string]config.CollectionConfig) []*core.Page {
+	var virtual []*core.Page
 
 	// Process collections in sorted order for deterministic output
 	colNames := sortedKeys(collections)
@@ -30,9 +29,9 @@ func BuildCollections(pages []*parse.PageData, collections map[string]config.Col
 	return virtual
 }
 
-func buildCollectionPage(name string, pages []*parse.PageData, cfg config.CollectionConfig) *parse.PageData {
+func buildCollectionPage(name string, pages []*core.Page, cfg config.CollectionConfig) *core.Page {
 	// Match pages by glob pattern on relative path
-	var members []*parse.PageData
+	var members []*core.Page
 	for _, page := range pages {
 		normalized := strings.ReplaceAll(page.RelPath, "\\", "/")
 		matched, err := doublestar.Match(cfg.Match, normalized)
@@ -82,7 +81,7 @@ func buildCollectionPage(name string, pages []*parse.PageData, cfg config.Collec
 		url = url + "/"
 	}
 
-	return &parse.PageData{
+	return &core.Page{
 		RelPath: fmt.Sprintf("_virtual/collection/%s", name),
 		Envelope: core.Envelope{
 			"title":      fmt.Sprintf("%s", capitalize(name)),
@@ -97,7 +96,7 @@ func buildCollectionPage(name string, pages []*parse.PageData, cfg config.Collec
 
 // sortByField sorts pages by an envelope field value.
 // Supports string and numeric comparisons.
-func sortByField(pages []*parse.PageData, field string) {
+func sortByField(pages []*core.Page, field string) {
 	sort.SliceStable(pages, func(i, j int) bool {
 		vi := pages[i].Envelope[field]
 		vj := pages[j].Envelope[field]

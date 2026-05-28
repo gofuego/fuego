@@ -7,7 +7,6 @@ import (
 
 	"github.com/FabioSol/fuego/core"
 	"github.com/FabioSol/fuego/internal/config"
-	"github.com/FabioSol/fuego/internal/parse"
 )
 
 // ResolveAll assigns a URL to each page using the three-tier priority:
@@ -16,14 +15,14 @@ import (
 //  3. Filesystem mirror (default)
 //
 // After resolution, it checks for URL collisions.
-func ResolveAll(pages []*parse.PageData, cfg *config.Config) []core.EngineError {
+func ResolveAll(pages []*core.Page, cfg *config.Config) []core.EngineError {
 	for _, page := range pages {
 		page.URL = resolveURL(page, cfg)
 	}
 	return DetectCollisions(pages)
 }
 
-func resolveURL(page *parse.PageData, cfg *config.Config) string {
+func resolveURL(page *core.Page, cfg *config.Config) string {
 	relPath := page.RelPath
 	ext := filepath.Ext(relPath)
 	filename := strings.TrimSuffix(filepath.Base(relPath), ext)
@@ -80,8 +79,8 @@ func expandPattern(pattern, dir, slug, filename string) string {
 
 // DetectCollisions checks for duplicate URLs across all pages.
 // Returns GlobalFatal errors for each collision pair.
-func DetectCollisions(pages []*parse.PageData) []core.EngineError {
-	seen := make(map[string]*parse.PageData)
+func DetectCollisions(pages []*core.Page) []core.EngineError {
+	seen := make(map[string]*core.Page)
 	var errs []core.EngineError
 
 	for _, page := range pages {

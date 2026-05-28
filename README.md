@@ -4,7 +4,7 @@ A meta-engine for static site generation in Go. Define custom DSLs (`.trivia`, `
 
 ## Why Fuego?
 
-Most SSGs are Markdown-first. Fuego is format-agnostic. You define the content format, the parsing rules, and the templates. Fuego handles discovery, routing, taxonomy indexing, collections, and the build pipeline.
+Most SSGs are Markdown-first. Fuego is format-agnostic. You define the content format, the parsing rules, and the templates. Fuego handles discovery, routing, taxonomy indexing, collections, and the build pipeline. Markdown works out of the box with GFM support, but the real power is custom formats.
 
 ## Quick Start
 
@@ -29,7 +29,15 @@ mysite/
   public/            # static assets (copied to output root)
 ```
 
-## Two Ways to Parse
+## Parsing
+
+### Built-in Markdown
+
+`.md` files are parsed automatically using [goldmark](https://github.com/yuin/goldmark) with GitHub-Flavored Markdown (tables, strikethrough, autolinks, task lists). The output is a single `Node{Type: "html"}` containing rendered HTML. No config needed.
+
+To override the built-in Markdown parser, register your own compiled or declarative parser for the `md` type. Parser priority: compiled > declarative > built-in.
+
+## Custom Parsers
 
 ### Declarative (config-only)
 
@@ -72,7 +80,7 @@ eng.Register(&MyCustomParser{})
 eng.Run(os.Args)
 ```
 
-Compiled parsers take priority over declarative ones with the same name.
+Compiled parsers take priority over declarative ones with the same name. Both override the built-in Markdown parser.
 
 ## Content Files
 
@@ -244,18 +252,55 @@ fuego init <dir>  Scaffold a new project
 
 Global flag: `--config path/to/config.yaml` (default: `config.yaml`)
 
+## Hooks
+
+Register Go functions to transform pages between pipeline phases:
+
+```go
+eng := engine.New()
+
+// Runs after PARSE, before ROUTE — enrich or filter pages
+eng.AfterParse(func(pages []*core.Page) ([]*core.Page, error) {
+    for _, p := range pages {
+        // Add reading time estimate
+        words := len(strings.Fields(p.Nodes[0].Content))
+        p.Envelope["reading_time"] = words / 200
+    }
+    return pages, nil
+})
+
+// Runs after INDEX, before RENDER — see final URLs, taxonomy pages
+eng.BeforeRender(func(pages []*core.Page) ([]*core.Page, error) {
+    // Filter drafts based on environment
+    if os.Getenv("FUEGO_ENV") == "production" {
+        var published []*core.Page
+        for _, p := range pages {
+            if p.Envelope["draft"] != true {
+                published = append(published, p)
+            }
+        }
+        return published, nil
+    }
+    return pages, nil
+})
+```
+
+Multiple hooks at the same point run in FIFO registration order. Each receives the previous hook's output. Hooks run in all commands (`build`, `serve`, `validate`, `list`).
+
 ## Build Pipeline
 
 ```
-PREBUILD  →  shell hook
-INIT      →  merge compiled + declarative parsers
-DISCOVER  →  walk content dir, apply ignore patterns, classify files
-PARSE     →  extract frontmatter, run parsers (concurrent)
-ROUTE     →  resolve URLs, detect collisions
-INDEX     →  build taxonomies + collections, re-check collisions
-RENDER    →  execute templates (concurrent)
-MANIFEST  →  write site-manifest.json
-STATIC    →  copy public/ and colocated assets
+PREBUILD       →  shell hook
+INIT           →  merge built-in + declarative + compiled parsers
+DISCOVER       →  walk content dir, apply ignore patterns, classify files
+PARSE          →  extract frontmatter, run parsers (concurrent)
+AFTER-PARSE    →  user hooks (enrich, filter)
+ROUTE          →  resolve URLs, detect collisions
+INDEX          →  build taxonomies + collections, re-check collisions
+BEFORE-RENDER  →  user hooks (final transforms)
+RENDER         →  execute templates (concurrent)
+MANIFEST       →  write site-manifest.json
+STATIC         →  copy public/ and colocated assets
 ```
 
 ## Site Manifest

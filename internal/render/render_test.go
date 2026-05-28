@@ -10,7 +10,6 @@ import (
 
 	"github.com/FabioSol/fuego/core"
 	"github.com/FabioSol/fuego/internal/config"
-	"github.com/FabioSol/fuego/internal/parse"
 )
 
 func TestDefaultRenderer(t *testing.T) {
@@ -118,7 +117,7 @@ func TestRenderAllSinglePage(t *testing.T) {
 </html>`,
 	})
 
-	pages := []*parse.PageData{
+	pages := []*core.Page{
 		{
 			RelPath:  "hello.md",
 			Ext:      "md",
@@ -170,7 +169,7 @@ func TestRenderAllWithLayout(t *testing.T) {
 		"layouts/quiz.html": `{{define "content"}}<div class="quiz">{{.Page.Content}}</div>{{end}}`,
 	})
 
-	pages := []*parse.PageData{
+	pages := []*core.Page{
 		{
 			RelPath:  "q1.trivia",
 			Ext:      "trivia",
@@ -212,7 +211,7 @@ func TestRenderAllWithCustomRenderer(t *testing.T) {
 		"renderers/question.html": `<h2 class="custom">{{.Content}}</h2>`,
 	})
 
-	pages := []*parse.PageData{
+	pages := []*core.Page{
 		{
 			RelPath:  "q1.md",
 			Ext:      "md",
@@ -272,7 +271,7 @@ func TestRenderAllMultiplePages(t *testing.T) {
 		"base.html": `<!DOCTYPE html><body>{{.Page.Content}}</body>`,
 	})
 
-	pages := []*parse.PageData{
+	pages := []*core.Page{
 		{RelPath: "a.md", Envelope: core.Envelope{"title": "A"}, Nodes: []core.Node{{Type: "raw", Content: "Page A"}}, URL: "/a/", Type: "md"},
 		{RelPath: "b.md", Envelope: core.Envelope{"title": "B"}, Nodes: []core.Node{{Type: "raw", Content: "Page B"}}, URL: "/b/", Type: "md"},
 		{RelPath: "c.md", Envelope: core.Envelope{"title": "C"}, Nodes: []core.Node{{Type: "raw", Content: "Page C"}}, URL: "/c/", Type: "md"},

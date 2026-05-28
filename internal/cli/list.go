@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newListCmd(parsers map[string]core.Parser, configPath *string) *cobra.Command {
+func newListCmd(parsers map[string]core.Parser, hooks *core.Hooks, configPath *string) *cobra.Command {
 	return &cobra.Command{
 		Use:   "list",
 		Short: "List all pages with their types and URLs",
@@ -23,7 +23,7 @@ func newListCmd(parsers map[string]core.Parser, configPath *string) *cobra.Comma
 			}
 
 			ctx := context.Background()
-			res, err := pipeline.RunUntil(ctx, cfg, parsers, pipeline.PhaseIndex)
+			res, err := pipeline.RunUntil(ctx, cfg, parsers, hooks, pipeline.PhaseIndex)
 			if err != nil {
 				return err
 			}

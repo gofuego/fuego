@@ -7,15 +7,14 @@ import (
 
 	"github.com/FabioSol/fuego/core"
 	"github.com/FabioSol/fuego/internal/config"
-	"github.com/FabioSol/fuego/internal/parse"
 )
 
 // BuildTaxonomies scans page envelopes for taxonomy fields declared in config,
 // builds inverted indexes, and generates virtual pages for each taxonomy:
 //   - Term pages: one per unique term value (e.g., /tags/go/)
 //   - Index pages: one per taxonomy listing all terms (e.g., /tags/)
-func BuildTaxonomies(pages []*parse.PageData, taxonomies map[string]config.TaxonomyConfig) []*parse.PageData {
-	var virtual []*parse.PageData
+func BuildTaxonomies(pages []*core.Page, taxonomies map[string]config.TaxonomyConfig) []*core.Page {
+	var virtual []*core.Page
 
 	// Process taxonomies in sorted order for deterministic output
 	taxNames := sortedKeys(taxonomies)
@@ -47,9 +46,9 @@ func BuildTaxonomies(pages []*parse.PageData, taxonomies map[string]config.Taxon
 	return virtual
 }
 
-// buildTermIndex scans all pages and builds {term → []*PageData} for a given field.
-func buildTermIndex(pages []*parse.PageData, fieldName string) map[string][]*parse.PageData {
-	index := make(map[string][]*parse.PageData)
+// buildTermIndex scans all pages and builds {term → []*Page} for a given field.
+func buildTermIndex(pages []*core.Page, fieldName string) map[string][]*core.Page {
+	index := make(map[string][]*core.Page)
 
 	for _, page := range pages {
 		terms := extractTerms(page.Envelope, fieldName)
@@ -95,7 +94,7 @@ func normalizeTerm(term string) string {
 }
 
 // buildTermPage creates a virtual page for a single taxonomy term.
-func buildTermPage(fieldName, term string, members []*parse.PageData, cfg config.TaxonomyConfig) *parse.PageData {
+func buildTermPage(fieldName, term string, members []*core.Page, cfg config.TaxonomyConfig) *core.Page {
 	// Build page-ref nodes for each member
 	var nodes []core.Node
 	for _, member := range members {
@@ -112,7 +111,7 @@ func buildTermPage(fieldName, term string, members []*parse.PageData, cfg config
 
 	url := expandTaxonomyPath(cfg.Path, term)
 
-	return &parse.PageData{
+	return &core.Page{
 		RelPath: fmt.Sprintf("_virtual/taxonomy/%s/%s", fieldName, term),
 		Envelope: core.Envelope{
 			"title":    fmt.Sprintf("%s: %s", capitalize(fieldName), term),
@@ -127,7 +126,7 @@ func buildTermPage(fieldName, term string, members []*parse.PageData, cfg config
 }
 
 // buildTaxonomyIndexPage creates a virtual page listing all terms for a taxonomy.
-func buildTaxonomyIndexPage(fieldName string, terms []string, termIndex map[string][]*parse.PageData, cfg config.TaxonomyConfig) *parse.PageData {
+func buildTaxonomyIndexPage(fieldName string, terms []string, termIndex map[string][]*core.Page, cfg config.TaxonomyConfig) *core.Page {
 	var nodes []core.Node
 	for _, term := range terms {
 		termURL := expandTaxonomyPath(cfg.Path, term)
@@ -149,7 +148,7 @@ func buildTaxonomyIndexPage(fieldName string, terms []string, termIndex map[stri
 		url = url + "/"
 	}
 
-	return &parse.PageData{
+	return &core.Page{
 		RelPath: fmt.Sprintf("_virtual/taxonomy/%s/_index", fieldName),
 		Envelope: core.Envelope{
 			"title":    fmt.Sprintf("All %s", capitalize(fieldName)),

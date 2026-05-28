@@ -5,13 +5,12 @@ import (
 
 	"github.com/FabioSol/fuego/core"
 	"github.com/FabioSol/fuego/internal/config"
-	"github.com/FabioSol/fuego/internal/parse"
 )
 
 func TestBuildCollections_GlobMatch(t *testing.T) {
 	t.Parallel()
 
-	pages := []*parse.PageData{
+	pages := []*core.Page{
 		{RelPath: "history/q1.trivia", URL: "/history/q1/", Type: "trivia", Envelope: core.Envelope{
 			"title": "Question 1", "points": 10,
 		}},
@@ -65,7 +64,7 @@ func TestBuildCollections_GlobMatch(t *testing.T) {
 func TestBuildCollections_SortByNumeric(t *testing.T) {
 	t.Parallel()
 
-	pages := []*parse.PageData{
+	pages := []*core.Page{
 		{RelPath: "a.trivia", URL: "/a/", Type: "trivia", Envelope: core.Envelope{
 			"title": "High", "points": 30,
 		}},
@@ -108,7 +107,7 @@ func TestBuildCollections_SortByNumeric(t *testing.T) {
 func TestBuildCollections_SortByString(t *testing.T) {
 	t.Parallel()
 
-	pages := []*parse.PageData{
+	pages := []*core.Page{
 		{RelPath: "c.md", URL: "/c/", Type: "md", Envelope: core.Envelope{
 			"title": "Zulu",
 		}},
@@ -143,7 +142,7 @@ func TestBuildCollections_SortByString(t *testing.T) {
 func TestBuildCollections_NoMatches(t *testing.T) {
 	t.Parallel()
 
-	pages := []*parse.PageData{
+	pages := []*core.Page{
 		{RelPath: "a.md", URL: "/a/", Type: "md", Envelope: core.Envelope{"title": "A"}},
 	}
 
@@ -160,7 +159,7 @@ func TestBuildCollections_NoMatches(t *testing.T) {
 func TestBuildCollections_Envelope(t *testing.T) {
 	t.Parallel()
 
-	pages := []*parse.PageData{
+	pages := []*core.Page{
 		{RelPath: "a.md", URL: "/a/", Type: "md", Envelope: core.Envelope{"title": "A"}},
 	}
 
@@ -181,7 +180,7 @@ func TestBuildCollections_Envelope(t *testing.T) {
 func TestBuildCollections_SortFieldInAttributes(t *testing.T) {
 	t.Parallel()
 
-	pages := []*parse.PageData{
+	pages := []*core.Page{
 		{RelPath: "a.trivia", URL: "/a/", Type: "trivia", Envelope: core.Envelope{
 			"title": "A", "points": 10,
 		}},

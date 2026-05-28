@@ -11,7 +11,6 @@ import (
 
 	"github.com/FabioSol/fuego/core"
 	"github.com/FabioSol/fuego/internal/config"
-	"github.com/FabioSol/fuego/internal/parse"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -39,7 +38,7 @@ type SiteTemplateData struct {
 
 // RenderAll renders all pages to HTML files in the output directory.
 // Uses errgroup for parallel rendering.
-func RenderAll(ctx context.Context, pages []*parse.PageData, cfg *config.Config) []core.EngineError {
+func RenderAll(ctx context.Context, pages []*core.Page, cfg *config.Config) []core.EngineError {
 	themeDir := cfg.Dirs.Theme
 	outputDir := cfg.Dirs.Output
 
@@ -87,7 +86,7 @@ func RenderAll(ctx context.Context, pages []*parse.PageData, cfg *config.Config)
 	return validErrs
 }
 
-func renderPage(page *parse.PageData, tc *TemplateCache, site SiteTemplateData, outputDir string) *core.EngineError {
+func renderPage(page *core.Page, tc *TemplateCache, site SiteTemplateData, outputDir string) *core.EngineError {
 	// Generate pre-rendered content HTML
 	content := tc.renderWithOverrides(page.Nodes)
 

@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newServeCmd(parsers map[string]core.Parser, configPath *string) *cobra.Command {
+func newServeCmd(parsers map[string]core.Parser, hooks *core.Hooks, configPath *string) *cobra.Command {
 	return &cobra.Command{
 		Use:   "serve",
 		Short: "Start the development server with live reload",
@@ -27,15 +27,15 @@ func newServeCmd(parsers map[string]core.Parser, configPath *string) *cobra.Comm
 				return fmt.Errorf("loading config: %w", err)
 			}
 
-			return runServe(cfg, parsers)
+			return runServe(cfg, parsers, hooks)
 		},
 	}
 }
 
-func runServe(cfg *config.Config, parsers map[string]core.Parser) error {
+func runServe(cfg *config.Config, parsers map[string]core.Parser, hooks *core.Hooks) error {
 	// Initial build
 	fmt.Println("fuego: building site...")
-	if err := doBuild(cfg, parsers); err != nil {
+	if err := doBuild(cfg, parsers, hooks); err != nil {
 		// In serve mode, log the error but don't exit
 		fmt.Fprintf(os.Stderr, "fuego: initial build error: %v\n", err)
 	}
@@ -56,7 +56,7 @@ func runServe(cfg *config.Config, parsers map[string]core.Parser) error {
 		defer buildMu.Unlock()
 
 		fmt.Println("fuego: change detected, rebuilding...")
-		if err := doBuild(cfg, parsers); err != nil {
+		if err := doBuild(cfg, parsers, hooks); err != nil {
 			fmt.Fprintf(os.Stderr, "fuego: rebuild error: %v\n", err)
 		} else {
 			fmt.Println("fuego: rebuild complete")
@@ -98,7 +98,7 @@ func runServe(cfg *config.Config, parsers map[string]core.Parser) error {
 	return nil
 }
 
-func doBuild(cfg *config.Config, parsers map[string]core.Parser) error {
+func doBuild(cfg *config.Config, parsers map[string]core.Parser, hooks *core.Hooks) error {
 	ctx := context.Background()
-	return pipeline.Build(ctx, cfg, parsers)
+	return pipeline.Build(ctx, cfg, parsers, hooks)
 }

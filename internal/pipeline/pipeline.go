@@ -30,14 +30,14 @@ const (
 
 // Result holds the intermediate state after a partial pipeline run.
 type Result struct {
-	Pages      []*parse.PageData
+	Pages      []*core.Page
 	AssetFiles []discover.FileEntry
 	Errors     *core.ErrorAccumulator
 }
 
 // Build executes the full build pipeline:
 // INIT → DISCOVER → PARSE → ROUTE → INDEX → RENDER → STATIC
-func Build(ctx context.Context, cfg *config.Config, compiledParsers map[string]core.Parser) error {
+func Build(ctx context.Context, cfg *config.Config, compiledParsers map[string]core.Parser, hooks *core.Hooks) error {
 	// === PREBUILD ===
 	if err := runPrebuild(cfg.Prebuild); err != nil {
 		return err
@@ -48,7 +48,7 @@ func Build(ctx context.Context, cfg *config.Config, compiledParsers map[string]c
 		return fmt.Errorf("cleaning output directory: %w", err)
 	}
 
-	res, err := RunUntil(ctx, cfg, compiledParsers, PhaseIndex)
+	res, err := RunUntil(ctx, cfg, compiledParsers, hooks, PhaseIndex)
 	if err != nil {
 		return err
 	}
@@ -97,11 +97,15 @@ func Build(ctx context.Context, cfg *config.Config, compiledParsers map[string]c
 
 // RunUntil executes pipeline phases up to and including the given phase.
 // It does NOT clean the output directory — callers that render must do that themselves.
-func RunUntil(ctx context.Context, cfg *config.Config, compiledParsers map[string]core.Parser, until Phase) (*Result, error) {
+func RunUntil(ctx context.Context, cfg *config.Config, compiledParsers map[string]core.Parser, hooks *core.Hooks, until Phase) (*Result, error) {
 	acc := &core.ErrorAccumulator{}
 
 	// === INIT ===
+	// Three-tier parser merge: built-in (lowest) → declarative → compiled (highest)
 	parsers := make(map[string]core.Parser)
+	for name, p := range parse.BuiltinParsers() {
+		parsers[name] = p
+	}
 	for name, pcfg := range cfg.Parsers {
 		dp, err := parse.NewDeclarativeParser(name, pcfg)
 		if err != nil {
@@ -167,6 +171,17 @@ func RunUntil(ctx context.Context, cfg *config.Config, compiledParsers map[strin
 		return res, nil
 	}
 
+	// === AFTER-PARSE HOOKS ===
+	if hooks != nil {
+		for _, hook := range hooks.AfterParse {
+			pages, err = hook(pages)
+			if err != nil {
+				return res, fmt.Errorf("after-parse hook: %w", err)
+			}
+			res.Pages = pages
+		}
+	}
+
 	// === ROUTE ===
 	routeErrs := route.ResolveAll(pages, cfg)
 	for _, e := range routeErrs {
@@ -195,6 +210,17 @@ func RunUntil(ctx context.Context, cfg *config.Config, compiledParsers map[strin
 		}
 		if acc.HasGlobalFatal() {
 			return res, reportErrors(acc)
+		}
+	}
+
+	// === BEFORE-RENDER HOOKS ===
+	if hooks != nil {
+		for _, hook := range hooks.BeforeRender {
+			pages, err = hook(pages)
+			if err != nil {
+				return res, fmt.Errorf("before-render hook: %w", err)
+			}
+			res.Pages = pages
 		}
 	}
 

@@ -8,13 +8,12 @@ import (
 
 	"github.com/FabioSol/fuego/core"
 	"github.com/FabioSol/fuego/internal/config"
-	"github.com/FabioSol/fuego/internal/parse"
 )
 
 func TestGenerate_BasicPages(t *testing.T) {
 	t.Parallel()
 
-	pages := []*parse.PageData{
+	pages := []*core.Page{
 		{URL: "/b/", Type: "md", Envelope: core.Envelope{"title": "B"}},
 		{URL: "/a/", Type: "md", Envelope: core.Envelope{"title": "A"}},
 	}
@@ -41,7 +40,7 @@ func TestGenerate_BasicPages(t *testing.T) {
 func TestGenerate_WithSummary(t *testing.T) {
 	t.Parallel()
 
-	pages := []*parse.PageData{
+	pages := []*core.Page{
 		{URL: "/a/", Type: "md", Envelope: core.Envelope{
 			"title": "A", "summary": "A short summary",
 		}},
@@ -58,7 +57,7 @@ func TestGenerate_WithSummary(t *testing.T) {
 func TestGenerate_TaxonomyIntegerIndexes(t *testing.T) {
 	t.Parallel()
 
-	pages := []*parse.PageData{
+	pages := []*core.Page{
 		{URL: "/a/", Type: "md", Envelope: core.Envelope{
 			"title": "A", "tags": []any{"go", "web"},
 		}},
@@ -106,7 +105,7 @@ func TestGenerate_TaxonomyIntegerIndexes(t *testing.T) {
 func TestGenerate_CollectionIntegerIndexes(t *testing.T) {
 	t.Parallel()
 
-	pages := []*parse.PageData{
+	pages := []*core.Page{
 		{URL: "/history/q1/", Type: "trivia", RelPath: "history/q1.trivia", Envelope: core.Envelope{
 			"title": "Q1", "points": 30,
 		}},
@@ -155,7 +154,7 @@ func TestGenerate_CollectionIntegerIndexes(t *testing.T) {
 func TestGenerate_DeterministicJSON(t *testing.T) {
 	t.Parallel()
 
-	pages := []*parse.PageData{
+	pages := []*core.Page{
 		{URL: "/z/", Type: "md", Envelope: core.Envelope{"title": "Z"}},
 		{URL: "/a/", Type: "md", Envelope: core.Envelope{"title": "A"}},
 	}
@@ -176,7 +175,7 @@ func TestGenerate_DeterministicJSON(t *testing.T) {
 func TestGenerate_NoTaxonomiesOrCollections(t *testing.T) {
 	t.Parallel()
 
-	pages := []*parse.PageData{
+	pages := []*core.Page{
 		{URL: "/a/", Type: "md", Envelope: core.Envelope{"title": "A"}},
 	}
 

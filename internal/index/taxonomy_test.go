@@ -5,13 +5,12 @@ import (
 
 	"github.com/FabioSol/fuego/core"
 	"github.com/FabioSol/fuego/internal/config"
-	"github.com/FabioSol/fuego/internal/parse"
 )
 
 func TestBuildTaxonomies_BasicTermPages(t *testing.T) {
 	t.Parallel()
 
-	pages := []*parse.PageData{
+	pages := []*core.Page{
 		{RelPath: "a.md", URL: "/a/", Type: "md", Envelope: core.Envelope{
 			"title": "Post A", "tags": []any{"go", "web"},
 		}},
@@ -73,7 +72,7 @@ func TestBuildTaxonomies_BasicTermPages(t *testing.T) {
 func TestBuildTaxonomies_TermNormalization(t *testing.T) {
 	t.Parallel()
 
-	pages := []*parse.PageData{
+	pages := []*core.Page{
 		{RelPath: "a.md", URL: "/a/", Type: "md", Envelope: core.Envelope{
 			"title": "A", "tags": []any{"Go"},
 		}},
@@ -100,7 +99,7 @@ func TestBuildTaxonomies_TermNormalization(t *testing.T) {
 func TestBuildTaxonomies_SingleStringTerm(t *testing.T) {
 	t.Parallel()
 
-	pages := []*parse.PageData{
+	pages := []*core.Page{
 		{RelPath: "a.md", URL: "/a/", Type: "md", Envelope: core.Envelope{
 			"title": "A", "category": "tutorials",
 		}},
@@ -122,7 +121,7 @@ func TestBuildTaxonomies_SingleStringTerm(t *testing.T) {
 func TestBuildTaxonomies_NoMatchingField(t *testing.T) {
 	t.Parallel()
 
-	pages := []*parse.PageData{
+	pages := []*core.Page{
 		{RelPath: "a.md", URL: "/a/", Type: "md", Envelope: core.Envelope{
 			"title": "A",
 		}},
@@ -141,7 +140,7 @@ func TestBuildTaxonomies_NoMatchingField(t *testing.T) {
 func TestBuildTaxonomies_NoIndexPath(t *testing.T) {
 	t.Parallel()
 
-	pages := []*parse.PageData{
+	pages := []*core.Page{
 		{RelPath: "a.md", URL: "/a/", Type: "md", Envelope: core.Envelope{
 			"title": "A", "tags": []any{"go"},
 		}},
@@ -161,7 +160,7 @@ func TestBuildTaxonomies_NoIndexPath(t *testing.T) {
 func TestBuildTaxonomies_TermPageEnvelope(t *testing.T) {
 	t.Parallel()
 
-	pages := []*parse.PageData{
+	pages := []*core.Page{
 		{RelPath: "a.md", URL: "/a/", Type: "md", Envelope: core.Envelope{
 			"title": "A", "tags": []any{"go"},
 		}},
@@ -184,7 +183,7 @@ func TestBuildTaxonomies_TermPageEnvelope(t *testing.T) {
 func TestBuildTaxonomies_IndexPageTermRefs(t *testing.T) {
 	t.Parallel()
 
-	pages := []*parse.PageData{
+	pages := []*core.Page{
 		{RelPath: "a.md", URL: "/a/", Type: "md", Envelope: core.Envelope{
 			"title": "A", "tags": []any{"go", "web"},
 		}},

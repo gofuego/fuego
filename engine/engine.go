@@ -8,6 +8,7 @@ import (
 // Engine is the core orchestrator for the Fuego static site generator.
 type Engine struct {
 	parsers map[string]core.Parser
+	hooks   core.Hooks
 }
 
 // New creates a new Engine instance with an empty parser registry.
@@ -22,6 +23,18 @@ func (e *Engine) Register(p core.Parser) {
 	e.parsers[p.Type()] = p
 }
 
+// AfterParse registers a hook that runs after PARSE, before ROUTE.
+// Multiple hooks run in FIFO order; each receives the previous hook's output.
+func (e *Engine) AfterParse(fn core.AfterParseHook) {
+	e.hooks.AfterParse = append(e.hooks.AfterParse, fn)
+}
+
+// BeforeRender registers a hook that runs after INDEX, before RENDER.
+// Multiple hooks run in FIFO order; each receives the previous hook's output.
+func (e *Engine) BeforeRender(fn core.BeforeRenderHook) {
+	e.hooks.BeforeRender = append(e.hooks.BeforeRender, fn)
+}
+
 // Parsers returns the registered parser map.
 func (e *Engine) Parsers() map[string]core.Parser {
 	return e.parsers
@@ -29,5 +42,5 @@ func (e *Engine) Parsers() map[string]core.Parser {
 
 // Run hands control to the Cobra CLI.
 func (e *Engine) Run(args []string) error {
-	return cli.Execute(args, e.parsers)
+	return cli.Execute(args, e.parsers, &e.hooks)
 }

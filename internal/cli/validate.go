@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newValidateCmd(parsers map[string]core.Parser, configPath *string) *cobra.Command {
+func newValidateCmd(parsers map[string]core.Parser, hooks *core.Hooks, configPath *string) *cobra.Command {
 	return &cobra.Command{
 		Use:   "validate",
 		Short: "Validate content without rendering (for CI)",
@@ -21,7 +21,7 @@ func newValidateCmd(parsers map[string]core.Parser, configPath *string) *cobra.C
 			}
 
 			ctx := context.Background()
-			res, err := pipeline.RunUntil(ctx, cfg, parsers, pipeline.PhaseIndex)
+			res, err := pipeline.RunUntil(ctx, cfg, parsers, hooks, pipeline.PhaseIndex)
 			if err != nil {
 				return err
 			}

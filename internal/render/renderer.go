@@ -25,6 +25,13 @@ func renderNodes(sb *strings.Builder, nodes []core.Node) {
 }
 
 func renderNode(sb *strings.Builder, n core.Node) {
+	// The "html" node type contains pre-rendered HTML (e.g., from the Markdown parser).
+	// Output it directly without wrapping or escaping.
+	if n.Type == "html" {
+		sb.WriteString(n.Content)
+		return
+	}
+
 	sb.WriteString(`<div data-type="`)
 	sb.WriteString(template.HTMLEscapeString(n.Type))
 	sb.WriteString(`"`)
