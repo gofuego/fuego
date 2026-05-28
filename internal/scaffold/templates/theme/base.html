@@ -3,10 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{`{{.Page.Envelope.title}}`}} | {{`{{.Site.Name}}`}}</title>
+    <title>{{.Page.Envelope.title}} | {{.Site.Name}}</title>
+    <link rel="stylesheet" href="{{.Site.BaseURL}}/style.css">
 </head>
 <body>
-{{`{{block "content" .}}`}}<div id="root">{{`{{.Page.Content}}`}}</div>{{`{{end}}`}}
-<script type="application/json" id="fuego-data">{{`{{.JSON}}`}}</script>
+<header>
+    <nav>
+        <a href="{{.Site.BaseURL}}/index/" class="logo">{{.Site.Name}}</a>
+        <ul>
+            <li><a href="{{.Site.BaseURL}}/hello/">Cards</a></li>
+        </ul>
+    </nav>
+</header>
+<main>
+{{block "content" .}}<div id="root">{{.Page.Content}}</div>{{end}}
+</main>
+<footer>
+    <p>Built with <a href="https://github.com/FabioSol/fuego">Fuego</a></p>
+</footer>
 </body>
 </html>

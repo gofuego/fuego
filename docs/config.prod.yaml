@@ -1,6 +1,6 @@
 site:
   name: "Fuego"
-  base_url: ""
+  base_url: "/fuego"
 
 taxonomies:
   tags:

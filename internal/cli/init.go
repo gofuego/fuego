@@ -28,8 +28,8 @@ func newInitCmd() *cobra.Command {
 			}
 
 			data := scaffold.Data{
-				Name:   name,
-				Module: name,
+				Name:   filepath.Base(dir),
+				Module: filepath.Base(dir),
 			}
 
 			if err := scaffold.Generate(dir, data); err != nil {

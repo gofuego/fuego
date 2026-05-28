@@ -1,6 +1,9 @@
 ---
 title: Templates
 layout: doc
+tags:
+  - reference
+  - templates
 ---
 
 Templates use Go's `html/template`. The theme directory structure:

@@ -1,5 +1,6 @@
 ---
 title: Hello Fuego
+layout: card
 ---
 front: What is Fuego?
-back: A meta-engine for static site generation.
+back: A format-agnostic meta-engine for static site generation in Go.

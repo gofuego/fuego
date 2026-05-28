@@ -1,0 +1,28 @@
+*,*::before,*::after{box-sizing:border-box;margin:0}
+:root{--text:#1a1a2e;--bg:#fafafa;--accent:#e94560;--code-bg:#f0f0f5;--border:#e0e0e8;--max-w:42rem}
+body{font-family:system-ui,-apple-system,sans-serif;color:var(--text);background:var(--bg);line-height:1.7}
+
+header{border-bottom:1px solid var(--border);padding:.75rem 1.5rem}
+nav{max-width:var(--max-w);margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+.logo{font-weight:700;font-size:1.25rem;color:var(--accent);text-decoration:none}
+nav ul{list-style:none;display:flex;gap:1.25rem;padding:0;font-size:.9rem}
+nav a{color:var(--text);text-decoration:none}
+nav a:hover{color:var(--accent)}
+
+main{max-width:var(--max-w);margin:0 auto;padding:2rem 1.5rem}
+
+.card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:1.5rem 2rem;margin:1.5rem 0;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.card [data-type="front"]{font-size:1.2rem;font-weight:600;margin-bottom:.75rem}
+.card [data-type="back"]{color:#555;border-top:1px solid var(--border);padding-top:.75rem}
+
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+
+h1{font-size:2rem;margin-bottom:1rem}
+h2{font-size:1.4rem;margin:1.5rem 0 .75rem}
+p{margin:.5rem 0}
+code{background:var(--code-bg);padding:.15em .35em;border-radius:3px;font-size:.9em}
+pre{background:var(--code-bg);padding:1rem;border-radius:6px;overflow-x:auto;margin:1rem 0}
+pre code{background:none;padding:0}
+
+footer{border-top:1px solid var(--border);padding:1.5rem;text-align:center;font-size:.85rem;color:#888;margin-top:3rem}

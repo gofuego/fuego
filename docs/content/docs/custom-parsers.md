@@ -1,6 +1,9 @@
 ---
 title: Custom Parsers
 layout: doc
+tags:
+  - reference
+  - parsers
 ---
 
 Fuego supports two ways to define content parsers: declarative (config-only) and compiled (Go code). Both produce the same universal AST.

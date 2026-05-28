@@ -1,6 +1,9 @@
 ---
 title: Hooks
 layout: doc
+tags:
+  - reference
+  - go
 ---
 
 Hooks let you transform pages between pipeline phases using Go functions.

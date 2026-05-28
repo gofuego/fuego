@@ -1,6 +1,9 @@
 ---
 title: Configuration
 layout: doc
+tags:
+  - reference
+  - config
 ---
 
 All configuration lives in `config.yaml` at the project root.

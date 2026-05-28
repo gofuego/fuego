@@ -1,6 +1,9 @@
 ---
 title: CLI Reference
 layout: doc
+tags:
+  - reference
+  - cli
 ---
 
 ## Commands

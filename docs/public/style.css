@@ -1,6 +1,8 @@
 *,*::before,*::after{box-sizing:border-box;margin:0}
 :root{--text:#1a1a2e;--bg:#fafafa;--accent:#e94560;--code-bg:#f0f0f5;--border:#e0e0e8;--max-w:48rem}
 body{font-family:system-ui,-apple-system,sans-serif;color:var(--text);background:var(--bg);line-height:1.6}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
 
 /* nav */
 header{border-bottom:1px solid var(--border);padding:.75rem 1.5rem}
@@ -20,6 +22,8 @@ main{max-width:var(--max-w);margin:0 auto;padding:2rem 1.5rem}
 .doc p{margin:.75rem 0}
 .doc ul,.doc ol{margin:.75rem 0;padding-left:1.5rem}
 .doc li{margin:.25rem 0}
+.doc a{color:var(--accent)}
+.doc a:hover{text-decoration:underline}
 .doc code{background:var(--code-bg);padding:.15em .35em;border-radius:3px;font-size:.9em}
 .doc pre{background:var(--code-bg);padding:1rem;border-radius:6px;overflow-x:auto;margin:1rem 0}
 .doc pre code{background:none;padding:0}
@@ -27,6 +31,7 @@ main{max-width:var(--max-w);margin:0 auto;padding:2rem 1.5rem}
 .doc th,.doc td{border:1px solid var(--border);padding:.5rem .75rem;text-align:left}
 .doc th{background:var(--code-bg)}
 .doc blockquote{border-left:3px solid var(--accent);padding:.5rem 1rem;margin:1rem 0;color:#555}
+.doc strong{font-weight:600}
 
 /* hero */
 .hero{text-align:center;padding:3rem 0}
@@ -34,5 +39,19 @@ main{max-width:var(--max-w);margin:0 auto;padding:2rem 1.5rem}
 .hero p{font-size:1.1rem;color:#555;max-width:36rem;margin:.5rem auto}
 .hero pre{text-align:left;max-width:28rem;margin:1.5rem auto}
 
+/* page list (taxonomy terms, collections) */
+.page-list{list-style:none;padding:0}
+.page-ref{background:#fff;border:1px solid var(--border);border-radius:6px;padding:.75rem 1rem;margin:.5rem 0}
+.page-ref a{color:var(--text);font-weight:500}
+.page-ref a:hover{color:var(--accent)}
+
+/* tag cloud (taxonomy index) */
+.tag-cloud{display:flex;flex-wrap:wrap;gap:.5rem}
+.tag{background:var(--code-bg);border:1px solid var(--border);border-radius:4px;padding:.35rem .75rem;font-size:.9rem;color:var(--text);text-decoration:none}
+.tag:hover{border-color:var(--accent);text-decoration:none}
+.tag .count{color:#888;font-size:.8rem}
+
 /* footer */
 footer{border-top:1px solid var(--border);padding:1.5rem;text-align:center;font-size:.85rem;color:#888;margin-top:3rem}
+footer a{color:#888}
+footer a:hover{color:var(--accent)}

@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="{{.Site.BaseURL}}/">
     <title>{{.Page.Envelope.title}} — {{.Site.Name}}</title>
-    <link rel="stylesheet" href="{{.Site.BaseURL}}/style.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header>
     <nav>
-        <a href="{{.Site.BaseURL}}/index/" class="logo">Fuego</a>
+        <a href="index/" class="logo">Fuego</a>
         <ul>
-            <li><a href="{{.Site.BaseURL}}/docs/getting-started/">Get Started</a></li>
-            <li><a href="{{.Site.BaseURL}}/docs/configuration/">Config</a></li>
-            <li><a href="{{.Site.BaseURL}}/docs/custom-parsers/">Parsers</a></li>
-            <li><a href="{{.Site.BaseURL}}/docs/templates/">Templates</a></li>
-            <li><a href="{{.Site.BaseURL}}/docs/hooks/">Hooks</a></li>
-            <li><a href="{{.Site.BaseURL}}/docs/cli/">CLI</a></li>
+            <li><a href="docs/getting-started/">Start</a></li>
+            <li><a href="tutorials/">Tutorials</a></li>
+            <li><a href="docs/configuration/">Reference</a></li>
+            <li><a href="docs/concepts/build-pipeline/">Concepts</a></li>
+            <li><a href="tags/">Tags</a></li>
             <li><a href="https://github.com/FabioSol/fuego">GitHub</a></li>
         </ul>
     </nav>
