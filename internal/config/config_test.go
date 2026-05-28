@@ -45,8 +45,8 @@ func TestLoadAppliesDefaults(t *testing.T) {
 	if cfg.Dev.Port != 8080 {
 		t.Errorf("expected default dev port 8080, got %d", cfg.Dev.Port)
 	}
-	if cfg.Dev.ProxyPort != 3000 {
-		t.Errorf("expected default proxy port 3000, got %d", cfg.Dev.ProxyPort)
+	if cfg.Dev.ProxyPort != 0 {
+		t.Errorf("expected default proxy port 0 (disabled), got %d", cfg.Dev.ProxyPort)
 	}
 }
 

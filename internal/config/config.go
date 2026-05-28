@@ -117,9 +117,8 @@ func applyDefaults(cfg *Config) {
 	if cfg.Dev.Port == 0 {
 		cfg.Dev.Port = 8080
 	}
-	if cfg.Dev.ProxyPort == 0 {
-		cfg.Dev.ProxyPort = 3000
-	}
+	// ProxyPort is only used when explicitly set — no default.
+	// A value of 0 means no proxy (serve assets from build output).
 	if cfg.Routes == nil {
 		cfg.Routes = make(map[string]string)
 	}
