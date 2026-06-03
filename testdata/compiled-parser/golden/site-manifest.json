@@ -22,8 +22,7 @@
       "type": "card",
       "title": "Override Test",
       "envelope": {
-        "title": "Override Test",
-        "type": "card"
+        "title": "Override Test"
       }
     }
   ]

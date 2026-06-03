@@ -35,7 +35,7 @@ func TestParserInterface(t *testing.T) {
 		t.Errorf("expected type 'test', got %q", p.Type())
 	}
 
-	nodes, err := p.Parse([]byte("hello"), core.Envelope{"title": "Test"})
+	_, nodes, err := p.Parse([]byte("hello"))
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

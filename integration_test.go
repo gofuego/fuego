@@ -12,21 +12,31 @@ import (
 	"github.com/FabioSol/fuego/core"
 	"github.com/FabioSol/fuego/internal/config"
 	"github.com/FabioSol/fuego/internal/pipeline"
+	"github.com/FabioSol/fuego/parsers/markdown"
 )
 
 var update = flag.Bool("update", false, "update golden files")
 
 // fixtureParserRegistry returns parsers to register for a given fixture name.
-// Fixtures that need compiled parsers are listed here.
+// The Markdown parser is registered for all fixtures since there are no
+// built-in parsers. Additional compiled parsers are added per fixture.
 func fixtureParserRegistry(fixtureName string) map[string]core.Parser {
+	parsers := map[string]core.Parser{
+		"md": markdown.Parser(),
+	}
+
 	switch fixtureName {
 	case "compiled-parser", "declarative-compiled-collision", "comprehensive":
-		return map[string]core.Parser{
-			"card": &cardParser{},
-		}
-	default:
-		return nil
+		parsers["card"] = &cardParser{}
+	case "no-envelope":
+		parsers["env"] = &envParser{}
+	case "filename-parser":
+		parsers["dockerfile"] = &dockerfileParser{}
+	case "raw-node":
+		parsers["raw"] = &rawPassthroughParser{}
 	}
+
+	return parsers
 }
 
 func TestIntegrationFixtures(t *testing.T) {
@@ -186,8 +196,16 @@ type cardParser struct{}
 
 func (p *cardParser) Type() string { return "card" }
 
-func (p *cardParser) Parse(raw []byte, meta core.Envelope) ([]core.Node, error) {
-	lines := strings.Split(strings.TrimSpace(string(raw)), "\n")
+func (p *cardParser) Parse(raw []byte) (core.Envelope, []core.Node, error) {
+	env, payload, err := core.SplitFrontmatter(raw)
+	if err != nil {
+		return nil, nil, err
+	}
+	if env == nil {
+		env = make(core.Envelope)
+	}
+
+	lines := strings.Split(strings.TrimSpace(string(payload)), "\n")
 	var nodes []core.Node
 
 	for _, line := range lines {
@@ -207,9 +225,89 @@ func (p *cardParser) Parse(raw []byte, meta core.Envelope) ([]core.Node, error) 
 				Content: strings.TrimSpace(after),
 			})
 		} else {
-			return nil, fmt.Errorf("unrecognized card line: %q", line)
+			return nil, nil, fmt.Errorf("unrecognized card line: %q", line)
 		}
 	}
 
-	return nodes, nil
+	return env, nodes, nil
+}
+
+// --- envParser: a no-envelope parser for .env files ---
+
+type envParser struct{}
+
+func (p *envParser) Type() string { return "env" }
+
+func (p *envParser) Parse(raw []byte) (core.Envelope, []core.Node, error) {
+	lines := strings.Split(strings.TrimSpace(string(raw)), "\n")
+	env := core.Envelope{"title": "Environment Variables"}
+	var nodes []core.Node
+
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		parts := strings.SplitN(line, "=", 2)
+		if len(parts) == 2 {
+			nodes = append(nodes, core.Node{
+				Type:       "env-var",
+				Content:    parts[1],
+				Attributes: map[string]any{"name": parts[0]},
+			})
+		}
+	}
+
+	return env, nodes, nil
+}
+
+// --- dockerfileParser: a filename-based parser for Dockerfile ---
+
+type dockerfileParser struct{}
+
+func (p *dockerfileParser) Type() string         { return "dockerfile" }
+func (p *dockerfileParser) Filenames() []string   { return []string{"Dockerfile"} }
+
+func (p *dockerfileParser) Parse(raw []byte) (core.Envelope, []core.Node, error) {
+	lines := strings.Split(strings.TrimSpace(string(raw)), "\n")
+	env := core.Envelope{"title": "Dockerfile"}
+	var nodes []core.Node
+
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+		nodes = append(nodes, core.Node{
+			Type:    "instruction",
+			Content: line,
+		})
+	}
+
+	return env, nodes, nil
+}
+
+// --- rawPassthroughParser: emits Raw nodes with a custom type ---
+
+type rawPassthroughParser struct{}
+
+func (p *rawPassthroughParser) Type() string { return "raw" }
+
+func (p *rawPassthroughParser) Parse(raw []byte) (core.Envelope, []core.Node, error) {
+	env, payload, err := core.SplitFrontmatter(raw)
+	if err != nil {
+		return nil, nil, err
+	}
+	if env == nil {
+		env = make(core.Envelope)
+	}
+
+	content := strings.TrimSpace(string(payload))
+	if content == "" {
+		return env, nil, nil
+	}
+
+	return env, []core.Node{
+		{Type: "prerendered", Content: content, Raw: true},
+	}, nil
 }

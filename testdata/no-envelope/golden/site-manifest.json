@@ -1,0 +1,12 @@
+{
+  "pages": [
+    {
+      "url": "/example/",
+      "type": "env",
+      "title": "Environment Variables",
+      "envelope": {
+        "title": "Environment Variables"
+      }
+    }
+  ]
+}

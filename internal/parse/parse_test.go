@@ -100,8 +100,15 @@ type testParser struct {
 }
 
 func (p *testParser) Type() string { return p.typ }
-func (p *testParser) Parse(raw []byte, meta core.Envelope) ([]core.Node, error) {
-	return []core.Node{{Type: p.typ, Content: string(raw)}}, nil
+func (p *testParser) Parse(raw []byte) (core.Envelope, []core.Node, error) {
+	env, payload, err := core.SplitFrontmatter(raw)
+	if err != nil {
+		return nil, nil, err
+	}
+	if env == nil {
+		env = make(core.Envelope)
+	}
+	return env, []core.Node{{Type: p.typ, Content: string(payload)}}, nil
 }
 
 func writeTestFile(t *testing.T, dir, relPath, content string) string {
@@ -175,27 +182,27 @@ func TestParseAllWithParser(t *testing.T) {
 	}
 }
 
-func TestParseAllTypeOverride(t *testing.T) {
+func TestParseAllDispatchByExtension(t *testing.T) {
 	dir := t.TempDir()
-	absPath := writeTestFile(t, dir, "q1.card", "---\ntitle: Test\ntype: special\n---\nPayload")
+	absPath := writeTestFile(t, dir, "q1.card", "---\ntitle: Test\n---\nPayload")
 
 	files := []discover.FileEntry{
 		{Path: absPath, RelPath: "q1.card", Ext: "card"},
 	}
 
 	parsers := map[string]core.Parser{
-		"special": &testParser{typ: "special"},
+		"card": &testParser{typ: "card"},
 	}
 
 	pages, errs := ParseAll(context.Background(), files, parsers)
 	if len(errs) != 0 {
 		t.Fatalf("unexpected errors: %v", errs)
 	}
-	if pages[0].Type != "special" {
-		t.Errorf("expected type override to 'special', got %q", pages[0].Type)
+	if pages[0].Type != "card" {
+		t.Errorf("expected type 'card', got %q", pages[0].Type)
 	}
 	if pages[0].IsRaw {
-		t.Error("should use 'special' parser, not raw passthrough")
+		t.Error("should use 'card' parser, not raw passthrough")
 	}
 }
 

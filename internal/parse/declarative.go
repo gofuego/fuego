@@ -44,10 +44,18 @@ func NewDeclarativeParser(name string, cfg config.ParserConfig) (*DeclarativePar
 
 func (p *DeclarativeParser) Type() string { return p.name }
 
-func (p *DeclarativeParser) Parse(rawPayload []byte, meta core.Envelope) ([]core.Node, error) {
-	text := strings.TrimSpace(string(rawPayload))
+func (p *DeclarativeParser) Parse(raw []byte) (core.Envelope, []core.Node, error) {
+	env, payload, err := core.SplitFrontmatter(raw)
+	if err != nil {
+		return nil, nil, err
+	}
+	if env == nil {
+		env = make(core.Envelope)
+	}
+
+	text := strings.TrimSpace(string(payload))
 	if text == "" {
-		return nil, nil
+		return env, nil, nil
 	}
 
 	lines := strings.Split(text, "\n")
@@ -67,7 +75,7 @@ func (p *DeclarativeParser) Parse(rawPayload []byte, meta core.Envelope) ([]core
 		nodes = append(nodes, node)
 	}
 
-	return nodes, nil
+	return env, nodes, nil
 }
 
 // matchLine evaluates rules top-to-bottom against a line. First match wins.

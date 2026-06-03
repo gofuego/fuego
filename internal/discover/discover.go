@@ -19,22 +19,23 @@ type FileEntry struct {
 	// IsAsset is true for binary/non-content files (images, PDFs, etc.)
 	// that should be copied to output rather than parsed.
 	IsAsset bool
+	// MatchedParser is the parser type that matched this file by filename.
+	// Empty when matched by extension.
+	MatchedParser string
 }
 
-// Known content file extensions that should never be treated as assets.
-// This set is augmented at runtime by registered parser types.
-var textExts = map[string]bool{
-	"md": true, "markdown": true, "txt": true, "html": true, "htm": true,
+// FilenamePattern maps a filename pattern to the parser type that handles it.
+type FilenamePattern struct {
+	Pattern    string
+	ParserType string
 }
 
 // Walk traverses the content directory and returns all discovered files.
-// Files are categorized as content or asset based on their extension.
-// The registeredTypes parameter contains parser type names that should be
-// treated as content extensions.
-func Walk(cfg *config.Config, registeredTypes map[string]bool) ([]FileEntry, error) {
+// Files are categorized as content or asset based on their extension
+// (checked against registeredTypes) or filename (checked against filenamePatterns).
+func Walk(cfg *config.Config, registeredTypes map[string]bool, filenamePatterns []FilenamePattern) ([]FileEntry, error) {
 	contentDir := cfg.Dirs.Content
 	if !filepath.IsAbs(contentDir) {
-		// Content dir is relative to the working directory
 		abs, err := filepath.Abs(contentDir)
 		if err != nil {
 			return nil, err
@@ -65,34 +66,44 @@ func Walk(cfg *config.Config, registeredTypes map[string]bool) ([]FileEntry, err
 			return err
 		}
 
-		// Apply ignore patterns
 		if ShouldIgnore(relPath, cfg.Ignore) {
 			return nil
 		}
 
 		ext := strings.TrimPrefix(filepath.Ext(path), ".")
-		isAsset := !isContentExt(ext, registeredTypes)
-
-		entries = append(entries, FileEntry{
+		entry := FileEntry{
 			Path:    path,
 			RelPath: relPath,
 			Ext:     ext,
-			IsAsset: isAsset,
-		})
+			IsAsset: true,
+		}
 
+		if isContentExt(ext, registeredTypes) {
+			entry.IsAsset = false
+		} else if parserType, ok := matchFilename(filepath.Base(path), filenamePatterns); ok {
+			entry.IsAsset = false
+			entry.MatchedParser = parserType
+		}
+
+		entries = append(entries, entry)
 		return nil
 	})
 
 	return entries, err
 }
 
-// isContentExt returns true if the extension indicates a parseable content file.
+// isContentExt returns true if a parser is registered for this extension.
 func isContentExt(ext string, registeredTypes map[string]bool) bool {
-	if textExts[ext] {
-		return true
+	return registeredTypes != nil && registeredTypes[ext]
+}
+
+// matchFilename checks if a filename matches any registered filename pattern.
+func matchFilename(name string, patterns []FilenamePattern) (string, bool) {
+	for _, p := range patterns {
+		matched, _ := filepath.Match(p.Pattern, name)
+		if matched {
+			return p.ParserType, true
+		}
 	}
-	if registeredTypes != nil && registeredTypes[ext] {
-		return true
-	}
-	return false
+	return "", false
 }

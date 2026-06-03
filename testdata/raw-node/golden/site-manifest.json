@@ -1,0 +1,12 @@
+{
+  "pages": [
+    {
+      "url": "/page/",
+      "type": "raw",
+      "title": "Raw Page",
+      "envelope": {
+        "title": "Raw Page"
+      }
+    }
+  ]
+}

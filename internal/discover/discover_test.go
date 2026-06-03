@@ -25,8 +25,9 @@ func TestWalkSingleFile(t *testing.T) {
 		"hello.md": "# Hello",
 	})
 
+	registered := map[string]bool{"md": true}
 	cfg := &config.Config{Dirs: config.DirsConfig{Content: contentDir}}
-	entries, err := Walk(cfg, nil)
+	entries, err := Walk(cfg, registered, nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -40,7 +41,25 @@ func TestWalkSingleFile(t *testing.T) {
 		t.Errorf("expected ext 'md', got %q", entries[0].Ext)
 	}
 	if entries[0].IsAsset {
-		t.Error("md file should be content, not asset")
+		t.Error("md file should be content when parser is registered")
+	}
+}
+
+func TestWalkNoParserRegistered(t *testing.T) {
+	contentDir := setupContentDir(t, map[string]string{
+		"hello.md": "# Hello",
+	})
+
+	cfg := &config.Config{Dirs: config.DirsConfig{Content: contentDir}}
+	entries, err := Walk(cfg, nil, nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(entries) != 1 {
+		t.Fatalf("expected 1 entry, got %d", len(entries))
+	}
+	if !entries[0].IsAsset {
+		t.Error("md file should be asset when no parser is registered")
 	}
 }
 
@@ -51,8 +70,9 @@ func TestWalkNestedDirectories(t *testing.T) {
 		"chess/p1.md":          "# P1",
 	})
 
+	registered := map[string]bool{"md": true}
 	cfg := &config.Config{Dirs: config.DirsConfig{Content: contentDir}}
-	entries, err := Walk(cfg, nil)
+	entries, err := Walk(cfg, registered, nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -68,8 +88,9 @@ func TestWalkAssetsVsContent(t *testing.T) {
 		"data.json":     "{}",
 	})
 
+	registered := map[string]bool{"md": true}
 	cfg := &config.Config{Dirs: config.DirsConfig{Content: contentDir}}
-	entries, err := Walk(cfg, nil)
+	entries, err := Walk(cfg, registered, nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -100,7 +121,7 @@ func TestWalkWithRegisteredTypes(t *testing.T) {
 
 	registered := map[string]bool{"trivia": true, "chess": true}
 	cfg := &config.Config{Dirs: config.DirsConfig{Content: contentDir}}
-	entries, err := Walk(cfg, registered)
+	entries, err := Walk(cfg, registered, nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -125,7 +146,7 @@ func TestWalkEmptyDir(t *testing.T) {
 	os.MkdirAll(contentDir, 0755)
 
 	cfg := &config.Config{Dirs: config.DirsConfig{Content: contentDir}}
-	entries, err := Walk(cfg, nil)
+	entries, err := Walk(cfg, nil, nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -134,9 +155,66 @@ func TestWalkEmptyDir(t *testing.T) {
 	}
 }
 
+func TestWalkFilenamePattern(t *testing.T) {
+	contentDir := setupContentDir(t, map[string]string{
+		"Dockerfile":     "FROM golang:1.22",
+		"app/Dockerfile": "FROM node:18",
+		"readme.md":      "# Readme",
+	})
+
+	patterns := []FilenamePattern{
+		{Pattern: "Dockerfile", ParserType: "dockerfile"},
+	}
+	cfg := &config.Config{Dirs: config.DirsConfig{Content: contentDir}}
+	entries, err := Walk(cfg, nil, patterns)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	contentCount := 0
+	for _, e := range entries {
+		if !e.IsAsset {
+			contentCount++
+			if e.MatchedParser != "dockerfile" {
+				t.Errorf("expected MatchedParser 'dockerfile', got %q", e.MatchedParser)
+			}
+		}
+	}
+	if contentCount != 2 {
+		t.Errorf("expected 2 Dockerfile content files, got %d", contentCount)
+	}
+}
+
+func TestWalkFilenamePatternWildcard(t *testing.T) {
+	contentDir := setupContentDir(t, map[string]string{
+		"Dockerfile":       "FROM golang",
+		"Dockerfile.prod":  "FROM golang",
+		"Makefile":         "all:",
+	})
+
+	patterns := []FilenamePattern{
+		{Pattern: "Dockerfile*", ParserType: "dockerfile"},
+	}
+	cfg := &config.Config{Dirs: config.DirsConfig{Content: contentDir}}
+	entries, err := Walk(cfg, nil, patterns)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	matched := 0
+	for _, e := range entries {
+		if !e.IsAsset {
+			matched++
+		}
+	}
+	if matched != 2 {
+		t.Errorf("expected 2 matched files (Dockerfile, Dockerfile.prod), got %d", matched)
+	}
+}
+
 func TestWalkMissingDir(t *testing.T) {
 	cfg := &config.Config{Dirs: config.DirsConfig{Content: "/nonexistent/content"}}
-	_, err := Walk(cfg, nil)
+	_, err := Walk(cfg, nil, nil)
 	if err == nil {
 		t.Fatal("expected error for missing directory")
 	}

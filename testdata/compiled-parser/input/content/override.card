@@ -1,0 +1,5 @@
+---
+title: Override Test
+---
+front: Can a .card file use the card parser?
+back: Yes, via extension-based dispatch.

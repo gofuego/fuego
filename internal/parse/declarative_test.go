@@ -45,7 +45,7 @@ func TestDeclarativeParser_SingleRule(t *testing.T) {
 	}
 	dp, _ := NewDeclarativeParser("card", cfg)
 
-	nodes, err := dp.Parse([]byte("front: What is Go?"), nil)
+	_, nodes, err := dp.Parse([]byte("front: What is Go?"))
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -70,7 +70,7 @@ func TestDeclarativeParser_MultiRule_FirstMatchWins(t *testing.T) {
 	}
 	dp, _ := NewDeclarativeParser("card", cfg)
 
-	nodes, err := dp.Parse([]byte("front: Q\nback: A"), nil)
+	_, nodes, err := dp.Parse([]byte("front: Q\nback: A"))
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -105,7 +105,7 @@ func TestDeclarativeParser_CaptureGroups(t *testing.T) {
 	}
 	dp, _ := NewDeclarativeParser("trivia", cfg)
 
-	nodes, err := dp.Parse([]byte("[A] Paris is the capital"), nil)
+	_, nodes, err := dp.Parse([]byte("[A] Paris is the capital"))
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -137,7 +137,7 @@ func TestDeclarativeParser_UnmatchedLinesSkipped(t *testing.T) {
 	}
 	dp, _ := NewDeclarativeParser("card", cfg)
 
-	nodes, err := dp.Parse([]byte("front: Q\nthis line matches nothing\nfront: Q2"), nil)
+	_, nodes, err := dp.Parse([]byte("front: Q\nthis line matches nothing\nfront: Q2"))
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -155,7 +155,7 @@ func TestDeclarativeParser_EmptyPayload(t *testing.T) {
 	}
 	dp, _ := NewDeclarativeParser("card", cfg)
 
-	nodes, err := dp.Parse([]byte(""), nil)
+	_, nodes, err := dp.Parse([]byte(""))
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -174,7 +174,7 @@ func TestDeclarativeParser_WholeLineMatch(t *testing.T) {
 	}
 	dp, _ := NewDeclarativeParser("raw", cfg)
 
-	nodes, err := dp.Parse([]byte("hello world"), nil)
+	_, nodes, err := dp.Parse([]byte("hello world"))
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -205,7 +205,7 @@ func TestDeclarativeParser_NonStringAttributesPassedThrough(t *testing.T) {
 	}
 	dp, _ := NewDeclarativeParser("test", cfg)
 
-	nodes, err := dp.Parse([]byte("some line"), nil)
+	_, nodes, err := dp.Parse([]byte("some line"))
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

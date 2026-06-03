@@ -101,11 +101,8 @@ func RunUntil(ctx context.Context, cfg *config.Config, compiledParsers map[strin
 	acc := &core.ErrorAccumulator{}
 
 	// === INIT ===
-	// Three-tier parser merge: built-in (lowest) → declarative → compiled (highest)
+	// Two-tier parser merge: declarative (lowest) → compiled (highest)
 	parsers := make(map[string]core.Parser)
-	for name, p := range parse.BuiltinParsers() {
-		parsers[name] = p
-	}
 	for name, pcfg := range cfg.Parsers {
 		dp, err := parse.NewDeclarativeParser(name, pcfg)
 		if err != nil {
@@ -122,8 +119,21 @@ func RunUntil(ctx context.Context, cfg *config.Config, compiledParsers map[strin
 		registeredTypes[name] = true
 	}
 
+	// Collect filename patterns from parsers implementing FilenameParser
+	var filenamePatterns []discover.FilenamePattern
+	for _, p := range parsers {
+		if fp, ok := p.(core.FilenameParser); ok {
+			for _, pattern := range fp.Filenames() {
+				filenamePatterns = append(filenamePatterns, discover.FilenamePattern{
+					Pattern:    pattern,
+					ParserType: p.Type(),
+				})
+			}
+		}
+	}
+
 	// === DISCOVER ===
-	allFiles, err := discover.Walk(cfg, registeredTypes)
+	allFiles, err := discover.Walk(cfg, registeredTypes, filenamePatterns)
 	if err != nil {
 		return nil, fmt.Errorf("discovering content: %w", err)
 	}

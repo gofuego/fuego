@@ -15,8 +15,14 @@ import (
 func CopyPublicDir(staticDir, outputDir string) error {
 	info, err := os.Stat(staticDir)
 	if err != nil {
+		// Missing directory or broken symlink — both are fine, skip silently.
 		if os.IsNotExist(err) {
-			return nil // no public dir is fine
+			return nil
+		}
+		// Broken symlinks on some platforms may not match IsNotExist.
+		// Fall back to Lstat: if the path itself doesn't exist, skip.
+		if _, lErr := os.Lstat(staticDir); lErr != nil && os.IsNotExist(lErr) {
+			return nil
 		}
 		return fmt.Errorf("checking static directory: %w", err)
 	}

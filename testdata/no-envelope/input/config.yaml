@@ -1,0 +1,6 @@
+site:
+  name: No Envelope Test
+dirs:
+  content: content
+  theme: theme
+  output: build

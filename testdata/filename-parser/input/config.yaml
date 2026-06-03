@@ -1,0 +1,6 @@
+site:
+  name: Filename Parser Test
+dirs:
+  content: content
+  theme: theme
+  output: build

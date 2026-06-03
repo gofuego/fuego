@@ -12,12 +12,24 @@ type Node struct {
 	Attributes map[string]any `json:"attributes,omitempty"`
 	Content    string         `json:"content,omitempty"`
 	Children   []Node         `json:"children,omitempty"`
+	Raw        bool           `json:"raw,omitempty"`
 }
 
 // Parser defines the interface for content parsers.
+// Parsers receive the entire raw file and return both the extracted
+// envelope (metadata) and the parsed AST nodes.
 type Parser interface {
 	Type() string
-	Parse(rawPayload []byte, meta Envelope) ([]Node, error)
+	Parse(raw []byte) (Envelope, []Node, error)
+}
+
+// FilenameParser is an optional interface that parsers can implement
+// to declare filename patterns they handle. This allows parsers to
+// process extensionless files like Dockerfile or Makefile.
+// Patterns are matched against the base filename (not the full path).
+type FilenameParser interface {
+	Parser
+	Filenames() []string
 }
 
 // Page is the central data carrier flowing through the pipeline.

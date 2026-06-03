@@ -1,0 +1,5 @@
+---
+title: Raw Page
+---
+<h1>Pre-rendered heading</h1>
+<p>This content is passed through as raw HTML.</p>

@@ -1,0 +1,6 @@
+site:
+  name: Raw Node Test
+dirs:
+  content: content
+  theme: theme
+  output: build

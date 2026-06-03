@@ -52,6 +52,19 @@ func TestCopyPublicDir_NonExistent(t *testing.T) {
 	}
 }
 
+func TestCopyPublicDir_BrokenSymlink(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	brokenLink := filepath.Join(dir, "public")
+	os.Symlink(filepath.Join(dir, "nonexistent-target"), brokenLink)
+
+	err := CopyPublicDir(brokenLink, t.TempDir())
+	if err != nil {
+		t.Fatalf("should not error on broken symlink: %v", err)
+	}
+}
+
 func TestCopyAssets(t *testing.T) {
 	t.Parallel()
 

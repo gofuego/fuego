@@ -43,6 +43,27 @@ func TestDefaultRenderer(t *testing.T) {
 	}
 }
 
+func TestDefaultRendererRawNode(t *testing.T) {
+	nodes := []core.Node{
+		{Type: "custom-type", Content: "<p>Pre-rendered HTML</p>", Raw: true},
+	}
+	html := string(DefaultRenderer(nodes))
+	if html != "<p>Pre-rendered HTML</p>" {
+		t.Errorf("Raw node should pass through without wrapping, got %q", html)
+	}
+}
+
+func TestDefaultRendererRawFalseWraps(t *testing.T) {
+	// Even Type "html" should be wrapped if Raw is false
+	nodes := []core.Node{
+		{Type: "html", Content: "<p>Hello</p>"},
+	}
+	html := string(DefaultRenderer(nodes))
+	if !strings.Contains(html, `data-type="html"`) {
+		t.Error("Non-raw node with Type 'html' should be wrapped in div")
+	}
+}
+
 func TestDefaultRendererEscapesHTML(t *testing.T) {
 	nodes := []core.Node{
 		{Type: "text", Content: `<script>alert("xss")</script>`},

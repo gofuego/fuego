@@ -1,0 +1,12 @@
+{
+  "pages": [
+    {
+      "url": "/Dockerfile/",
+      "type": "dockerfile",
+      "title": "Dockerfile",
+      "envelope": {
+        "title": "Dockerfile"
+      }
+    }
+  ]
+}

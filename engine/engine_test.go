@@ -12,8 +12,8 @@ type mockParser struct {
 }
 
 func (m *mockParser) Type() string { return m.typ }
-func (m *mockParser) Parse(raw []byte, meta core.Envelope) ([]core.Node, error) {
-	return []core.Node{{Type: m.typ, Content: string(raw)}}, nil
+func (m *mockParser) Parse(raw []byte) (core.Envelope, []core.Node, error) {
+	return core.Envelope{}, []core.Node{{Type: m.typ, Content: string(raw)}}, nil
 }
 
 func TestNew(t *testing.T) {
