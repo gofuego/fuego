@@ -95,9 +95,27 @@ func LoadLayered(path string, packLayers []Layer) (*Config, *Provenance, error) 
 		return nil, nil, fmt.Errorf("parsing config: %w", err)
 	}
 
+	return Resolve(userMap, packLayers)
+}
+
+// Resolve deep-merges pack config layers beneath an in-memory user config map
+// (the user layer always wins) and returns the typed, validated config plus
+// provenance. It is the file-free path used by the programmatic engine API.
+func Resolve(userMap map[string]any, packLayers []Layer) (*Config, *Provenance, error) {
+	if userMap == nil {
+		userMap = map[string]any{}
+	}
 	layers := make([]Layer, 0, len(packLayers)+1)
 	layers = append(layers, packLayers...)
 	layers = append(layers, Layer{Source: "user", Data: userMap})
+	return ResolveLayers(layers)
+}
+
+// ResolveLayers deep-merges an explicit, ordered list of config layers (lowest
+// precedence first) into the typed, validated config plus provenance. The
+// programmatic engine API uses this to stack pack defaults, an optional config
+// file, and option overrides.
+func ResolveLayers(layers []Layer) (*Config, *Provenance, error) {
 	merged, prov := mergeLayers(layers)
 
 	// Round-trip the merged map into the typed Config.

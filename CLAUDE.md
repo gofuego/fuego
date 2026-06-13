@@ -97,7 +97,7 @@ fuego/
 ## Package Dependency Rules
 
 - `core/` has zero internal dependencies — it is the shared vocabulary
-- `engine/` imports `core/` and `internal/cli/` only
+- `engine/` imports `core/` and `internal/` packages (`cli`, `config`, `pipeline`, `serve`) — it exposes both the CLI (`Run`) and a programmatic build API (`Build`/`Serve`/`Validate`)
 - All `internal/` packages import `core/` freely
 - `internal/pipeline/` is the only package that imports most other internal packages
 - `internal/cli/` imports `pipeline/`, `config/`, and `serve/`
