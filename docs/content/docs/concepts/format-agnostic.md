@@ -62,4 +62,4 @@ Format-agnostic design shines when:
 - **Client-side interactivity** needs typed data (the JSON embed carries the full AST)
 - **Multiple content types coexist** in one site with different rendering needs
 
-If all your content is prose, Markdown works perfectly and Fuego supports it out of the box. The meta-engine architecture is there for when you need more.
+If all your content is prose, register the first-party Markdown parser and you have a normal Markdown site. The meta-engine architecture is there for when you need more.

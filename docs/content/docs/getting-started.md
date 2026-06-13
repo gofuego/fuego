@@ -39,14 +39,17 @@ This scaffolds a working project with a `.card` flashcard DSL, a Markdown homepa
 ```
 mysite/
   CLAUDE.md          # agent-friendly project guide
-  config.yaml        # site config, parsers, routes
-  main.go            # engine entry point
+  config.yaml        # site config, parsers, collections
+  main.go            # engine entry point (registers Markdown)
   content/
     index.md         # Markdown homepage
-    hello.card       # sample custom DSL content
+    cards/           # sample .card DSL collection (paginated)
   theme/
-    base.html        # HTML shell with nav
-    layouts/         # named layout overrides
+    base.html        # HTML shell
+    layouts/         # named layouts (home, card, listing)
+    partials/        # nav.html, driven by .Site.Pages
+    renderers/       # per-node-type rendering (front, back, page-ref)
+    outputs/         # sitemap.xml + rss.xml (non-HTML outputs)
   public/
     style.css        # starter stylesheet
     index.html       # root redirect
@@ -87,10 +90,10 @@ Starts a local server at `http://localhost:8080` with file watching. Edit any co
 
 Every Fuego site has the same layout:
 
-- **config.yaml** — site metadata, parser definitions, routes, taxonomies, collections
-- **main.go** — Go entry point. Register compiled parsers and hooks here
+- **config.yaml** — site metadata, parser definitions, routes, taxonomies, collections, packs
+- **main.go** — Go entry point. Register parsers, install packs (`eng.Use`), and add hooks here
 - **content/** — your content files (any extension matched by a parser)
-- **theme/** — HTML templates (base, layouts, renderers)
+- **theme/** — HTML templates: `base.html`, `layouts/`, `renderers/`, `partials/`, and `outputs/`
 - **public/** — static assets copied to the output root
 - **build/** — generated output (gitignored)
 

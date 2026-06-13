@@ -95,7 +95,9 @@ Key resolution for `where` and `sortBy`: map keys for maps, exported struct fiel
 | `.Page.Type` | Parser type |
 | `.Site.Name` | From config |
 | `.Site.BaseURL` | From config |
-| `.JSON` | Full page data as JSON |
+| `.Site.Pages` | All pages as slim refs (`.URL`, `.Type`, `.Layout`, `.Envelope`), URL-sorted — see [Build a Navigation Menu](/docs/how-to/build-a-nav-menu/) |
+| `.Paginator` | On paginated listing pages: `.CurrentPage`, `.TotalPages`, `.PrevURL`, `.NextURL` (nil otherwise) — see [Paginate a Collection](/docs/how-to/paginate-a-collection/) |
+| `.JSON` | Full page data as JSON (computed only if the template references it) |
 
 ## JSON Embed
 

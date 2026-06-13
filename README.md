@@ -6,7 +6,7 @@ A meta-engine for static site generation in Go. Define custom DSLs (`.trivia`, `
 
 ## Why Fuego?
 
-Most SSGs are Markdown-first. Fuego is format-agnostic. You define the content format, the parsing rules, and the templates. Fuego handles discovery, routing, taxonomy indexing, collections, and the build pipeline. Markdown works out of the box with GFM support, but the real power is custom formats.
+Most SSGs are Markdown-first. Fuego is format-agnostic. You define the content format, the parsing rules, and the templates. Fuego handles discovery, routing, taxonomy indexing, collections, and the build pipeline. No format is privileged — Markdown is a first-party parser you opt into (`eng.Register(markdown.Parser())`), the same as any other. The real power is custom formats, packaged and shared as **format packs**.
 
 ## Install
 
@@ -59,6 +59,8 @@ fuego serve          # dev server at http://localhost:8080
 - **Cross-page templates** — `.Site.Pages`, partials, and query funcs (`where`, `sortBy`, …) for navs and listings
 - **Non-HTML outputs** — RSS, sitemaps, and search indexes from `theme/outputs/`
 - **Hooks** — `AfterParse`, `Index`, and `BeforeRender` Go functions to enrich, filter, or transform pages
+- **Incremental builds** — opt-in parse cache + render narrowing, byte-identical to a clean build
+- **Embeddable** — a programmatic API (`engine.Build/Serve/Validate`) for building domain-specific generators on top of Fuego
 - **Dev server** — file watching, live rebuild, optional Vite proxy
 - **Site manifest** — `site-manifest.json` with page index, taxonomy terms, and collection membership
 - **Deterministic output** — sorted keys, reproducible builds
@@ -86,11 +88,12 @@ This lets you write `.trivia` files and have them parsed into a universal AST th
 ## CLI
 
 ```
-fuego build              Build the static site
-fuego serve              Dev server with live rebuild
-fuego validate           Check for errors (no output)
-fuego list               Print all pages as TYPE | SOURCE | URL
-fuego init <dir>         Scaffold a new project
+fuego build [--incremental]   Build the static site
+fuego serve                   Dev server with live rebuild
+fuego validate                Check for errors (no output)
+fuego list                    Print all pages as TYPE | SOURCE | URL
+fuego config                  Print the resolved config with per-key provenance
+fuego init <dir> [--pack M]   Scaffold a new project (optionally with a format pack)
 ```
 
 ## Documentation
@@ -102,6 +105,8 @@ Full documentation is available at **[fabiosol.github.io/fuego](https://fabiosol
 - [Custom Parsers](https://fabiosol.github.io/fuego/docs/custom-parsers/)
 - [Templates](https://fabiosol.github.io/fuego/docs/templates/)
 - [Hooks](https://fabiosol.github.io/fuego/docs/hooks/)
+- [Format Packs](https://fabiosol.github.io/fuego/docs/concepts/format-packs/)
+- [Embedding Fuego](https://fabiosol.github.io/fuego/docs/concepts/embedding/)
 - [CLI Reference](https://fabiosol.github.io/fuego/docs/cli/)
 
 ## License

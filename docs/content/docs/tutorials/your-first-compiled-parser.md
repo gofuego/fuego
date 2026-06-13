@@ -49,9 +49,17 @@ type RecipeParser struct{}
 
 func (p *RecipeParser) Type() string { return "recipe" }
 
-func (p *RecipeParser) Parse(raw []byte, meta core.Envelope) ([]core.Node, error) {
+func (p *RecipeParser) Parse(raw []byte) (core.Envelope, []core.Node, error) {
+    // The parser owns envelope extraction. SplitFrontmatter is the helper
+    // for formats that use YAML frontmatter; it returns the envelope and
+    // the remaining body.
+    env, body, err := core.SplitFrontmatter(raw)
+    if err != nil {
+        return nil, nil, err
+    }
+
     var nodes []core.Node
-    for _, line := range strings.Split(string(raw), "\n") {
+    for _, line := range strings.Split(string(body), "\n") {
         line = strings.TrimSpace(line)
         if line == "" {
             continue
@@ -69,9 +77,15 @@ func (p *RecipeParser) Parse(raw []byte, meta core.Envelope) ([]core.Node, error
             })
         }
     }
-    return nodes, nil
+    return env, nodes, nil
 }
 ```
+
+The `Parser` interface is `Parse(raw []byte) (Envelope, []Node, error)` — the
+parser receives the whole file and returns both metadata and nodes. For formats
+without frontmatter, return an empty `core.Envelope{}`; the `core.WithYAMLFrontmatter`
+and `core.WithNoEnvelope` wrappers cover the common cases if you'd rather not
+implement the interface directly.
 
 ## 2. Register It
 

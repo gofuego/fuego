@@ -48,9 +48,9 @@ Nodes can be marked `Raw: true` to pass their content through the default render
 
 ### AD-5: Hooks are Go-only, not config-driven
 
-**Decision:** `AfterParse` and `BeforeRender` hooks are Go functions registered via `eng.AfterParse(fn)` / `eng.BeforeRender(fn)`. There is no config-based hook mechanism.
+**Decision:** `AfterParse`, `Index`, and `BeforeRender` hooks are Go functions registered via `eng.AfterParse(fn)` / `eng.Index(fn)` / `eng.BeforeRender(fn)`. There is no config-based hook mechanism.
 
-**Why:** Hooks transform typed Go structs (`[]*core.Page`). Shell-based hooks would require JSON serialization round-trips, lose type safety, and add latency. The existing `prebuild` config field is shell-based because it runs before any pipeline data exists — a fundamentally different concern.
+**Why:** Hooks transform typed Go structs (`[]*core.Page`). Shell-based hooks would require JSON serialization round-trips, lose type safety, and add latency. The existing `prebuild` config field is shell-based because it runs before any pipeline data exists — a fundamentally different concern. The `Index` hook runs during INDEX (after ROUTE, before the collision re-check) and is the supported place to add virtual pages — pages added there are collision-checked, unlike pages injected in `BeforeRender`.
 
 ### AD-6: Error accumulation, not fail-fast
 
@@ -70,28 +70,47 @@ Nodes can be marked `Raw: true` to pass their content through the default render
 
 **Why:** Virtual pages go through the same RENDER phase as real pages — no special rendering path. Their nodes (`page-ref`, `term-ref`) carry metadata in attributes, and templates render them however they want. This keeps the pipeline uniform.
 
+### AD-9: Format packs bundle a content format as one registerable unit
+
+**Decision:** `core.Pack` bundles parsers, hooks, an embedded theme FS (templates + a `static/` subtree), and a `ConfigDefaults` YAML fragment. Registered via `eng.Use(pack)`. An optional `Init(ctx, *PackContext)` lifecycle reads the pack's `packs.{name}` config subtree. Precedence: user-registered parsers and user theme files always win over packs; among packs, later registration wins (with a warning).
+
+**Why:** Packs are the ecosystem unit — they let a domain-specific format (ADRs, K8s manifests) ship as an installable Go module that a vanilla project consumes with one line. `core.Pack` stays in `core/` (stdlib-only, no internal deps). Pack `ConfigDefaults` are deep-merged under the user config (`config.ResolveLayers`); pack `static/` assets are copied during STATIC; the theme FS layers under the user theme dir in `render.LoadTemplates`.
+
+### AD-10: Incremental builds are opt-in and provably equivalent
+
+**Decision:** `Options.Incremental` (and the dev server, always) reuses parsed pages via `internal/buildcache` and narrows RENDER to the affected set. Default `build` is clean and cache-free. Any change to the engine binary, resolved config, or theme invalidates the cache and triggers a full rebuild.
+
+**Why:** Big-site dev rebuilds are the one place users feel a real gap. The cache is safe by construction (the header pins the build environment) and the narrowing is guarded by a byte-equivalence test suite that builds every fixture clean and then incrementally under every mutation class. A corrupt or version-mismatched cache is a miss, never an error.
+
+### AD-11: A programmatic build API alongside the CLI
+
+**Decision:** `engine.Build/Serve/Validate` + `engine.BuildOptions` let a Go program build in-process. `engine.Run(args)` (the CLI) reads a `config.yaml` file; the programmatic API resolves config from in-memory layers (pack defaults → optional file → option overrides) via `config.ResolveLayers`.
+
+**Why:** Tools built on Fuego (and pack-based wrappers) shouldn't have to synthesize a temp config file and shell into the CLI. The programmatic API is the supported way to embed Fuego; the serve loop lives in `internal/serve.Run` so the CLI and `engine.Serve` share it. See `docs/` "Embedding Fuego".
+
 ## Project Structure
 
 ```
 fuego/
-  core/                    Shared types (Page, Node, Parser, Hooks, Errors, SplitFrontmatter, Wrappers)
-  engine/                  Public API (Engine, Register, AfterParse, BeforeRender, Run)
+  core/                    Shared types (Page, Node, Parser, Pack, Hooks, Errors, Paginator, ParseError, SplitFrontmatter, Wrappers)
+  engine/                  Public API: CLI (Run) + programmatic build (Build/Serve/Validate, BuildOptions); Register, Use, AfterParse, Index, BeforeRender
   parsers/markdown/        First-party Markdown parser (opt-in, not built-in)
   cmd/fuego/               CLI binary entry point
   internal/
-    cli/                   Cobra commands (build, serve, validate, list, init)
-    config/                YAML config loading and validation
+    cli/                   Cobra commands (build, serve, validate, list, config, init [--pack])
+    config/                YAML config loading, validation, layer merge + provenance (Resolve/ResolveLayers)
     discover/              File discovery, ignore patterns, content/asset classification
-    parse/                 Parse orchestration, declarative parser
+    parse/                 Parse orchestration, declarative parser, cache-aware ParseAllCached
     route/                 URL resolution (3-tier), collision detection
-    index/                 Taxonomy and collection virtual page generation
-    render/                Template loading, node rendering, static file copying
+    index/                 Taxonomy + collection virtual pages, pagination
+    render/                Template loading (theme + pack layers), node rendering, outputs, static copy, .JSON/.Site.Pages detection
     manifest/              site-manifest.json generation
-    pipeline/              Build orchestration (phase sequencing, hook execution)
-    serve/                 Dev server (HTTP handler, file watcher, subprocess manager)
-    scaffold/              Project scaffolding (embedded templates)
+    buildcache/            Incremental-build cache (gob; header + per-file content hashes; orphan removal)
+    pipeline/              Build orchestration (phase sequencing, hook execution, Options)
+    serve/                 Dev server (HTTP handler, file watcher, subprocess; reusable Run loop)
+    scaffold/              Project scaffolding (embedded templates; --pack wiring)
   testdata/                Integration test fixtures (input/ + golden/ per fixture)
-  docs/                    PRD and design documents
+  docs/                    Self-hosted documentation site (a Fuego project, dogfooding)
 ```
 
 ## Package Dependency Rules
@@ -107,19 +126,22 @@ fuego/
 
 ```
 PREBUILD       →  Shell command from config (npm, tailwind, etc.)
-INIT           →  Merge declarative + compiled parsers (compiled wins)
+INIT           →  Merge declarative + compiled parsers; run pack Init lifecycle
 DISCOVER       →  Walk content dir, apply ignore patterns, classify by registered parsers
-PARSE          →  Dispatch to parsers by extension/filename (concurrent via errgroup)
+PARSE          →  Dispatch to parsers by extension/filename (concurrent; cache-aware)
 AFTER-PARSE    →  User hooks: enrich/filter pages before routing
 ROUTE          →  Resolve URLs (slug > pattern > filesystem), detect collisions
-INDEX          →  Generate taxonomy + collection virtual pages, re-check collisions
+INDEX          →  Taxonomy + collection virtual pages, pagination, Index hooks, re-check collisions
 BEFORE-RENDER  →  User hooks: final transforms before HTML generation
-RENDER         →  Execute templates (concurrent via errgroup)
+RENDER         →  Execute templates (concurrent; narrowed on incremental rebuilds)
+OUTPUTS        →  Render theme/outputs/ (feeds, sitemaps) as text templates
 MANIFEST       →  Write site-manifest.json
-STATIC         →  Copy public/ dir + colocated binary assets
+STATIC         →  Copy pack static/, then public/, then colocated binary assets
 ```
 
 `pipeline.RunUntil(phase)` allows partial execution. `validate` and `list` commands run through INDEX without rendering.
+
+**Incremental builds** (`Options.Incremental`, serve always): `internal/buildcache` keeps an on-disk gob cache of post-PARSE pages keyed by a header (engine binary hash + resolved config hash + theme tree hash) plus per-file content hashes. Unchanged content skips PARSE; a header mismatch falls back to a full, clean rebuild. RENDER is narrowed to the affected set (changed pages + virtual pages + pages whose template reads `.Site.Pages`, detected via `render/sitedetect.go`). Output stays byte-identical to a clean build — enforced by the equivalence suite in `incremental_test.go`.
 
 ## Key Conventions
 
@@ -169,9 +191,14 @@ STATIC         →  Copy public/ dir + colocated binary assets
 5. Users register it via `eng.Register({name}.Parser())`
 
 ### Adding a new CLI command
-1. Create `internal/cli/{name}.go` with `newXxxCmd(parsers, hooks, configPath)`
+1. Create `internal/cli/{name}.go` with `newXxxCmd(parsers, hooks, packs, configPath)`
 2. Register it in `newRootCmd()` in `root.go`
-3. The command receives parsers, hooks, and config path — call `pipeline.Build()` or `RunUntil()` as needed
+3. The command receives parsers, hooks, packs, and the config path — call `pipeline.Build()` / `RunUntil()` (which take `packs` and `pipeline.Options`), or `loadConfig(path, packs)` for config-only commands
+
+### Building a tool on Fuego (pack + programmatic API)
+1. Put the format logic in a `core.Pack` returned by `Pack()` — parsers, hooks, an embedded theme FS (with `static/`), and a `ConfigDefaults` YAML fragment
+2. Drive the engine with `engine.Build/Serve/Validate` and `engine.BuildOptions` (no temp config file)
+3. See the self-hosted docs "Embedding Fuego" and "Format Packs", and `github.com/FabioSol/fuego-adr` as the reference implementation
 
 ### Adding a new config field
 1. Add the field to the appropriate struct in `internal/config/config.go`
@@ -181,9 +208,9 @@ STATIC         →  Copy public/ dir + colocated binary assets
 
 ### Adding a new integration test fixture
 1. Create `testdata/{name}/input/` with config.yaml, content files, and theme
-2. If the fixture needs compiled parsers, add it to `fixtureParserRegistry()` in `integration_test.go`
+2. Wire any compiled parsers / hooks / packs the fixture needs via `fixtureParserRegistry()`, `fixtureHooks()`, `fixturePacks()`, `fixturePackLayers()` in `integration_test.go`
 3. Run `go test -run TestIntegrationFixtures/{name} -update` to generate golden files
-4. Inspect golden output for correctness
+4. Inspect golden output for correctness. Fixtures also flow through `incremental_test.go`'s parity sweep, so they must round-trip byte-identically through the build cache.
 
 ## External Dependencies
 
