@@ -31,7 +31,7 @@ The engine never interprets what a `question` node means. It just knows how to d
 
 ## The Universal AST
 
-All parsers — built-in Markdown, declarative regex, compiled Go — produce the same output:
+All parsers — Markdown, declarative regex, compiled Go — produce the same output:
 
 ```go
 type Node struct {
@@ -39,6 +39,7 @@ type Node struct {
     Attributes map[string]any    // structured metadata
     Content    string            // text content
     Children   []Node            // nested nodes
+    Raw        bool              // emit Content as raw HTML, unwrapped
 }
 ```
 
@@ -46,7 +47,7 @@ This uniformity means the entire pipeline after PARSE is format-agnostic. Routin
 
 ## Markdown is Still First-Class
 
-Format-agnostic doesn't mean anti-Markdown. Fuego includes a built-in Markdown parser with full GFM support (tables, strikethrough, autolinks, task lists). It produces `Node{Type: "html"}` nodes that the renderer passes through as raw HTML.
+Format-agnostic doesn't mean anti-Markdown. Fuego ships a first-party Markdown parser with full GFM support (tables, strikethrough, autolinks, task lists) — you opt in by registering it (`eng.Register(markdown.Parser())`), the same way you'd register any parser. It emits a single `Raw: true` node that the renderer passes through as HTML.
 
 You can even mix formats in the same site: Markdown for blog posts, `.trivia` for quiz pages, `.card` for flashcards. Each file extension dispatches to its own parser, and the pipeline handles the rest.
 

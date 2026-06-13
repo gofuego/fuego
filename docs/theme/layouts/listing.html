@@ -4,5 +4,17 @@
     <ul class="page-list">
     {{.Page.Content}}
     </ul>
+
+    {{- if .Paginator}}
+    <nav class="pagination">
+        {{- if .Paginator.PrevURL}}
+        <a href="{{.Site.BaseURL}}{{.Paginator.PrevURL}}">&larr; Previous</a>
+        {{- else}}<span></span>{{end}}
+        <span>Page {{.Paginator.CurrentPage}} of {{.Paginator.TotalPages}}</span>
+        {{- if .Paginator.NextURL}}
+        <a href="{{.Site.BaseURL}}{{.Paginator.NextURL}}">Next &rarr;</a>
+        {{- else}}<span></span>{{end}}
+    </nav>
+    {{- end}}
 </article>
 {{end}}

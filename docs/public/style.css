@@ -12,8 +12,21 @@ nav ul{list-style:none;display:flex;gap:1.25rem;padding:0;font-size:.9rem}
 nav a{color:var(--text);text-decoration:none}
 nav a:hover{color:var(--accent)}
 
-/* main */
-main{max-width:var(--max-w);margin:0 auto;padding:2rem 1.5rem}
+/* layout: sidebar + main */
+.layout{display:flex;gap:2.5rem;max-width:66rem;margin:0 auto;padding:2rem 1.5rem;align-items:flex-start}
+main{flex:1;min-width:0}
+
+/* sidebar (built from .Site.Pages) */
+.sidebar{flex:0 0 13rem;position:sticky;top:1.5rem;font-size:.88rem}
+.sidebar ul{list-style:none;padding:0;margin:0}
+.sidebar li{margin:.15rem 0}
+.sidebar a{color:#555;text-decoration:none;display:block;padding:.2rem .4rem;border-radius:4px}
+.sidebar a:hover{color:var(--accent);background:var(--code-bg)}
+.sidebar a.current{color:var(--accent);font-weight:600;background:var(--code-bg)}
+@media (max-width:48rem){.layout{flex-direction:column}.sidebar{position:static;flex-basis:auto}}
+
+/* pagination */
+.pagination{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-top:2rem;padding-top:1rem;border-top:1px solid var(--border);font-size:.9rem}
 
 /* doc article */
 .doc h1{font-size:2rem;margin-bottom:1.5rem;border-bottom:2px solid var(--accent);padding-bottom:.5rem}

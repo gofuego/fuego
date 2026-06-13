@@ -6,24 +6,16 @@
     <base href="{{.Site.BaseURL}}/">
     <title>{{.Page.Envelope.title}} — {{.Site.Name}}</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="alternate" type="application/rss+xml" title="{{.Site.Name}}" href="rss.xml">
 </head>
 <body>
-<header>
-    <nav>
-        <a href="index/" class="logo">Fuego</a>
-        <ul>
-            <li><a href="docs/getting-started/">Start</a></li>
-            <li><a href="tutorials/">Tutorials</a></li>
-            <li><a href="docs/configuration/">Reference</a></li>
-            <li><a href="docs/concepts/build-pipeline/">Concepts</a></li>
-            <li><a href="tags/">Tags</a></li>
-            <li><a href="https://github.com/FabioSol/fuego">GitHub</a></li>
-        </ul>
-    </nav>
-</header>
-<main>
-{{block "content" .}}<div class="page">{{.Page.Content}}</div>{{end}}
-</main>
+{{partial "topbar" .}}
+<div class="layout">
+    {{partial "sidebar" .}}
+    <main>
+    {{block "content" .}}<div class="page">{{.Page.Content}}</div>{{end}}
+    </main>
+</div>
 <footer>
     <p>Built with Fuego — the format-agnostic static site engine.</p>
 </footer>

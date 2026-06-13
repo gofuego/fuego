@@ -1,0 +1,13 @@
+{{- /* Sidebar built entirely from .Site.Pages — no hardcoded page list.
+       Every Markdown doc page (excluding the home page) is listed,
+       grouped by section via its URL prefix. */ -}}
+<nav class="sidebar" aria-label="Documentation">
+    <ul>
+    {{- range sortBy (where .Site.Pages "type" "md") "url"}}
+        {{- if ne .URL "/index/"}}
+        <li><a href="{{$.Site.BaseURL}}{{.URL}}"
+               {{if eq .URL $.Page.URL}}class="current"{{end}}>{{.Envelope.title}}</a></li>
+        {{- end}}
+    {{- end}}
+    </ul>
+</nav>

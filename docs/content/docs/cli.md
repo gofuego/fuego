@@ -58,6 +58,16 @@ Print all pages as a table of TYPE, SOURCE, and URL.
 fuego list
 ```
 
+### config
+
+Print the fully resolved configuration — your `config.yaml` deep-merged with every registered pack's defaults — annotated with per-key provenance (`# user` or `# pack: name`).
+
+```bash
+fuego config
+```
+
+Useful for answering "why is this value what it is?" when format packs contribute config defaults. Output is deterministic, so it is safe to diff. See [Config Merging](/docs/config-merging/).
+
 ### init
 
 Scaffold a new Fuego project.

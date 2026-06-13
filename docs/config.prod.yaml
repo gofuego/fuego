@@ -2,16 +2,5 @@ site:
   name: "Fuego"
   base_url: "/fuego"
 
-taxonomies:
-  tags:
-    path: "/tags/{term}"
-    layout: "tag"
-    index_path: "/tags"
-    index_layout: "tag-index"
-
-collections:
-  tutorials:
-    match: "docs/tutorials/**"
-    sort_by: "order"
-    layout: "listing"
-    path: "/tutorials"
+# Taxonomy and collection config come from the docs pack (see docspack/)
+# and are deep-merged here. Run `go run . config` to inspect the result.

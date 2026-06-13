@@ -38,10 +38,17 @@ Partial scope may ship as **0.3.0** with the remainder in **0.3.1** — mileston
   renderers, rewritten CLAUDE.md (packs/Index hook/funcs/error DX), README quick-start updated.
   Refactored scaffold.Generate→WriteFiles+resolveDeps; scaffold_test builds the generated site offline.
 
-**Wave 5:** ← NEXT
-- 17 docs dogfood (after 01–04, 09)
+**Wave 5:** ✅ DONE 2026-06-13
+- 17 docs dogfood ✅
+- Docs site theme converted: topbar+sidebar partials (sidebar driven entirely by .Site.Pages,
+  sorted by URL, current-page highlight), sitemap.xml + rss.xml outputs, tutorials collection
+  paginated (page_size:1). Docs site consumes docs/docspack (in-repo example pack contributing
+  the tags taxonomy + tutorials collection as ConfigDefaults — config.yaml slimmed to site only;
+  `fuego config` shows # pack: docs provenance live). New "Build a Format Pack" tutorial (order:3).
+  CLI ref gains `fuego config`. Stale "built-in Markdown" purged from format-agnostic.md.
+  Docs build: 38 pages, clean.
 
-→ **tag v0.3.0**
+→ **0.3.0 COMPLETE — ready to tag v0.3.0** (all of 01-10, 12, 17, 18 done & committed)
 
 **Wave 6 (0.3.1):**
 - 13 incremental core (after 09) · 15 port fuego-adr, 16 port fuego-devops (after 09, 10 — HITL, separate repos)

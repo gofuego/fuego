@@ -2,16 +2,6 @@ site:
   name: "Fuego"
   base_url: ""
 
-taxonomies:
-  tags:
-    path: "/tags/{term}"
-    layout: "tag"
-    index_path: "/tags"
-    index_layout: "tag-index"
-
-collections:
-  tutorials:
-    match: "docs/tutorials/**"
-    sort_by: "order"
-    layout: "listing"
-    path: "/tutorials"
+# The tags taxonomy and tutorials collection come from the docs pack
+# (see docspack/) and are deep-merged here. Run `go run . config` to see
+# the resolved configuration with per-key provenance.
