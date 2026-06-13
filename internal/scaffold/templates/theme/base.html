@@ -7,14 +7,7 @@
     <link rel="stylesheet" href="{{.Site.BaseURL}}/style.css">
 </head>
 <body>
-<header>
-    <nav>
-        <a href="{{.Site.BaseURL}}/index/" class="logo">{{.Site.Name}}</a>
-        <ul>
-            <li><a href="{{.Site.BaseURL}}/hello/">Cards</a></li>
-        </ul>
-    </nav>
-</header>
+{{partial "nav" .}}
 <main>
 {{block "content" .}}<div id="root">{{.Page.Content}}</div>{{end}}
 </main>

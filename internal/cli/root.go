@@ -34,6 +34,7 @@ func newRootCmd(parsers map[string]core.Parser, hooks *core.Hooks, packs []core.
 		newValidateCmd(parsers, hooks, packs, &configPath),
 		newListCmd(parsers, hooks, packs, &configPath),
 		newServeCmd(parsers, hooks, packs, &configPath),
+		newConfigCmd(packs, &configPath),
 		newInitCmd(),
 	)
 

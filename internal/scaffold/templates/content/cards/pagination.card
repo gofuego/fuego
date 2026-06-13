@@ -1,0 +1,7 @@
+---
+title: Pagination
+layout: card
+order: 3
+---
+front: How does the /cards/ list split across pages?
+back: The cards collection sets page_size in config.yaml — this is page 2.

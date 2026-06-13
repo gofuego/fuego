@@ -5,10 +5,21 @@ import (
 	"os"
 
 	"github.com/FabioSol/fuego/engine"
+	"github.com/FabioSol/fuego/parsers/markdown"
 )
 
 func main() {
 	eng := engine.New()
+
+	// Fuego ships with zero built-in formats. Register the parsers you want.
+	// Markdown is a first-party, opt-in parser:
+	eng.Register(markdown.Parser())
+
+	// Add your own formats with eng.Register(myParser), install a format
+	// pack with eng.Use(somepack.Pack()), or transform pages with hooks:
+	//   eng.AfterParse(fn)    // enrich/filter parsed pages
+	//   eng.Index(fn)         // add virtual pages (collision-checked)
+	//   eng.BeforeRender(fn)  // final transforms before HTML
 
 	if err := eng.Run(os.Args); err != nil {
 		fmt.Fprintf(os.Stderr, "fuego: %v\n", err)

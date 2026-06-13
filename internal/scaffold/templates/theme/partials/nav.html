@@ -1,0 +1,12 @@
+<header>
+    <nav>
+        <a href="{{.Site.BaseURL}}/index/" class="logo">{{.Site.Name}}</a>
+        <ul>
+            <li><a href="{{.Site.BaseURL}}/cards/">Cards</a></li>
+            {{- /* Link every standalone card, driven by .Site.Pages */ -}}
+            {{range sortBy (where .Site.Pages "type" "card") "order"}}
+            <li><a href="{{$.Site.BaseURL}}{{.URL}}">{{.Envelope.title}}</a></li>
+            {{- end}}
+        </ul>
+    </nav>
+</header>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>{{.Site.Name}}</title>
+    <link>{{.Site.BaseURL}}</link>
+    {{- range .Site.Pages}}
+    <item>
+      <title>{{.Envelope.title}}</title>
+      <link>{{$.Site.BaseURL}}{{.URL}}</link>
+    </item>
+    {{- end}}
+  </channel>
+</rss>

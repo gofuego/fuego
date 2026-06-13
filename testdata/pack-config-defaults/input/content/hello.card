@@ -1,0 +1,7 @@
+---
+title: Hello Card
+layout: deck
+topic: greetings
+---
+front: Where does this card route?
+back: To the user's /cards/ override, not the pack's /pack-cards/.

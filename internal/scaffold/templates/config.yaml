@@ -14,5 +14,13 @@ parsers:
           type: back
           content: "$1"
 
+collections:
+  cards:
+    match: "cards/**"
+    sort_by: "order"
+    layout: "listing"
+    path: "/cards"
+    page_size: 2
+
 dev:
   port: 8080

@@ -7,7 +7,6 @@ import (
 	"text/tabwriter"
 
 	"github.com/FabioSol/fuego/core"
-	"github.com/FabioSol/fuego/internal/config"
 	"github.com/FabioSol/fuego/internal/pipeline"
 	"github.com/spf13/cobra"
 )
@@ -17,7 +16,7 @@ func newListCmd(parsers map[string]core.Parser, hooks *core.Hooks, packs []core.
 		Use:   "list",
 		Short: "List all pages with their types and URLs",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cfg, err := config.Load(*configPath)
+			cfg, err := loadConfig(*configPath, packs)
 			if err != nil {
 				return fmt.Errorf("loading config: %w", err)
 			}

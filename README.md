@@ -24,19 +24,22 @@ cd mysite
 fuego build
 ```
 
-This scaffolds a working project with a `.card` flashcard DSL, a Markdown homepage, styled templates, and a dev server:
+This scaffolds a working project with a `.card` flashcard DSL, a paginated collection, a Markdown homepage, a partial-driven nav, RSS/sitemap outputs, and a dev server:
 
 ```
 mysite/
   CLAUDE.md          # agent-friendly project guide
-  config.yaml        # site config, parsers, routes
-  main.go            # engine entry point
+  config.yaml        # site config, parsers, collections
+  main.go            # engine entry point — registers the Markdown parser
   content/
     index.md         # Markdown homepage
-    hello.card       # sample custom DSL content
+    cards/           # sample .card DSL collection (paginated)
   theme/
-    base.html        # HTML shell with nav
-    layouts/         # named layout overrides
+    base.html        # HTML shell
+    layouts/         # named layout overrides (home, card, listing)
+    partials/        # nav.html, driven by .Site.Pages
+    renderers/       # per-node-type rendering (front, back, page-ref)
+    outputs/         # sitemap.xml + rss.xml (non-HTML outputs)
   public/
     style.css        # starter stylesheet
     index.html       # root redirect
@@ -49,10 +52,13 @@ fuego serve          # dev server at http://localhost:8080
 ## Key Features
 
 - **Format-agnostic** — define content formats via config (declarative regex parsers) or Go code (compiled parsers)
-- **Built-in Markdown** — GFM support via goldmark (tables, strikethrough, autolinks, task lists)
+- **Markdown** — opt-in GFM support via goldmark (tables, strikethrough, autolinks, task lists)
+- **Format packs** — bundle parsers, hooks, and themes into installable modules via `eng.Use()`, with namespaced config and deep-merged defaults
 - **Three-tier routing** — frontmatter slug > config pattern > filesystem mirror
-- **Taxonomies & collections** — automatic term pages, index pages, and sorted listing pages
-- **Hooks** — `AfterParse` and `BeforeRender` Go functions to enrich, filter, or transform pages
+- **Taxonomies & collections** — automatic term pages, index pages, and sorted listing pages, with optional pagination
+- **Cross-page templates** — `.Site.Pages`, partials, and query funcs (`where`, `sortBy`, …) for navs and listings
+- **Non-HTML outputs** — RSS, sitemaps, and search indexes from `theme/outputs/`
+- **Hooks** — `AfterParse`, `Index`, and `BeforeRender` Go functions to enrich, filter, or transform pages
 - **Dev server** — file watching, live rebuild, optional Vite proxy
 - **Site manifest** — `site-manifest.json` with page index, taxonomy terms, and collection membership
 - **Deterministic output** — sorted keys, reproducible builds

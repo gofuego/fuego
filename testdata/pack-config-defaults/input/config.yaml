@@ -1,0 +1,7 @@
+site:
+  name: "Config Defaults Site"
+
+# Overrides the pack's routes.card default; the pack's topic taxonomy is
+# inherited unchanged.
+routes:
+  card: "/cards/{slug}"

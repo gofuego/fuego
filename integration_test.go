@@ -28,7 +28,7 @@ func fixtureParserRegistry(fixtureName string) map[string]core.Parser {
 
 	switch fixtureName {
 	case "compiled-parser", "declarative-compiled-collision", "comprehensive",
-		"pack-theme", "pack-theme-override":
+		"pack-theme", "pack-theme-override", "pack-config-defaults":
 		parsers["card"] = &cardParser{}
 	case "no-envelope":
 		parsers["env"] = &envParser{}
@@ -138,8 +138,39 @@ func fixturePacks(fixtureName string) []core.Pack {
 				return nil
 			},
 		}}
+	case "pack-config-defaults":
+		// Pack contributes a taxonomy and a route; the user config overrides
+		// the route, exercising the deep-merge precedence.
+		return []core.Pack{{
+			Name:    "cards",
+			Parsers: []core.Parser{&cardParser{}},
+			Theme:   cardPackTheme,
+			ConfigDefaults: []byte(`routes:
+  card: /pack-cards/{slug}
+taxonomies:
+  topic:
+    path: /topics/{term}
+    layout: deck
+`),
+		}}
 	}
 	return nil
+}
+
+// fixturePackLayers builds config layers from packs that contribute defaults.
+func fixturePackLayers(packs []core.Pack) []config.Layer {
+	var layers []config.Layer
+	for _, p := range packs {
+		if len(p.ConfigDefaults) == 0 {
+			continue
+		}
+		layer, err := config.ParsePackLayer(p.Name, p.ConfigDefaults)
+		if err != nil {
+			panic(err)
+		}
+		layers = append(layers, layer)
+	}
+	return layers
 }
 
 func TestIntegrationFixtures(t *testing.T) {
@@ -171,7 +202,8 @@ func TestIntegrationFixtures(t *testing.T) {
 				isErrorCase = true
 			}
 
-			cfg, err := config.Load(cfgPath)
+			packs := fixturePacks(fixtureName)
+			cfg, _, err := config.LoadLayered(cfgPath, fixturePackLayers(packs))
 			if err != nil {
 				if isErrorCase {
 					checkExpectedError(t, err, expectedErrFile)
@@ -189,7 +221,7 @@ func TestIntegrationFixtures(t *testing.T) {
 			hooks := fixtureHooks(fixtureName)
 
 			if isErrorCase {
-				err := pipeline.Build(context.Background(), cfg, parsers, hooks, fixturePacks(fixtureName))
+				err := pipeline.Build(context.Background(), cfg, parsers, hooks, packs)
 				if err == nil {
 					t.Fatal("expected pipeline to fail, but it succeeded")
 				}
@@ -198,7 +230,7 @@ func TestIntegrationFixtures(t *testing.T) {
 			}
 
 			// Run pipeline
-			err = pipeline.Build(context.Background(), cfg, parsers, hooks, fixturePacks(fixtureName))
+			err = pipeline.Build(context.Background(), cfg, parsers, hooks, packs)
 			if err != nil {
 				t.Fatalf("pipeline failed: %v", err)
 			}

@@ -19,14 +19,25 @@ type Data struct {
 	Module string
 }
 
-// Generate creates a new Fuego project in the given directory.
+// Generate creates a new Fuego project in the given directory and resolves
+// its dependencies. It writes the project files (see WriteFiles) and then
+// runs `go get`/`go mod tidy`.
 func Generate(dir string, data Data) error {
-	// Create project directory
+	if err := WriteFiles(dir, data); err != nil {
+		return err
+	}
+	resolveDeps(dir)
+	return nil
+}
+
+// WriteFiles renders the embedded scaffold templates into dir and writes
+// go.mod. It performs no network access, so tests can generate a project
+// and build it offline.
+func WriteFiles(dir string, data Data) error {
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return fmt.Errorf("creating project directory: %w", err)
 	}
 
-	// Walk embedded templates and write files
 	entries, err := walkEmbedFS("templates")
 	if err != nil {
 		return fmt.Errorf("reading templates: %w", err)
@@ -36,7 +47,6 @@ func Generate(dir string, data Data) error {
 		relPath := strings.TrimPrefix(entry, "templates/")
 		dstPath := filepath.Join(dir, relPath)
 
-		// Read template content
 		content, err := templateFS.ReadFile(entry)
 		if err != nil {
 			return fmt.Errorf("reading template %s: %w", entry, err)
@@ -74,8 +84,12 @@ func Generate(dir string, data Data) error {
 	if err := os.WriteFile(filepath.Join(dir, "go.mod"), []byte(goMod), 0644); err != nil {
 		return fmt.Errorf("writing go.mod: %w", err)
 	}
+	return nil
+}
 
-	// Resolve fuego dependency via `go get` so it picks up the latest published version
+// resolveDeps fetches the fuego dependency and tidies the module. Best
+// effort — a failure prints guidance but does not abort scaffolding.
+func resolveDeps(dir string) {
 	if goPath, err := exec.LookPath("go"); err == nil {
 		getCmd := exec.Command(goPath, "get", "github.com/FabioSol/fuego@latest")
 		getCmd.Dir = dir
@@ -92,8 +106,6 @@ func Generate(dir string, data Data) error {
 		// Best effort — don't fail init if tidy fails
 		tidyCmd.Run()
 	}
-
-	return nil
 }
 
 func renderTemplate(content string, data Data) (string, error) {

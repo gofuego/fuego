@@ -76,50 +76,98 @@ type EmitConfig struct {
 
 // Load reads a config file from disk and returns a Config with defaults applied.
 func Load(path string) (*Config, error) {
+	cfg, _, err := LoadLayered(path, nil)
+	return cfg, err
+}
+
+// LoadLayered reads the user config at path and deep-merges the given pack
+// config layers beneath it (packs lowest, in registration order; the user
+// config always wins). It returns the resolved config and the provenance of
+// every key. Validation runs on the merged result.
+func LoadLayered(path string, packLayers []Layer) (*Config, *Provenance, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, fmt.Errorf("reading config: %w", err)
+		return nil, nil, fmt.Errorf("reading config: %w", err)
 	}
 
+	userMap := map[string]any{}
+	if err := yaml.Unmarshal(data, &userMap); err != nil {
+		return nil, nil, fmt.Errorf("parsing config: %w", err)
+	}
+
+	layers := make([]Layer, 0, len(packLayers)+1)
+	layers = append(layers, packLayers...)
+	layers = append(layers, Layer{Source: "user", Data: userMap})
+	merged, prov := mergeLayers(layers)
+
+	// Round-trip the merged map into the typed Config.
+	mergedYAML, err := yaml.Marshal(merged)
+	if err != nil {
+		return nil, nil, fmt.Errorf("encoding merged config: %w", err)
+	}
 	cfg := &Config{}
-	if err := yaml.Unmarshal(data, cfg); err != nil {
-		return nil, fmt.Errorf("parsing config: %w", err)
+	if err := yaml.Unmarshal(mergedYAML, cfg); err != nil {
+		return nil, nil, fmt.Errorf("decoding merged config: %w", err)
 	}
 
 	applyDefaults(cfg)
 
-	if err := validateParsers(cfg); err != nil {
-		return nil, err
+	if err := validateParsers(cfg, prov); err != nil {
+		return nil, nil, err
+	}
+	if err := validatePageSizes(cfg, prov); err != nil {
+		return nil, nil, err
 	}
 
-	if err := validatePageSizes(cfg); err != nil {
-		return nil, err
-	}
+	return cfg, prov, nil
+}
 
-	return cfg, nil
+// ParsePackLayer builds a config Layer from a pack's name and its YAML
+// config-defaults fragment (which may be empty).
+func ParsePackLayer(name string, yamlBytes []byte) (Layer, error) {
+	m := map[string]any{}
+	if len(yamlBytes) > 0 {
+		if err := yaml.Unmarshal(yamlBytes, &m); err != nil {
+			return Layer{}, fmt.Errorf("pack %q config defaults: %w", name, err)
+		}
+	}
+	return Layer{Source: name, Data: m}, nil
+}
+
+// sourceSuffix returns " (from pack \"X\")" when the value at path came from a
+// pack, and "" when it came from the user config or an engine default.
+func sourceSuffix(prov *Provenance, path string) string {
+	src := prov.Source(path)
+	if src == "" || src == "user" {
+		return ""
+	}
+	return fmt.Sprintf(" (from pack %q)", src)
 }
 
 // validatePageSizes rejects negative page_size values.
-func validatePageSizes(cfg *Config) error {
+func validatePageSizes(cfg *Config, prov *Provenance) error {
 	for name, c := range cfg.Collections {
 		if c.PageSize < 0 {
-			return fmt.Errorf("collection %q: page_size must be >= 0, got %d", name, c.PageSize)
+			return fmt.Errorf("collection %q: page_size must be >= 0, got %d%s",
+				name, c.PageSize, sourceSuffix(prov, "collections."+name))
 		}
 	}
 	for name, t := range cfg.Taxonomies {
 		if t.PageSize < 0 {
-			return fmt.Errorf("taxonomy %q: page_size must be >= 0, got %d", name, t.PageSize)
+			return fmt.Errorf("taxonomy %q: page_size must be >= 0, got %d%s",
+				name, t.PageSize, sourceSuffix(prov, "taxonomies."+name))
 		}
 	}
 	return nil
 }
 
 // validateParsers checks that all regex patterns in declarative parser configs compile.
-func validateParsers(cfg *Config) error {
+func validateParsers(cfg *Config, prov *Provenance) error {
 	for name, pc := range cfg.Parsers {
 		for i, rule := range pc.Rules {
 			if _, err := regexp.Compile(rule.Match); err != nil {
-				return fmt.Errorf("parser %q rule %d: invalid regex %q: %w", name, i, rule.Match, err)
+				return fmt.Errorf("parser %q rule %d: invalid regex %q%s: %w",
+					name, i, rule.Match, sourceSuffix(prov, "parsers."+name), err)
 			}
 		}
 	}

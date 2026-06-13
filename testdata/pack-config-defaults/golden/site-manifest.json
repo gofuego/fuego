@@ -1,0 +1,35 @@
+{
+  "pages": [
+    {
+      "url": "/cards/hello/",
+      "type": "card",
+      "layout": "deck",
+      "title": "Hello Card",
+      "envelope": {
+        "layout": "deck",
+        "title": "Hello Card",
+        "topic": "greetings"
+      }
+    },
+    {
+      "url": "/topics/greetings/",
+      "type": "taxonomy-term",
+      "layout": "deck",
+      "title": "Topic: greetings",
+      "envelope": {
+        "taxonomy": "topic",
+        "term": "greetings",
+        "title": "Topic: greetings"
+      }
+    }
+  ],
+  "taxonomies": {
+    "topic": {
+      "terms": {
+        "greetings": [
+          0
+        ]
+      }
+    }
+  }
+}

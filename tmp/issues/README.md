@@ -27,10 +27,18 @@ Partial scope may ship as **0.3.0** with the remainder in **0.3.1** — mileston
 - Stale-doc fixes: build-pipeline.md (built-in Markdown claim, added OUTPUTS phase + Index hook +
   pagination + Skip).
 
-**Wave 4:** ← NEXT
-- 09 deep merge + `fuego config` (after 08) · 18 scaffold refresh (after 01–04)
+**Wave 4:** ✅ DONE 2026-06-13
+- 09 deep merge + `fuego config` ✅ · 18 scaffold refresh ✅
+- 09: core.Pack.ConfigDefaults []byte (YAML), config.LoadLayered + mergeLayers (maps merge,
+  scalars+lists replace, user>later pack>earlier), Provenance, `fuego config` with per-key
+  comments. Fixture pack-config-defaults (user overrides pack route, inherits pack taxonomy).
+  Provenance-aware validation names the pack. Table-driven merge tests incl. map-in-list/list-in-map.
+- 18: scaffold refreshed — registers Markdown (was BROKEN post-refactor: index.md never rendered),
+  nav partial off .Site.Pages, sitemap+rss outputs, paginated cards collection, front/back/page-ref
+  renderers, rewritten CLAUDE.md (packs/Index hook/funcs/error DX), README quick-start updated.
+  Refactored scaffold.Generate→WriteFiles+resolveDeps; scaffold_test builds the generated site offline.
 
-**Wave 5:**
+**Wave 5:** ← NEXT
 - 17 docs dogfood (after 01–04, 09)
 
 → **tag v0.3.0**

@@ -1,0 +1,7 @@
+---
+title: Custom Formats
+layout: card
+order: 2
+---
+front: How do I define a new content format?
+back: Add regex rules to config.yaml, or register a compiled parser in main.go.

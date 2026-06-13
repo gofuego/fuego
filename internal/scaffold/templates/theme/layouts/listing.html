@@ -1,0 +1,18 @@
+{{define "content"}}
+<section>
+    <h1>{{.Page.Envelope.title}}</h1>
+    <ul class="card-list">{{.Page.Content}}</ul>
+
+    {{- if .Paginator}}
+    <nav class="pagination">
+        {{- if .Paginator.PrevURL}}
+        <a href="{{.Site.BaseURL}}{{.Paginator.PrevURL}}">&larr; Previous</a>
+        {{- end}}
+        <span>Page {{.Paginator.CurrentPage}} of {{.Paginator.TotalPages}}</span>
+        {{- if .Paginator.NextURL}}
+        <a href="{{.Site.BaseURL}}{{.Paginator.NextURL}}">Next &rarr;</a>
+        {{- end}}
+    </nav>
+    {{- end}}
+</section>
+{{end}}

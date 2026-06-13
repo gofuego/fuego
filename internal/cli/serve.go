@@ -22,7 +22,7 @@ func newServeCmd(parsers map[string]core.Parser, hooks *core.Hooks, packs []core
 		Use:   "serve",
 		Short: "Start the development server with live reload",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cfg, err := config.Load(*configPath)
+			cfg, err := loadConfig(*configPath, packs)
 			if err != nil {
 				return fmt.Errorf("loading config: %w", err)
 			}

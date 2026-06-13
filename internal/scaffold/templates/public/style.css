@@ -12,8 +12,12 @@ nav a:hover{color:var(--accent)}
 main{max-width:var(--max-w);margin:0 auto;padding:2rem 1.5rem}
 
 .card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:1.5rem 2rem;margin:1.5rem 0;box-shadow:0 1px 3px rgba(0,0,0,.06)}
-.card [data-type="front"]{font-size:1.2rem;font-weight:600;margin-bottom:.75rem}
-.card [data-type="back"]{color:#555;border-top:1px solid var(--border);padding-top:.75rem}
+.card-front{font-size:1.2rem;font-weight:600;margin-bottom:.75rem}
+.card-back{color:#555;border-top:1px solid var(--border);padding-top:.75rem}
+
+.card-list{list-style:none;padding:0}
+.card-list-item{border:1px solid var(--border);border-radius:6px;padding:.75rem 1rem;margin:.5rem 0;background:#fff}
+.pagination{display:flex;align-items:center;gap:1rem;justify-content:center;margin-top:1.5rem;font-size:.9rem}
 
 a{color:var(--accent);text-decoration:none}
 a:hover{text-decoration:underline}

@@ -9,21 +9,32 @@ go run . build          # Build the site to build/
 go run . serve          # Dev server with live rebuild (http://localhost:8080)
 go run . validate       # Check for errors without building
 go run . list           # Print all pages: TYPE | SOURCE | URL
+go run . config         # Print the resolved config with per-key provenance
 ```
 
 ## Project Structure
 
 ```
-config.yaml        Site config: parsers, routes, taxonomies, collections
-main.go            Entry point — register compiled parsers and hooks here
+config.yaml        Site config: parsers, routes, taxonomies, collections, packs
+main.go            Entry point — register parsers, packs, and hooks here
 content/           Content files (any extension matched by a parser)
+  cards/           Sample .card collection (paginated)
 theme/
   base.html        HTML shell (required) — defines the page wrapper
   layouts/         Named layouts — override the "content" block from base
   renderers/       Per-node-type renderers — override default <div> rendering
+  partials/        Reusable snippets, called via {{partial "name" .}}
+  outputs/         Non-HTML outputs (sitemap.xml, rss.xml) as text templates
 public/            Static assets — copied to output root as-is
 build/             Generated output (gitignored)
 ```
+
+## Important: parsers are opt-in
+
+Fuego ships **zero** built-in formats. `main.go` must register every parser you
+use — Markdown included (`eng.Register(markdown.Parser())`). A content file
+whose extension has no registered parser is copied verbatim as a static asset,
+not rendered. If a page isn't rendering, check that its format is registered.
 
 ## Adding Content
 
@@ -84,9 +95,15 @@ Templates use Go's `html/template`. Available data:
 | `.Page.Type` | Parser/file type |
 | `.Site.Name` | From `config.yaml` |
 | `.Site.BaseURL` | From `config.yaml` — use as path prefix for links and assets |
-| `.JSON` | Full page data as JSON (for client-side use) |
+| `.Site.Pages` | All pages as slim refs (`.URL`, `.Type`, `.Layout`, `.Envelope`) |
+| `.Paginator` | On paginated listing pages: `.CurrentPage`, `.TotalPages`, `.PrevURL`, `.NextURL` (nil otherwise) |
+| `.JSON` | Full page data as JSON — only serialized if a template references it |
 
-### Layouts
+### Template functions
+
+Beyond Go's built-ins: `partial`, `dict`, `where`, `sortBy`, `limit`, `first`, `dateFormat`, `render`, `safeHTML`. The nav partial (`theme/partials/nav.html`) shows `where`/`sortBy` over `.Site.Pages`.
+
+### Layouts and partials
 
 Create `theme/layouts/{name}.html` to override the `"content"` block:
 
@@ -95,6 +112,12 @@ Create `theme/layouts/{name}.html` to override the `"content"` block:
 <article>{{.Page.Content}}</article>
 {{end}}
 ```
+
+Reusable snippets go in `theme/partials/` and are called with `{{partial "nav" .}}`.
+
+### Non-HTML outputs
+
+Files in `theme/outputs/` (e.g. `sitemap.xml`, `rss.xml`) render as text templates with `.Site` and write to the build root — no HTML escaping, correct for XML/JSON.
 
 ## Routing
 
@@ -107,21 +130,47 @@ routes:
 
 Placeholders: `{dir}`, `{slug}`, `{filename}`.
 
+## Format packs
+
+A format pack bundles parsers, hooks, and a theme into one installable Go
+module. Install one with a single call in `main.go`:
+
+```go
+eng.Use(somepack.Pack())
+```
+
+Packs read their own `packs.{name}:` config subtree and can contribute config
+defaults (routes, taxonomies) that your `config.yaml` overrides. Run
+`go run . config` to print the fully resolved config with per-key provenance
+(`# user` vs `# pack: name`).
+
 ## Hooks
 
 Register Go functions in `main.go` to transform pages between pipeline phases:
 
 ```go
 eng.AfterParse(func(pages []*core.Page) ([]*core.Page, error) {
-    // runs after parsing, before routing — enrich or filter pages
+    // after parsing, before routing — enrich or filter pages
+    return pages, nil
+})
+
+eng.Index(func(pages []*core.Page) ([]*core.Page, error) {
+    // during indexing — add virtual pages (set .URL; collision-checked).
+    // Set p.Skip = true to exclude a page from output.
     return pages, nil
 })
 
 eng.BeforeRender(func(pages []*core.Page) ([]*core.Page, error) {
-    // runs after indexing, before rendering — final transforms
+    // after indexing, before rendering — final transforms
     return pages, nil
 })
 ```
+
+## Errors
+
+Build errors are reported as `[PHASE] severity file:line: message`. Parse
+errors point at the source line; template errors name the layout. A parser can
+report positions by returning a `core.ParseError{Line, Err}`.
 
 ## Deployment
 

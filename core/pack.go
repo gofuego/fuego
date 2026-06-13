@@ -31,6 +31,13 @@ type Pack struct {
 	// rooted at the pack's theme directory.
 	Theme fs.FS
 
+	// ConfigDefaults is an optional YAML fragment the pack contributes to
+	// the site config (routes, taxonomies, collections, declarative
+	// parsers). It is deep-merged under the user's config.yaml: maps merge
+	// key-wise, scalars and lists are replaced whole, and the user always
+	// wins. Among packs, later registration wins.
+	ConfigDefaults []byte
+
 	// Init, if set, runs once during the INIT phase. It receives the pack's
 	// config subtree and may register additional parsers and hooks based on
 	// it. Returning an error halts the build. Init is the single pack

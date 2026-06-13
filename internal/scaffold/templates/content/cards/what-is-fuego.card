@@ -1,6 +1,7 @@
 ---
-title: Hello Fuego
+title: What is Fuego?
 layout: card
+order: 1
 ---
 front: What is Fuego?
 back: A format-agnostic meta-engine for static site generation in Go.
