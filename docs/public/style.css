@@ -57,9 +57,19 @@ main{flex:1;min-width:0}
 
 /* hero */
 .hero{text-align:center;padding:3rem 0}
-.hero h1{font-size:2.5rem;margin-bottom:1rem}
-.hero p{font-size:1.1rem;color:#555;max-width:36rem;margin:.5rem auto}
-.hero pre{text-align:left;max-width:28rem;margin:1.5rem auto}
+.hero h1{font-size:2.6rem;line-height:1.15;margin-bottom:1.25rem;max-width:30rem;margin-left:auto;margin-right:auto}
+.hero p{font-size:1.1rem;color:#444;max-width:38rem;margin:1rem auto}
+.hero strong{color:var(--text)}
+.hero pre{text-align:left;max-width:34rem;margin:1.5rem auto;font-size:.85rem}
+.hero code{background:var(--code-bg);padding:.15em .35em;border-radius:3px;font-size:.9em}
+.hero pre code{background:none;padding:0}
+
+/* call-to-action buttons */
+.cta{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:2rem}
+.btn{display:inline-block;padding:.6rem 1.4rem;border-radius:7px;font-weight:600;font-size:.95rem;text-decoration:none;border:1px solid var(--accent);background:var(--accent);color:#fff}
+.btn:hover{background:#d13a52;border-color:#d13a52;text-decoration:none}
+.btn-ghost{background:transparent;color:var(--accent)}
+.btn-ghost:hover{background:#fdeef1;color:var(--accent)}
 
 /* page list (taxonomy terms, collections) */
 .page-list{list-style:none;padding:0}

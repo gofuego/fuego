@@ -1,15 +1,13 @@
 ---
-title: "Fuego — Format-Agnostic Static Sites"
+title: "The meta-engine for static sites"
 layout: home
 ---
 
-Define custom DSLs. Build static sites. No Markdown required.
-
-Fuego is a meta-engine for static site generation in Go. You define the content format — `.trivia`, `.card`, `.pitch`, anything — and Fuego handles discovery, parsing, routing, taxonomy indexing, and rendering.
+Most static site generators bake in Markdown. **Fuego lets you define the format** — `.trivia`, `.card`, `.recipe`, anything — then use it to build a site, or package it as a **pack** the next person installs with one line.
 
 ```bash
 go run github.com/FabioSol/fuego/cmd/fuego@latest init mysite
 cd mysite && go run . serve
 ```
 
-Markdown works out of the box with full GFM support. But the real power is custom formats defined entirely in YAML — or in Go when you need full control. This site is built with Fuego.
+Discovery, routing, taxonomies, pagination, feeds, a dev server — Fuego handles the infrastructure every generator needs. You bring the format. Markdown is a first-party parser you opt into; no format is privileged. This very site is built with Fuego.
