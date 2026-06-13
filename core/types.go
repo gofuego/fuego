@@ -46,4 +46,15 @@ type Page struct {
 	Type       string   // content type (from envelope or extension)
 	IsRaw      bool     // true if no parser matched (raw passthrough)
 	Skip       bool     // exclude from RENDER and the manifest (drafts, pack-internal pages)
+	Paginator  *Paginator // set on paginated listing pages, nil otherwise
+}
+
+// Paginator describes a page's position in a paginated listing. The INDEX
+// phase sets it on taxonomy term and collection pages split by page_size;
+// templates reach it as .Paginator.
+type Paginator struct {
+	CurrentPage int
+	TotalPages  int
+	PrevURL     string // empty on the first page
+	NextURL     string // empty on the last page
 }

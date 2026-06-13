@@ -55,9 +55,10 @@ taxonomies:
     layout: "tag"
     index_path: "/tags"
     index_layout: "tag-index"
+    page_size: 10          # optional: paginate term pages
 ```
 
-Pages with a `tags` field in frontmatter are automatically indexed. Virtual pages for each term and the index are generated during the INDEX phase.
+Pages with a `tags` field in frontmatter are automatically indexed. Virtual pages for each term and the index are generated during the INDEX phase. With `page_size` set, term pages over that size split into `/tags/{term}/page/{n}/` — see [Paginate a Collection](/docs/how-to/paginate-a-collection/).
 
 ## Collections
 
@@ -70,7 +71,21 @@ collections:
     sort_by: "points"
     layout: "listing"
     path: "/history-quiz"
+    page_size: 10          # optional: split into /history-quiz/page/{n}/
 ```
+
+## Packs
+
+Each registered [format pack](/docs/concepts/format-packs/) reads its own `packs.{name}:` subtree. The engine routes the subtree to the pack; the pack validates and interprets it in Go.
+
+```yaml
+packs:
+  adr:
+    status_workflow: [proposed, accepted, superseded]
+    diagram: true
+```
+
+A subtree whose name matches no registered pack logs a warning.
 
 ## Static Files
 

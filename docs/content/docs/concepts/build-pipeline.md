@@ -12,14 +12,16 @@ Every Fuego command runs the same pipeline. Understanding the phases helps you p
 
 ```
 PREBUILD       →  shell hook (npm, tailwind, etc.)
-INIT           →  merge built-in + declarative + compiled parsers
+INIT           →  merge declarative + compiled parsers
 DISCOVER       →  walk content dir, apply ignore patterns
 PARSE          →  split frontmatter, run parsers (concurrent)
   ↓ AfterParse hooks
 ROUTE          →  resolve URLs, detect collisions
-INDEX          →  build taxonomies + collections, re-check collisions
+INDEX          →  build taxonomies + collections, paginate
+  ↓ Index hooks          (add virtual pages → collision re-check)
   ↓ BeforeRender hooks
 RENDER         →  execute templates (concurrent)
+OUTPUTS        →  render theme/outputs/ (feeds, sitemaps)
 MANIFEST       →  write site-manifest.json
 STATIC         →  copy public/ and colocated assets
 ```
@@ -32,13 +34,12 @@ Runs the shell command from `config.yaml`'s `prebuild` field. This is for extern
 
 ### INIT
 
-Merges three parser sources in priority order:
+Merges parser sources in priority order — there are no built-in parsers:
 
-1. **Built-in** (Markdown with GFM) — lowest priority
-2. **Declarative** (regex rules from config) — overrides built-in
-3. **Compiled** (Go code via `eng.Register()`) — highest priority
+1. **Declarative** (regex rules from config) — lower priority
+2. **Compiled** (Go code via `eng.Register()`, including pack parsers via `eng.Use()`) — higher priority
 
-If two parsers target the same file extension, the higher-priority one wins.
+If two parsers target the same file extension, the higher-priority one wins. Markdown is a first-party compiled parser you opt into with `eng.Register(markdown.Parser())`.
 
 ### DISCOVER
 
@@ -76,16 +77,22 @@ Generates virtual pages for taxonomies and collections:
 - **Taxonomy index pages** — list all terms (e.g., `/tags/`)
 - **Collection pages** — glob-matched, sorted listing pages
 
-Virtual pages are appended to the page list. Collision detection runs again to catch conflicts between virtual and real pages.
+Listings with `page_size` set are split into numbered pages (`/blog/`, `/blog/page/2/`, …), each carrying a `.Paginator`. **Index hooks** run here too — the supported place to add your own virtual pages, since their URLs go through the collision re-check that catches conflicts between virtual and real pages.
 
 ### RENDER
 
 For each page, in parallel:
 
 1. Pre-render nodes to HTML using the default renderer (or per-type renderer templates)
-2. Build the template data (`.Page`, `.Site`, `.JSON`)
+2. Build the template data (`.Page`, `.Site`, `.Paginator`, `.JSON`)
 3. Execute the base template with the selected layout
 4. Write `{url}/index.html` to the output directory
+
+Pages marked `Skip` by a hook are excluded from RENDER and the manifest.
+
+### OUTPUTS
+
+Renders every file under `theme/outputs/` as a text template fed with `.Site`, writing non-HTML site assets — RSS feeds, sitemaps, `robots.txt`, search indexes — to matching output paths. See [Add an RSS Feed and Sitemap](/docs/how-to/add-feeds-and-sitemaps/).
 
 ### MANIFEST
 

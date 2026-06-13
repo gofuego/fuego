@@ -1,0 +1,6 @@
+site:
+  name: "Pack Init Site"
+
+packs:
+  cards:
+    enabled: true

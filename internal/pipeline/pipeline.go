@@ -48,7 +48,7 @@ func Build(ctx context.Context, cfg *config.Config, compiledParsers map[string]c
 		return fmt.Errorf("cleaning output directory: %w", err)
 	}
 
-	res, err := RunUntil(ctx, cfg, compiledParsers, hooks, PhaseIndex)
+	res, err := RunUntil(ctx, cfg, compiledParsers, hooks, packs, PhaseIndex)
 	if err != nil {
 		return err
 	}
@@ -72,6 +72,17 @@ func Build(ctx context.Context, cfg *config.Config, compiledParsers map[string]c
 	// === RENDER ===
 	renderErrs := render.RenderAll(ctx, renderable, cfg, packs)
 	for _, e := range renderErrs {
+		res.Errors.Add(e)
+	}
+
+	if res.Errors.HasFatal() {
+		return reportErrors(res.Errors)
+	}
+
+	// === OUTPUTS ===
+	// Site-level non-HTML outputs (feeds, sitemaps) from theme/outputs/.
+	outputErrs := render.RenderOutputs(renderable, cfg, packs)
+	for _, e := range outputErrs {
 		res.Errors.Add(e)
 	}
 
@@ -107,6 +118,45 @@ func Build(ctx context.Context, cfg *config.Config, compiledParsers map[string]c
 	return nil
 }
 
+// runPackInit calls each pack's Init (if set), merging parsers and hooks it
+// registers, and warns about packs.{name} config subtrees with no matching
+// registered pack. An Init error halts the build, naming the pack.
+func runPackInit(ctx context.Context, packs []core.Pack, cfg *config.Config, parsers map[string]core.Parser, hooks *core.Hooks, acc *core.ErrorAccumulator) error {
+	known := make(map[string]bool, len(packs))
+	for _, p := range packs {
+		known[p.Name] = true
+	}
+	for name := range cfg.Packs {
+		if !known[name] {
+			acc.Add(core.EngineError{
+				Phase:    "INIT",
+				Severity: core.Warning,
+				Err:      fmt.Errorf("config has packs.%s but no pack named %q is registered", name, name),
+			})
+		}
+	}
+
+	for _, p := range packs {
+		if p.Init == nil {
+			continue
+		}
+		pc := core.NewPackContext(p.Name, cfg.Packs[p.Name])
+		if err := p.Init(ctx, pc); err != nil {
+			return fmt.Errorf("pack %q: %w", p.Name, err)
+		}
+		newParsers, newHooks := pc.Registered()
+		for _, parser := range newParsers {
+			parsers[parser.Type()] = parser
+		}
+		if hooks != nil {
+			hooks.AfterParse = append(hooks.AfterParse, newHooks.AfterParse...)
+			hooks.Index = append(hooks.Index, newHooks.Index...)
+			hooks.BeforeRender = append(hooks.BeforeRender, newHooks.BeforeRender...)
+		}
+	}
+	return nil
+}
+
 func hasSkipped(pages []*core.Page) bool {
 	for _, p := range pages {
 		if p.Skip {
@@ -118,11 +168,12 @@ func hasSkipped(pages []*core.Page) bool {
 
 // RunUntil executes pipeline phases up to and including the given phase.
 // It does NOT clean the output directory — callers that render must do that themselves.
-func RunUntil(ctx context.Context, cfg *config.Config, compiledParsers map[string]core.Parser, hooks *core.Hooks, until Phase) (*Result, error) {
+func RunUntil(ctx context.Context, cfg *config.Config, compiledParsers map[string]core.Parser, hooks *core.Hooks, packs []core.Pack, until Phase) (*Result, error) {
 	acc := &core.ErrorAccumulator{}
 
 	// === INIT ===
-	// Two-tier parser merge: declarative (lowest) → compiled (highest)
+	// Two-tier parser merge: declarative (lowest) → compiled (highest).
+	// Pack-declared parsers are already in compiledParsers (via engine.Use).
 	parsers := make(map[string]core.Parser)
 	for name, pcfg := range cfg.Parsers {
 		dp, err := parse.NewDeclarativeParser(name, pcfg)
@@ -133,6 +184,13 @@ func RunUntil(ctx context.Context, cfg *config.Config, compiledParsers map[strin
 	}
 	for name, p := range compiledParsers {
 		parsers[name] = p
+	}
+
+	// Pack Init lifecycle: run before DISCOVER so Init-registered parsers
+	// participate in content classification. Init reads the pack's config
+	// subtree and may register additional parsers and hooks.
+	if err := runPackInit(ctx, packs, cfg, parsers, hooks, acc); err != nil {
+		return nil, err
 	}
 
 	registeredTypes := make(map[string]bool)

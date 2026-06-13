@@ -19,6 +19,10 @@ type Config struct {
 	Collections map[string]CollectionConfig `yaml:"collections"`
 	Taxonomies  map[string]TaxonomyConfig  `yaml:"taxonomies"`
 	Parsers     map[string]ParserConfig    `yaml:"parsers"`
+	// Packs holds per-pack config subtrees (packs.{name}:). Each registered
+	// pack receives its own subtree to validate in Go; the engine does not
+	// interpret the contents.
+	Packs map[string]map[string]any `yaml:"packs"`
 }
 
 type SiteConfig struct {
@@ -40,10 +44,11 @@ type DirsConfig struct {
 }
 
 type CollectionConfig struct {
-	Match  string `yaml:"match"`
-	SortBy string `yaml:"sort_by"`
-	Layout string `yaml:"layout"`
-	Path   string `yaml:"path"`
+	Match    string `yaml:"match"`
+	SortBy   string `yaml:"sort_by"`
+	Layout   string `yaml:"layout"`
+	Path     string `yaml:"path"`
+	PageSize int    `yaml:"page_size"` // 0 = no pagination
 }
 
 type TaxonomyConfig struct {
@@ -51,6 +56,7 @@ type TaxonomyConfig struct {
 	Layout      string `yaml:"layout"`
 	IndexPath   string `yaml:"index_path"`
 	IndexLayout string `yaml:"index_layout"`
+	PageSize    int    `yaml:"page_size"` // 0 = no pagination (term pages)
 }
 
 type ParserConfig struct {
@@ -86,7 +92,26 @@ func Load(path string) (*Config, error) {
 		return nil, err
 	}
 
+	if err := validatePageSizes(cfg); err != nil {
+		return nil, err
+	}
+
 	return cfg, nil
+}
+
+// validatePageSizes rejects negative page_size values.
+func validatePageSizes(cfg *Config) error {
+	for name, c := range cfg.Collections {
+		if c.PageSize < 0 {
+			return fmt.Errorf("collection %q: page_size must be >= 0, got %d", name, c.PageSize)
+		}
+	}
+	for name, t := range cfg.Taxonomies {
+		if t.PageSize < 0 {
+			return fmt.Errorf("taxonomy %q: page_size must be >= 0, got %d", name, t.PageSize)
+		}
+	}
+	return nil
 }
 
 // validateParsers checks that all regex patterns in declarative parser configs compile.

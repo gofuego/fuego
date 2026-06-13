@@ -22,7 +22,7 @@ func BuildCollections(pages []*core.Page, collections map[string]config.Collecti
 		colCfg := collections[name]
 		colPage := buildCollectionPage(name, pages, colCfg)
 		if colPage != nil {
-			virtual = append(virtual, colPage)
+			virtual = append(virtual, paginate(colPage, colCfg.PageSize)...)
 		}
 	}
 

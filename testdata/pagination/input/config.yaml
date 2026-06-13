@@ -1,0 +1,16 @@
+site:
+  name: "Paginated Site"
+
+taxonomies:
+  tags:
+    path: "/tags/{term}"
+    layout: "listing"
+    page_size: 2
+
+collections:
+  posts:
+    match: "posts/**"
+    sort_by: "order"
+    layout: "listing"
+    path: "/all-posts"
+    page_size: 2

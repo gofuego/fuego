@@ -1,0 +1,6 @@
+---
+title: Hello Card
+layout: deck
+---
+front: Does Init register me?
+back: Only when packs.cards.enabled is true.

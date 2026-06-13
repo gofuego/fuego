@@ -28,6 +28,21 @@ type themeLayer struct {
 	fsys     fs.FS
 }
 
+// themeLayers builds the ordered layer list: pack themes in registration
+// order, then the user theme directory (highest precedence) if it exists.
+func themeLayers(themeDir string, packs []core.Pack) []themeLayer {
+	var layers []themeLayer
+	for _, p := range packs {
+		if p.Theme != nil {
+			layers = append(layers, themeLayer{packName: p.Name, fsys: p.Theme})
+		}
+	}
+	if info, err := os.Stat(themeDir); err == nil && info.IsDir() {
+		layers = append(layers, themeLayer{fsys: os.DirFS(themeDir)})
+	}
+	return layers
+}
+
 // LoadTemplates pre-parses all templates from the user theme directory
 // layered over any registered pack themes. The user's files always win;
 // among packs, later registration wins with a logged warning.
@@ -40,15 +55,7 @@ func LoadTemplates(themeDir string, packs []core.Pack) (*TemplateCache, error) {
 
 	tc.funcMap = tc.buildFuncMap()
 
-	var layers []themeLayer
-	for _, p := range packs {
-		if p.Theme != nil {
-			layers = append(layers, themeLayer{packName: p.Name, fsys: p.Theme})
-		}
-	}
-	if info, err := os.Stat(themeDir); err == nil && info.IsDir() {
-		layers = append(layers, themeLayer{fsys: os.DirFS(themeDir)})
-	}
+	layers := themeLayers(themeDir, packs)
 
 	// base.html from the highest layer that provides it.
 	var baseContent []byte

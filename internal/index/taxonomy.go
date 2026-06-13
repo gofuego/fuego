@@ -28,12 +28,12 @@ func BuildTaxonomies(pages []*core.Page, taxonomies map[string]config.TaxonomyCo
 			continue
 		}
 
-		// Generate term pages
+		// Generate term pages, split by page_size when configured
 		terms := sortedKeys(termIndex)
 		for _, term := range terms {
 			memberPages := termIndex[term]
 			termPage := buildTermPage(fieldName, term, memberPages, taxCfg)
-			virtual = append(virtual, termPage)
+			virtual = append(virtual, paginate(termPage, taxCfg.PageSize)...)
 		}
 
 		// Generate index page (listing all terms)

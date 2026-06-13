@@ -1,0 +1,6 @@
+site:
+  name: "Pack Init Error"
+
+packs:
+  cards:
+    wrong_key: true

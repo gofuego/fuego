@@ -113,6 +113,31 @@ func fixturePacks(fixtureName string) []core.Pack {
 			Parsers: []core.Parser{&cardParser{}},
 			Theme:   cardPackTheme,
 		}}
+	case "pack-init", "pack-init-disabled":
+		// Init reads packs.cards.enabled and registers the card parser only
+		// when enabled; otherwise .card files fall through to static copy.
+		return []core.Pack{{
+			Name:  "cards",
+			Theme: cardPackTheme,
+			Init: func(ctx context.Context, pc *core.PackContext) error {
+				enabled, _ := pc.Config()["enabled"].(bool)
+				if enabled {
+					pc.Register(&cardParser{})
+				}
+				return nil
+			},
+		}}
+	case "pack-init-error":
+		// Init validates its config and fails the build on bad input.
+		return []core.Pack{{
+			Name: "cards",
+			Init: func(ctx context.Context, pc *core.PackContext) error {
+				if _, ok := pc.Config()["enabled"]; !ok {
+					return fmt.Errorf("missing required option \"enabled\"")
+				}
+				return nil
+			},
+		}}
 	}
 	return nil
 }

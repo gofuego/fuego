@@ -1,0 +1,148 @@
+{
+  "pages": [
+    {
+      "url": "/all-posts/",
+      "type": "collection",
+      "layout": "listing",
+      "title": "Posts",
+      "envelope": {
+        "collection": "posts",
+        "title": "Posts"
+      }
+    },
+    {
+      "url": "/all-posts/page/2/",
+      "type": "collection",
+      "layout": "listing",
+      "title": "Posts",
+      "envelope": {
+        "collection": "posts",
+        "title": "Posts"
+      }
+    },
+    {
+      "url": "/all-posts/page/3/",
+      "type": "collection",
+      "layout": "listing",
+      "title": "Posts",
+      "envelope": {
+        "collection": "posts",
+        "title": "Posts"
+      }
+    },
+    {
+      "url": "/posts/post-1/",
+      "type": "md",
+      "title": "Post 1",
+      "envelope": {
+        "order": 1,
+        "tags": [
+          "news"
+        ],
+        "title": "Post 1"
+      }
+    },
+    {
+      "url": "/posts/post-2/",
+      "type": "md",
+      "title": "Post 2",
+      "envelope": {
+        "order": 2,
+        "tags": [
+          "news"
+        ],
+        "title": "Post 2"
+      }
+    },
+    {
+      "url": "/posts/post-3/",
+      "type": "md",
+      "title": "Post 3",
+      "envelope": {
+        "order": 3,
+        "tags": [
+          "news"
+        ],
+        "title": "Post 3"
+      }
+    },
+    {
+      "url": "/posts/post-4/",
+      "type": "md",
+      "title": "Post 4",
+      "envelope": {
+        "order": 4,
+        "tags": [
+          "news"
+        ],
+        "title": "Post 4"
+      }
+    },
+    {
+      "url": "/posts/post-5/",
+      "type": "md",
+      "title": "Post 5",
+      "envelope": {
+        "order": 5,
+        "tags": [
+          "news"
+        ],
+        "title": "Post 5"
+      }
+    },
+    {
+      "url": "/tags/news/",
+      "type": "taxonomy-term",
+      "layout": "listing",
+      "title": "Tags: news",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "news",
+        "title": "Tags: news"
+      }
+    },
+    {
+      "url": "/tags/news/page/2/",
+      "type": "taxonomy-term",
+      "layout": "listing",
+      "title": "Tags: news",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "news",
+        "title": "Tags: news"
+      }
+    },
+    {
+      "url": "/tags/news/page/3/",
+      "type": "taxonomy-term",
+      "layout": "listing",
+      "title": "Tags: news",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "news",
+        "title": "Tags: news"
+      }
+    }
+  ],
+  "taxonomies": {
+    "tags": {
+      "terms": {
+        "news": [
+          3,
+          4,
+          5,
+          6,
+          7
+        ]
+      }
+    }
+  },
+  "collections": {
+    "posts": {
+      "pages": [
+        3,
+        4
+      ]
+    }
+  }
+}

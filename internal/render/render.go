@@ -17,9 +17,10 @@ import (
 
 // TemplateData is the data passed to each page template.
 type TemplateData struct {
-	Page PageTemplateData
-	Site SiteTemplateData
-	JSON template.JS // raw JSON blob, safe for embedding in <script>
+	Page      PageTemplateData
+	Site      SiteTemplateData
+	Paginator *core.Paginator // set on paginated listing pages, nil otherwise
+	JSON      template.JS     // raw JSON blob, safe for embedding in <script>
 }
 
 // PageTemplateData contains the current page's data for templates.
@@ -151,8 +152,9 @@ func renderPage(page *core.Page, tc *TemplateCache, site SiteTemplateData, outpu
 			Layout:   page.Layout,
 			Type:     page.Type,
 		},
-		Site: site,
-		JSON: template.JS(jsonStr),
+		Site:      site,
+		Paginator: page.Paginator,
+		JSON:      template.JS(jsonStr),
 	}
 
 	// Determine output path

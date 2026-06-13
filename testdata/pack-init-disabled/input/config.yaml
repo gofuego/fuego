@@ -1,0 +1,6 @@
+site:
+  name: "Pack Init Disabled"
+
+packs:
+  cards:
+    enabled: false

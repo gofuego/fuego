@@ -55,3 +55,43 @@ A site can run entirely on a pack's theme — `base.html` is required overall, b
 ## Hooks
 
 Pack hooks append to the engine's hook lists in registration order and run FIFO alongside user hooks. A pack that generates virtual pages (diagrams, indexes) should do so in an `Index` hook so its pages flow through collision detection.
+
+## Config and the Init lifecycle
+
+A pack reads its settings from a namespaced `packs.{name}:` subtree of `config.yaml`:
+
+```yaml
+packs:
+  adr:
+    status_workflow: [proposed, accepted, superseded]
+    diagram: true
+```
+
+Give the pack an `Init` function to receive that subtree and act on it. `Init` runs once during the INIT phase — before content discovery — so it can register parsers and hooks conditionally:
+
+```go
+core.Pack{
+    Name: "adr",
+    Init: func(ctx context.Context, pc *core.PackContext) error {
+        cfg := pc.Config() // map[string]any, the packs.adr subtree (nil if absent)
+
+        // Validate in Go — there is no schema language.
+        if _, ok := cfg["status_workflow"]; !ok {
+            return fmt.Errorf("adr pack requires status_workflow")
+        }
+
+        // Register conditionally based on config.
+        if enabled, _ := cfg["diagram"].(bool); enabled {
+            pc.Index(buildDiagramHook)
+        }
+        return nil
+    },
+}
+```
+
+Rules:
+
+- `Init` is optional; packs without one are pure declarative bundles.
+- An `Init` error halts the build as `pack "{name}": <your error>`.
+- A `packs.{name}:` subtree with no matching registered pack logs a warning naming the known packs — typos don't pass silently.
+- Parsers and hooks registered in `Init` follow the same precedence as those declared on the `Pack` struct.

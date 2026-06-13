@@ -18,10 +18,16 @@ Partial scope may ship as **0.3.0** with the remainder in **0.3.1** — mileston
   entirely from pack FS), pack-theme-override (user renderer beats pack). Engine precedence
   unit-tested incl. Register-after-Use.
 
-**Wave 3:** ← NEXT
-- 03 pagination, 04 outputs (after 02) · 08 pack config + Init (after 07)
+**Wave 3:** ✅ DONE 2026-06-13
+- 03 pagination ✅ · 04 outputs ✅ · 08 pack config + Init ✅
+- Fixtures: pagination (collection + taxonomy term split, prev/next), outputs (sitemap.xml +
+  feed.xml via theme/outputs/ as text/template), outputs-collision (output vs page GlobalFatal),
+  pack-init / pack-init-disabled (Init conditionally registers parser by config — two golden
+  states), pack-init-error (Init failure halts build naming pack). core.PackContext unit-tested.
+- Stale-doc fixes: build-pipeline.md (built-in Markdown claim, added OUTPUTS phase + Index hook +
+  pagination + Skip).
 
-**Wave 4:**
+**Wave 4:** ← NEXT
 - 09 deep merge + `fuego config` (after 08) · 18 scaffold refresh (after 01–04)
 
 **Wave 5:**

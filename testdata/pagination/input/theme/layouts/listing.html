@@ -1,0 +1,14 @@
+{{define "content"}}
+<ol class="entries">{{.Page.Content}}</ol>
+{{- if .Paginator}}
+<nav class="pagination">
+    {{- if .Paginator.PrevURL}}
+    <a rel="prev" href="{{.Paginator.PrevURL}}">previous</a>
+    {{- end}}
+    <span>page {{.Paginator.CurrentPage}} of {{.Paginator.TotalPages}}</span>
+    {{- if .Paginator.NextURL}}
+    <a rel="next" href="{{.Paginator.NextURL}}">next</a>
+    {{- end}}
+</nav>
+{{- end}}
+{{end}}
