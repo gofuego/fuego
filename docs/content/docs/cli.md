@@ -83,6 +83,19 @@ fuego init mysite
 
 Creates a working project with a `.card` flashcard DSL, theme, and sample content.
 
+**Start from a format pack** with `--pack`:
+
+```bash
+fuego init mysite --pack github.com/FabioSol/fuego-adr/adr
+```
+
+This scaffolds the project, wires the pack into `main.go`
+(`eng.Use(adr.Pack())`), and runs `go get` to install it. The convention is
+that a pack module's package exports a `Pack() core.Pack` function; the package
+name defaults to the module path's last segment. If the package name differs,
+pass `--pack-symbol <name>`. Init never compiles or runs the pack — it only
+downloads it — so installing a pack can't execute third-party code.
+
 ## Global Flags
 
 | Flag | Default | Description |

@@ -59,7 +59,12 @@ Partial scope may ship as **0.3.0** with the remainder in **0.3.1** — mileston
     fixture-parity sweep (23 fixtures, warm-reuse == clean) + parse-counter test. Smoke: docs 0/19→1/18.
 
 **Wave 7 (0.3.1):**
-- 14 render narrowing ✅ DONE 2026-06-13 · 11 `init --pack` (after 09, 15)
+- 14 render narrowing ✅ DONE 2026-06-13 · 11 `init --pack` ✅ DONE 2026-06-13
+  - 11: scaffold.Data gains PackImport/PackSymbol; main.go.tmpl conditionally adds the import +
+    eng.Use(symbol.Pack()); resolveDeps go-gets the pack (go get/tidy only — never go run/build,
+    so no third-party execution); init flags --pack/--pack-symbol with last-segment default +
+    isGoIdentifier validation; CLAUDE.md pack note (points at `fuego config`). E2E verified against
+    published fuego-adr/adr@v0.1.0: init→build = 9 pages. Docs: cli.md, getting-started, pack tutorial.
   - 14: incremental RENDER narrowed to affected set = changed pages ∪ virtual pages (SourcePath=="")
     ∪ pages whose template reads .Site.Pages (precise — .Site.Name is build-constant). render/sitedetect.go
     detects .Site.Pages incl. transitive partials (fixpoint). CacheStats.Changed threaded to RenderAll.

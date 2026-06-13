@@ -132,10 +132,25 @@ eng.Use(notepack.Pack())
 
 Drop a `.note` file in `content/`, run `fuego build`, and the callouts render through the pack's theme — no parser code, no template, no route config in the consuming site.
 
+## Distributing it
+
+Publish the pack as a tagged Go module. Because its package exports
+`Pack() core.Pack`, anyone can scaffold a project with it pre-installed:
+
+```bash
+fuego init mysite --pack github.com/you/notepack
+```
+
+`init` imports the module, wires `eng.Use(notepack.Pack())` into `main.go`, and
+`go get`s it — without compiling or running your code. The package name
+defaults to the module path's last segment; if yours differs, consumers pass
+`--pack-symbol`.
+
 ## What you learned
 
 - A pack is a plain Go module exporting `Pack() core.Pack`.
-- It can carry parsers, hooks (`AfterParse`, `Index`, `BeforeRender`), an embedded theme, and config defaults.
+- It can carry parsers, hooks (`AfterParse`, `Index`, `BeforeRender`), an embedded theme, static assets, and config defaults.
 - Precedence always favors the user: user parsers, user theme files, and user config win over the pack.
+- Consumers install it with one line — `eng.Use(...)` — or scaffold with `fuego init --pack`.
 
 See [Format Packs](/docs/concepts/format-packs/) for the full reference and [Config Merging](/docs/config-merging/) for the merge rules.
