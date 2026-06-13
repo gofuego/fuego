@@ -3,11 +3,48 @@ package render
 import (
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
+	"path"
 	"path/filepath"
 
+	"github.com/FabioSol/fuego/core"
 	"github.com/FabioSol/fuego/internal/discover"
 )
+
+// CopyPackStatic copies each pack theme's static/ subtree to the output root,
+// so a pack can ship its own CSS, JS, and images. Packs are applied in
+// registration order (later packs overwrite earlier ones); the user's public/
+// directory is copied afterward by CopyPublicDir, so user files always win.
+func CopyPackStatic(packs []core.Pack, outputDir string) error {
+	for _, p := range packs {
+		if p.Theme == nil {
+			continue
+		}
+		sub, err := fs.Sub(p.Theme, "static")
+		if err != nil {
+			continue // no static/ subtree
+		}
+		err = fs.WalkDir(sub, ".", func(name string, d fs.DirEntry, err error) error {
+			if err != nil || d.IsDir() {
+				return nil //nolint:nilerr // a pack without static/ is fine
+			}
+			data, rErr := fs.ReadFile(sub, name)
+			if rErr != nil {
+				return fmt.Errorf("reading pack %q static %s: %w", p.Name, name, rErr)
+			}
+			dst := filepath.Join(outputDir, filepath.FromSlash(path.Clean(name)))
+			if err := os.MkdirAll(filepath.Dir(dst), 0755); err != nil {
+				return err
+			}
+			return os.WriteFile(dst, data, 0644)
+		})
+		if err != nil {
+			return fmt.Errorf("copying pack %q static files: %w", p.Name, err)
+		}
+	}
+	return nil
+}
 
 // CopyPublicDir copies the contents of the public/static directory verbatim
 // to the output root. Files like favicon.ico, robots.txt, and _redirects

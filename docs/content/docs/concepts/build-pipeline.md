@@ -102,7 +102,7 @@ Writes `site-manifest.json` — a JSON index of all pages, taxonomy terms, and c
 
 ### STATIC
 
-Copies `public/` contents to the output root and colocated binary assets to their routed paths.
+Copies static assets to the output root, in precedence order: each registered pack's `static/` subtree first, then the user's `public/` directory (so user files win on conflict), then content-colocated binary assets at their routed paths.
 
 ## Partial Execution
 

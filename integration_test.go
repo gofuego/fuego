@@ -104,6 +104,16 @@ var cardPackTheme = fstest.MapFS{
 	"partials/brand.html":   &fstest.MapFile{Data: []byte(`<header>card-pack theme</header>`)},
 }
 
+// assetPackTheme is a pack theme that ships static/ assets alongside templates.
+var assetPackTheme = fstest.MapFS{
+	"base.html": &fstest.MapFile{Data: []byte(`<!DOCTYPE html>
+<html><head><link rel="stylesheet" href="{{.Site.BaseURL}}/style.css"></head>
+<body>{{block "content" .}}<main>{{.Page.Content}}</main>{{end}}</body></html>
+`)},
+	"static/style.css": &fstest.MapFile{Data: []byte("/* pack stylesheet */\n")},
+	"static/app.js":    &fstest.MapFile{Data: []byte("// pack script\n")},
+}
+
 // fixturePacks returns format packs for fixtures that exercise the pack API.
 func fixturePacks(fixtureName string) []core.Pack {
 	switch fixtureName {
@@ -137,6 +147,13 @@ func fixturePacks(fixtureName string) []core.Pack {
 				}
 				return nil
 			},
+		}}
+	case "pack-static":
+		// Pack ships static/ assets (CSS + JS). The fixture's public/ overrides
+		// one of them to prove the user wins.
+		return []core.Pack{{
+			Name:  "assets",
+			Theme: assetPackTheme,
 		}}
 	case "pack-config-defaults":
 		// Pack contributes a taxonomy and a route; the user config overrides

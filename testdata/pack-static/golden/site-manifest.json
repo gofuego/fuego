@@ -1,0 +1,12 @@
+{
+  "pages": [
+    {
+      "url": "/index/",
+      "type": "md",
+      "title": "Home",
+      "envelope": {
+        "title": "Home"
+      }
+    }
+  ]
+}

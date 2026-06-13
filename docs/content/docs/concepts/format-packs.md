@@ -28,7 +28,7 @@ core.Pack{
 }
 ```
 
-The `Theme` FS mirrors the user theme directory layout: an optional `base.html` at the root, plus `layouts/`, `renderers/`, and `partials/` subdirectories. Packs typically embed it:
+The `Theme` FS mirrors the user theme directory layout: an optional `base.html` at the root, plus `layouts/`, `renderers/`, and `partials/` subdirectories. A `static/` subdirectory is also supported — its files (CSS, JS, images) are copied to the output root during the STATIC phase, so a pack can ship a complete, self-contained theme. The user's `public/` directory is copied afterward, so user files win on conflict. Packs typically embed all of this:
 
 ```go
 //go:embed theme

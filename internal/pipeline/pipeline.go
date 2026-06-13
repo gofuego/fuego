@@ -155,6 +155,11 @@ func Build(ctx context.Context, cfg *config.Config, compiledParsers map[string]c
 	}
 
 	// === STATIC ===
+	// Pack static assets first, then the user's public/ dir (user wins on
+	// conflict), then content-colocated assets.
+	if err := render.CopyPackStatic(packs, cfg.Dirs.Output); err != nil {
+		return fmt.Errorf("copying pack static files: %w", err)
+	}
 	if err := render.CopyPublicDir(cfg.Dirs.Static, cfg.Dirs.Output); err != nil {
 		return fmt.Errorf("copying static files: %w", err)
 	}
