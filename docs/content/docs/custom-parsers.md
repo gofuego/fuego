@@ -18,6 +18,7 @@ type Node struct {
     Attributes map[string]any
     Content    string
     Children   []Node
+    Raw        bool // pass Content through as raw HTML, unwrapped and unescaped
 }
 ```
 
@@ -47,14 +48,16 @@ This parses `.trivia` files line-by-line. First matching rule wins per line. Cap
 
 ## Compiled Parsers
 
-Implement the `core.Parser` interface for full control:
+Implement the `core.Parser` interface for full control. The parser receives the entire raw file and owns envelope extraction:
 
 ```go
 type Parser interface {
     Type() string
-    Parse(rawPayload []byte, meta Envelope) ([]Node, error)
+    Parse(raw []byte) (Envelope, []Node, error)
 }
 ```
+
+Use `core.SplitFrontmatter(raw)` if your format carries YAML frontmatter, or the convenience wrappers `core.WithYAMLFrontmatter(...)` / `core.WithNoEnvelope(...)` for the common cases. For extensionless files like `Dockerfile`, also implement `core.FilenameParser` with `Filenames() []string`.
 
 Register it in `main.go`:
 
@@ -64,16 +67,36 @@ eng.Register(&MyCustomParser{})
 eng.Run(os.Args)
 ```
 
+## Error Positions
+
+Return a `core.ParseError` to point build errors at a source line:
+
+```go
+return nil, nil, &core.ParseError{
+    Line: lineNo,
+    Err:  fmt.Errorf("unexpected token %q", tok),
+}
+```
+
+The build output then reads `[PARSE] error content/quiz.trivia:7: ...`. Reporting positions is optional — plain errors keep working. Frontmatter errors from `core.SplitFrontmatter` carry file-relative line numbers automatically.
+
 ## Parser Precedence
 
-When multiple parsers exist for the same file extension:
+There are no built-in parsers — the engine ships with zero format opinions. When multiple parsers exist for the same file extension:
 
-1. **Compiled** (registered via `eng.Register()`) — highest priority
-2. **Declarative** (defined in `config.yaml`) — middle priority
-3. **Built-in** (Markdown) — lowest priority
+1. **Compiled** (registered via `eng.Register()`) — wins
+2. **Declarative** (defined in `config.yaml`)
 
-This means you can override the built-in Markdown parser by registering your own, or define a declarative one in config.
+A file is discovered as content only if a registered parser matches its extension or filename.
 
-## Built-in Markdown
+## Markdown (opt-in)
 
-`.md` files are parsed automatically using goldmark with GitHub-Flavored Markdown (tables, strikethrough, autolinks, task lists). The output is a single `Node{Type: "html"}` containing rendered HTML.
+Markdown is a first-party, opt-in parser — not a built-in. Register it like any other compiled parser:
+
+```go
+import "github.com/FabioSol/fuego/parsers/markdown"
+
+eng.Register(markdown.Parser())
+```
+
+It uses goldmark with GitHub-Flavored Markdown (tables, strikethrough, autolinks, task lists) and emits a single node with `Raw: true` containing the rendered HTML.

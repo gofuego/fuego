@@ -39,6 +39,52 @@ func fixtureParserRegistry(fixtureName string) map[string]core.Parser {
 	return parsers
 }
 
+// fixtureHooks returns pipeline hooks for fixtures that exercise the hook API.
+func fixtureHooks(fixtureName string) *core.Hooks {
+	switch fixtureName {
+	case "index-hook":
+		return &core.Hooks{
+			Index: []core.IndexHook{func(pages []*core.Page) ([]*core.Page, error) {
+				// Mark drafts Skip and inject a virtual overview page that
+				// summarizes the remaining pages (fuego-devops pattern).
+				count := 0
+				for _, p := range pages {
+					if d, ok := p.Envelope["draft"].(bool); ok && d {
+						p.Skip = true
+						continue
+					}
+					count++
+				}
+				overview := &core.Page{
+					RelPath:  "virtual:overview",
+					URL:      "/overview",
+					Type:     "graph",
+					Envelope: core.Envelope{"title": "Overview"},
+					Nodes: []core.Node{{
+						Type:       "graph-data",
+						Attributes: map[string]any{"pages": count},
+					}},
+				}
+				return append(pages, overview), nil
+			}},
+		}
+	case "index-hook-collision":
+		return &core.Hooks{
+			Index: []core.IndexHook{func(pages []*core.Page) ([]*core.Page, error) {
+				// Claims a URL that a content page already owns; the INDEX
+				// collision re-check must catch it.
+				return append(pages, &core.Page{
+					RelPath:  "virtual:overview",
+					URL:      "/overview",
+					Type:     "graph",
+					Envelope: core.Envelope{"title": "Overview"},
+				}), nil
+			}},
+		}
+	}
+	return nil
+}
+
 func TestIntegrationFixtures(t *testing.T) {
 	fixtures, err := filepath.Glob("testdata/*")
 	if err != nil {
@@ -83,9 +129,10 @@ func TestIntegrationFixtures(t *testing.T) {
 			cfg.Dirs.Output = outputDir
 
 			parsers := fixtureParserRegistry(fixtureName)
+			hooks := fixtureHooks(fixtureName)
 
 			if isErrorCase {
-				err := pipeline.Build(context.Background(), cfg, parsers, nil)
+				err := pipeline.Build(context.Background(), cfg, parsers, hooks)
 				if err == nil {
 					t.Fatal("expected pipeline to fail, but it succeeded")
 				}
@@ -94,7 +141,7 @@ func TestIntegrationFixtures(t *testing.T) {
 			}
 
 			// Run pipeline
-			err = pipeline.Build(context.Background(), cfg, parsers, nil)
+			err = pipeline.Build(context.Background(), cfg, parsers, hooks)
 			if err != nil {
 				t.Fatalf("pipeline failed: %v", err)
 			}

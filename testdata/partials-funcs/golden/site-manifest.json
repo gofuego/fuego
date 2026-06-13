@@ -1,0 +1,23 @@
+{
+  "pages": [
+    {
+      "url": "/guide/",
+      "type": "md",
+      "layout": "doc",
+      "title": "Guide",
+      "envelope": {
+        "date": "2026-06-01",
+        "layout": "doc",
+        "title": "Guide"
+      }
+    },
+    {
+      "url": "/index/",
+      "type": "md",
+      "title": "Home",
+      "envelope": {
+        "title": "Home"
+      }
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "pages": [
+    {
+      "url": "/about/",
+      "type": "md",
+      "title": "About",
+      "envelope": {
+        "title": "About"
+      }
+    },
+    {
+      "url": "/index/",
+      "type": "md",
+      "title": "Home",
+      "envelope": {
+        "title": "Home"
+      }
+    },
+    {
+      "url": "/overview",
+      "type": "graph",
+      "title": "Overview",
+      "envelope": {
+        "title": "Overview"
+      }
+    }
+  ]
+}

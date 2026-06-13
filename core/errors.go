@@ -48,6 +48,26 @@ func (e *EngineError) Unwrap() error {
 	return e.Err
 }
 
+// ParseError attaches a source line number to a parser error. Parsers may
+// return it (or wrap it) from Parse; the dispatcher unwraps it into
+// EngineError.Line so build output points at file:line. Reporting positions
+// is optional — plain errors keep working.
+type ParseError struct {
+	Line int
+	Err  error
+}
+
+func (e *ParseError) Error() string {
+	if e.Line > 0 {
+		return fmt.Sprintf("line %d: %s", e.Line, e.Err)
+	}
+	return e.Err.Error()
+}
+
+func (e *ParseError) Unwrap() error {
+	return e.Err
+}
+
 // ErrorAccumulator collects engine errors during pipeline execution.
 type ErrorAccumulator struct {
 	errors []EngineError

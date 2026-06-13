@@ -1,0 +1,6 @@
+<header>
+    <h1>{{.Site.Name}}</h1>
+    {{- if .Page.Envelope.date}}
+    <time>{{dateFormat "January 2, 2006" .Page.Envelope.date}}</time>
+    {{- end}}
+</header>

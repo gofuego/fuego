@@ -78,13 +78,16 @@ func expandPattern(pattern, dir, slug, filename string) string {
 }
 
 // DetectCollisions checks for duplicate URLs across all pages.
+// URLs are compared by output identity: "/overview" and "/overview/" both
+// write overview/index.html, so they collide regardless of trailing slash.
 // Returns GlobalFatal errors for each collision pair.
 func DetectCollisions(pages []*core.Page) []core.EngineError {
 	seen := make(map[string]*core.Page)
 	var errs []core.EngineError
 
 	for _, page := range pages {
-		if existing, ok := seen[page.URL]; ok {
+		key := strings.TrimSuffix(page.URL, "/")
+		if existing, ok := seen[key]; ok {
 			errs = append(errs, core.EngineError{
 				Phase:    "ROUTE",
 				File:     page.RelPath,
@@ -93,7 +96,7 @@ func DetectCollisions(pages []*core.Page) []core.EngineError {
 					page.URL, existing.RelPath, page.RelPath),
 			})
 		} else {
-			seen[page.URL] = page
+			seen[key] = page
 		}
 	}
 

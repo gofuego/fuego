@@ -57,8 +57,20 @@ func Build(ctx context.Context, cfg *config.Config, compiledParsers map[string]c
 		return reportErrors(res.Errors)
 	}
 
+	// Pages marked Skip stay in the pipeline result (hooks and tooling can
+	// see them) but are excluded from output.
+	renderable := res.Pages
+	if hasSkipped(res.Pages) {
+		renderable = make([]*core.Page, 0, len(res.Pages))
+		for _, p := range res.Pages {
+			if !p.Skip {
+				renderable = append(renderable, p)
+			}
+		}
+	}
+
 	// === RENDER ===
-	renderErrs := render.RenderAll(ctx, res.Pages, cfg)
+	renderErrs := render.RenderAll(ctx, renderable, cfg)
 	for _, e := range renderErrs {
 		res.Errors.Add(e)
 	}
@@ -68,7 +80,7 @@ func Build(ctx context.Context, cfg *config.Config, compiledParsers map[string]c
 	}
 
 	// === MANIFEST ===
-	m := manifest.Generate(res.Pages, cfg)
+	m := manifest.Generate(renderable, cfg)
 	if err := manifest.Write(m, cfg.Dirs.Output); err != nil {
 		return fmt.Errorf("writing manifest: %w", err)
 	}
@@ -91,8 +103,17 @@ func Build(ctx context.Context, cfg *config.Config, compiledParsers map[string]c
 		}
 	}
 
-	fmt.Printf("fuego: built %d pages\n", len(res.Pages))
+	fmt.Printf("fuego: built %d pages\n", len(renderable))
 	return nil
+}
+
+func hasSkipped(pages []*core.Page) bool {
+	for _, p := range pages {
+		if p.Skip {
+			return true
+		}
+	}
+	return false
 }
 
 // RunUntil executes pipeline phases up to and including the given phase.
@@ -211,9 +232,23 @@ func RunUntil(ctx context.Context, cfg *config.Config, compiledParsers map[strin
 	colPages := index.BuildCollections(pages, cfg.Collections)
 	pages = append(pages, taxPages...)
 	pages = append(pages, colPages...)
+	virtualAdded := len(taxPages)+len(colPages) > 0
+
+	// Index hooks run before the collision re-check so any virtual pages
+	// they add are validated like engine-generated ones.
+	if hooks != nil && len(hooks.Index) > 0 {
+		for _, hook := range hooks.Index {
+			pages, err = hook(pages)
+			if err != nil {
+				res.Pages = pages
+				return res, fmt.Errorf("index hook: %w", err)
+			}
+		}
+		virtualAdded = true
+	}
 	res.Pages = pages
 
-	if len(taxPages)+len(colPages) > 0 {
+	if virtualAdded {
 		indexErrs := route.DetectCollisions(pages)
 		for _, e := range indexErrs {
 			acc.Add(e)

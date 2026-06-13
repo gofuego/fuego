@@ -2,6 +2,7 @@ package parse
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"runtime"
@@ -56,6 +57,16 @@ func ParseAll(ctx context.Context, files []discover.FileEntry, parsers map[strin
 	return validPages, validErrs
 }
 
+// parseErrorLine extracts the source line from a core.ParseError anywhere
+// in the error chain, or 0 when the parser didn't report a position.
+func parseErrorLine(err error) int {
+	var pe *core.ParseError
+	if errors.As(err, &pe) {
+		return pe.Line
+	}
+	return 0
+}
+
 func parseFile(file discover.FileEntry, parsers map[string]core.Parser) (*core.Page, *core.EngineError) {
 	raw, err := os.ReadFile(file.Path)
 	if err != nil {
@@ -90,6 +101,7 @@ func parseFile(file discover.FileEntry, parsers map[string]core.Parser) (*core.P
 			return nil, &core.EngineError{
 				Phase:    "PARSE",
 				File:     file.RelPath,
+				Line:     parseErrorLine(err),
 				Severity: core.LocalFatal,
 				Err:      fmt.Errorf("parser %q: %w", page.Type, err),
 			}
@@ -116,6 +128,7 @@ func parseFile(file discover.FileEntry, parsers map[string]core.Parser) (*core.P
 			return nil, &core.EngineError{
 				Phase:    "PARSE",
 				File:     file.RelPath,
+				Line:     parseErrorLine(fmErr),
 				Severity: core.LocalFatal,
 				Err:      fmErr,
 			}

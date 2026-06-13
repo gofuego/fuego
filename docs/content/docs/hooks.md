@@ -24,6 +24,43 @@ eng.AfterParse(func(pages []*core.Page) ([]*core.Page, error) {
 })
 ```
 
+## Index
+
+Runs during INDEX, after taxonomy and collection virtual pages are generated but **before the collision re-check**. This is the supported way to add virtual pages — set their URL and they are collision-checked exactly like engine-generated ones:
+
+```go
+eng.Index(func(pages []*core.Page) ([]*core.Page, error) {
+    overview := &core.Page{
+        RelPath:  "virtual:overview",
+        URL:      "/overview",
+        Type:     "diagram",
+        Envelope: core.Envelope{"title": "Overview"},
+        Nodes: []core.Node{{
+            Type:       "graph-data",
+            Attributes: map[string]any{"nodes": buildGraph(pages)},
+        }},
+    }
+    return append(pages, overview), nil
+})
+```
+
+Do not add pages in `BeforeRender` — pages added there bypass collision detection.
+
+### Skipping pages
+
+Set `page.Skip = true` in any hook to exclude a page from rendering and the manifest while keeping it visible to later hooks (drafts, internal pages):
+
+```go
+eng.Index(func(pages []*core.Page) ([]*core.Page, error) {
+    for _, p := range pages {
+        if p.Envelope["draft"] == true {
+            p.Skip = true
+        }
+    }
+    return pages, nil
+})
+```
+
 ## BeforeRender
 
 Runs after INDEX, before RENDER. Pages have their final URLs and taxonomy assignments:
@@ -47,7 +84,8 @@ eng.BeforeRender(func(pages []*core.Page) ([]*core.Page, error) {
 
 - Multiple hooks at the same point run in **FIFO** registration order
 - Each hook receives the previous hook's output
-- Hooks can **mutate** pages (add envelope fields) or **filter** them (return a subset)
+- Hooks can **mutate** pages (add envelope fields), **filter** them (return a subset), or **skip** them (`page.Skip = true`)
+- Only `Index` hooks should add pages — additions there go through collision detection
 - Hooks run in all commands: `build`, `serve`, `validate`, `list`
 
 ## Why Go-Only?

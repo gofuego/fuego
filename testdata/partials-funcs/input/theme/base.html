@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{{.Page.Envelope.title}} | {{.Site.Name}}</title>
+</head>
+<body>
+{{partial "header" .}}
+{{block "content" .}}<main>{{.Page.Content}}</main>{{end}}
+{{partial "footer" (dict "year" "2026" "owner" .Site.Name)}}
+</body>
+</html>

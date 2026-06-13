@@ -58,6 +58,20 @@ func renderNode(sb *strings.Builder, n core.Node) {
 	sb.WriteString(`</div>`)
 }
 
+// renderWithOverrides renders nodes using per-type renderer templates
+// when available, falling back to the default semantic renderer.
+func (tc *TemplateCache) renderWithOverrides(nodes []core.Node) template.HTML {
+	var sb strings.Builder
+	for _, n := range nodes {
+		if tmpl, ok := tc.renderers[n.Type]; ok {
+			tmpl.Execute(&sb, n)
+		} else {
+			renderNode(&sb, n)
+		}
+	}
+	return template.HTML(sb.String())
+}
+
 // JSONPayload serializes the page envelope and nodes into a JSON string
 // safe for embedding in HTML via <script type="application/json">.
 // Uses json.Marshal which escapes <, >, & to unicode sequences.

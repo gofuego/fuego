@@ -87,17 +87,25 @@ func RenderAll(ctx context.Context, pages []*core.Page, cfg *config.Config) []co
 }
 
 func renderPage(page *core.Page, tc *TemplateCache, site SiteTemplateData, outputDir string) *core.EngineError {
+	// Select template first: the JSON payload is only serialized when the
+	// resolved template actually references .JSON.
+	tmpl := tc.GetLayout(page.Layout)
+
 	// Generate pre-rendered content HTML
 	content := tc.renderWithOverrides(page.Nodes)
 
 	// Generate JSON payload for client-side hydration
-	jsonStr, err := JSONPayload(page.Envelope, page.Nodes, page.URL)
-	if err != nil {
-		return &core.EngineError{
-			Phase:    "RENDER",
-			File:     page.RelPath,
-			Severity: core.LocalFatal,
-			Err:      err,
+	var jsonStr string
+	if tc.UsesJSON(tmpl) {
+		var err error
+		jsonStr, err = JSONPayload(page.Envelope, page.Nodes, page.URL)
+		if err != nil {
+			return &core.EngineError{
+				Phase:    "RENDER",
+				File:     page.RelPath,
+				Severity: core.LocalFatal,
+				Err:      err,
+			}
 		}
 	}
 
@@ -112,9 +120,6 @@ func renderPage(page *core.Page, tc *TemplateCache, site SiteTemplateData, outpu
 		Site: site,
 		JSON: template.JS(jsonStr),
 	}
-
-	// Select template
-	tmpl := tc.GetLayout(page.Layout)
 
 	// Determine output path
 	outPath := filepath.Join(outputDir, filepath.FromSlash(page.URL), "index.html")
@@ -142,11 +147,15 @@ func renderPage(page *core.Page, tc *TemplateCache, site SiteTemplateData, outpu
 	defer f.Close()
 
 	if err := tmpl.Execute(f, data); err != nil {
+		layoutName := page.Layout
+		if layoutName == "" {
+			layoutName = "base"
+		}
 		return &core.EngineError{
 			Phase:    "RENDER",
 			File:     page.RelPath,
 			Severity: core.LocalFatal,
-			Err:      fmt.Errorf("executing template: %w", err),
+			Err:      fmt.Errorf("executing layout %q: %w", layoutName, err),
 		}
 	}
 

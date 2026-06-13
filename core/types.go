@@ -45,4 +45,5 @@ type Page struct {
 	Layout     string   // layout name from envelope
 	Type       string   // content type (from envelope or extension)
 	IsRaw      bool     // true if no parser matched (raw passthrough)
+	Skip       bool     // exclude from RENDER and the manifest (drafts, pack-internal pages)
 }
