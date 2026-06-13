@@ -15,7 +15,7 @@ func TestJSONDetection(t *testing.T) {
 		"layouts/plain.html": `{{define "content"}}<p>{{.Page.Envelope.jsonish}}</p>{{end}}`,
 	})
 
-	tc, err := LoadTemplates(theme)
+	tc, err := LoadTemplates(theme, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -44,7 +44,7 @@ func TestJSONDetectionInBase(t *testing.T) {
 		"layouts/any.html":    `{{define "content"}}x{{end}}`,
 	})
 
-	tc, err := LoadTemplates(theme)
+	tc, err := LoadTemplates(theme, nil)
 	if err != nil {
 		t.Fatal(err)
 	}

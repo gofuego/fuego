@@ -1,0 +1,12 @@
+<nav>
+    <ul>
+    {{- range sortBy (where .Site.Pages "type" "doc") "weight"}}
+        <li><a href="{{.URL}}">{{.Envelope.title}}</a></li>
+    {{- end}}
+    </ul>
+    <ul class="terms">
+    {{- range .Site.Pages | limit 50}}{{if eq .Type "taxonomy-term"}}
+        <li><a href="{{.URL}}">{{.Envelope.title}}</a></li>
+    {{- end}}{{end}}
+    </ul>
+</nav>

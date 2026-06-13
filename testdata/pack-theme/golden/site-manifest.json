@@ -1,0 +1,22 @@
+{
+  "pages": [
+    {
+      "url": "/hello/",
+      "type": "card",
+      "layout": "deck",
+      "title": "Hello Card",
+      "envelope": {
+        "layout": "deck",
+        "title": "Hello Card"
+      }
+    },
+    {
+      "url": "/index/",
+      "type": "md",
+      "title": "Home",
+      "envelope": {
+        "title": "Home"
+      }
+    }
+  ]
+}

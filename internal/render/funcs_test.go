@@ -227,7 +227,7 @@ func TestPartialExecution(t *testing.T) {
 		"partials/greet.html": `<p>Hello, {{.}}!</p>`,
 	})
 
-	tc, err := LoadTemplates(theme)
+	tc, err := LoadTemplates(theme, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -249,7 +249,7 @@ func TestPartialCallsPartial(t *testing.T) {
 		"partials/inner.html": `<span>{{.}}</span>`,
 	})
 
-	tc, err := LoadTemplates(theme)
+	tc, err := LoadTemplates(theme, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -270,7 +270,7 @@ func TestPartialMissingNamesAvailable(t *testing.T) {
 		"partials/foot.html": `<footer/>`,
 	})
 
-	tc, err := LoadTemplates(theme)
+	tc, err := LoadTemplates(theme, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -299,7 +299,7 @@ func TestPartialAvailableInLayoutAndRenderer(t *testing.T) {
 		"partials/tag.html":     `[{{.}}]`,
 	})
 
-	tc, err := LoadTemplates(theme)
+	tc, err := LoadTemplates(theme, nil)
 	if err != nil {
 		t.Fatal(err)
 	}

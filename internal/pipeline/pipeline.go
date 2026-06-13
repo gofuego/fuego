@@ -37,7 +37,7 @@ type Result struct {
 
 // Build executes the full build pipeline:
 // INIT → DISCOVER → PARSE → ROUTE → INDEX → RENDER → STATIC
-func Build(ctx context.Context, cfg *config.Config, compiledParsers map[string]core.Parser, hooks *core.Hooks) error {
+func Build(ctx context.Context, cfg *config.Config, compiledParsers map[string]core.Parser, hooks *core.Hooks, packs []core.Pack) error {
 	// === PREBUILD ===
 	if err := runPrebuild(cfg.Prebuild); err != nil {
 		return err
@@ -70,7 +70,7 @@ func Build(ctx context.Context, cfg *config.Config, compiledParsers map[string]c
 	}
 
 	// === RENDER ===
-	renderErrs := render.RenderAll(ctx, renderable, cfg)
+	renderErrs := render.RenderAll(ctx, renderable, cfg, packs)
 	for _, e := range renderErrs {
 		res.Errors.Add(e)
 	}

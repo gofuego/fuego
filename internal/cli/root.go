@@ -8,14 +8,15 @@ import (
 // Version is set at build time via -ldflags.
 var Version = "dev"
 
-// Execute runs the Cobra command tree with the given arguments and parser registry.
-func Execute(args []string, parsers map[string]core.Parser, hooks *core.Hooks) error {
-	root := newRootCmd(parsers, hooks)
+// Execute runs the Cobra command tree with the given arguments, parser
+// registry, hooks, and registered packs.
+func Execute(args []string, parsers map[string]core.Parser, hooks *core.Hooks, packs []core.Pack) error {
+	root := newRootCmd(parsers, hooks, packs)
 	root.SetArgs(args[1:]) // strip the binary name
 	return root.Execute()
 }
 
-func newRootCmd(parsers map[string]core.Parser, hooks *core.Hooks) *cobra.Command {
+func newRootCmd(parsers map[string]core.Parser, hooks *core.Hooks, packs []core.Pack) *cobra.Command {
 	var configPath string
 
 	cmd := &cobra.Command{
@@ -29,10 +30,10 @@ func newRootCmd(parsers map[string]core.Parser, hooks *core.Hooks) *cobra.Comman
 	cmd.PersistentFlags().StringVar(&configPath, "config", "config.yaml", "path to configuration file")
 
 	cmd.AddCommand(
-		newBuildCmd(parsers, hooks, &configPath),
+		newBuildCmd(parsers, hooks, packs, &configPath),
 		newValidateCmd(parsers, hooks, &configPath),
 		newListCmd(parsers, hooks, &configPath),
-		newServeCmd(parsers, hooks, &configPath),
+		newServeCmd(parsers, hooks, packs, &configPath),
 		newInitCmd(),
 	)
 

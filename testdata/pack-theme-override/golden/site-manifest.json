@@ -1,0 +1,14 @@
+{
+  "pages": [
+    {
+      "url": "/hello/",
+      "type": "card",
+      "layout": "deck",
+      "title": "Hello Card",
+      "envelope": {
+        "layout": "deck",
+        "title": "Hello Card"
+      }
+    }
+  ]
+}

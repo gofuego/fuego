@@ -1,0 +1,84 @@
+{
+  "pages": [
+    {
+      "url": "/index/",
+      "type": "md",
+      "title": "Home",
+      "envelope": {
+        "title": "Home"
+      }
+    },
+    {
+      "url": "/install/",
+      "type": "doc",
+      "title": "Install",
+      "envelope": {
+        "tags": [
+          "guide"
+        ],
+        "title": "Install",
+        "type": "doc",
+        "weight": 1
+      }
+    },
+    {
+      "url": "/tags/",
+      "type": "taxonomy-index",
+      "layout": "tag-index",
+      "title": "All Tags",
+      "envelope": {
+        "taxonomy": "tags",
+        "title": "All Tags"
+      }
+    },
+    {
+      "url": "/tags/advanced/",
+      "type": "taxonomy-term",
+      "layout": "tag",
+      "title": "Tags: advanced",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "advanced",
+        "title": "Tags: advanced"
+      }
+    },
+    {
+      "url": "/tags/guide/",
+      "type": "taxonomy-term",
+      "layout": "tag",
+      "title": "Tags: guide",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "guide",
+        "title": "Tags: guide"
+      }
+    },
+    {
+      "url": "/usage/",
+      "type": "doc",
+      "title": "Usage",
+      "envelope": {
+        "tags": [
+          "guide",
+          "advanced"
+        ],
+        "title": "Usage",
+        "type": "doc",
+        "weight": 2
+      }
+    }
+  ],
+  "taxonomies": {
+    "tags": {
+      "terms": {
+        "advanced": [
+          5
+        ],
+        "guide": [
+          1,
+          5
+        ]
+      }
+    }
+  }
+}

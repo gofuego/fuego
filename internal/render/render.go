@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"sort"
 	"strings"
 
 	"github.com/FabioSol/fuego/core"
@@ -34,15 +35,47 @@ type PageTemplateData struct {
 type SiteTemplateData struct {
 	Name    string
 	BaseURL string
+	Pages   []PageRef
+}
+
+// PageRef is the slim cross-page reference exposed as .Site.Pages. It
+// deliberately omits Nodes and rendered content: refs exist for navs,
+// listings, and envelope-driven queries, not for rendering other pages'
+// bodies (which would make builds O(n²)).
+type PageRef struct {
+	URL      string
+	Type     string
+	Layout   string
+	Envelope core.Envelope
+}
+
+// BuildPageRefs projects pages into URL-sorted refs. Pages marked Skip are
+// excluded. The result is built once per build and shared read-only across
+// render workers.
+func BuildPageRefs(pages []*core.Page) []PageRef {
+	refs := make([]PageRef, 0, len(pages))
+	for _, p := range pages {
+		if p.Skip {
+			continue
+		}
+		refs = append(refs, PageRef{
+			URL:      p.URL,
+			Type:     p.Type,
+			Layout:   p.Layout,
+			Envelope: p.Envelope,
+		})
+	}
+	sort.Slice(refs, func(i, j int) bool { return refs[i].URL < refs[j].URL })
+	return refs
 }
 
 // RenderAll renders all pages to HTML files in the output directory.
 // Uses errgroup for parallel rendering.
-func RenderAll(ctx context.Context, pages []*core.Page, cfg *config.Config) []core.EngineError {
+func RenderAll(ctx context.Context, pages []*core.Page, cfg *config.Config, packs []core.Pack) []core.EngineError {
 	themeDir := cfg.Dirs.Theme
 	outputDir := cfg.Dirs.Output
 
-	tc, err := LoadTemplates(themeDir)
+	tc, err := LoadTemplates(themeDir, packs)
 	if err != nil {
 		return []core.EngineError{{
 			Phase:    "RENDER",
@@ -54,6 +87,7 @@ func RenderAll(ctx context.Context, pages []*core.Page, cfg *config.Config) []co
 	site := SiteTemplateData{
 		Name:    cfg.Site.Name,
 		BaseURL: cfg.Site.BaseURL,
+		Pages:   BuildPageRefs(pages),
 	}
 
 	errs := make([]core.EngineError, len(pages))

@@ -154,7 +154,7 @@ func TestRenderAllSinglePage(t *testing.T) {
 		Dirs: config.DirsConfig{Theme: themeDir, Output: outputDir},
 	}
 
-	errs := RenderAll(context.Background(), pages, cfg)
+	errs := RenderAll(context.Background(), pages, cfg, nil)
 	if len(errs) != 0 {
 		t.Fatalf("unexpected errors: %v", errs)
 	}
@@ -206,7 +206,7 @@ func TestRenderAllWithLayout(t *testing.T) {
 		Dirs: config.DirsConfig{Theme: themeDir, Output: outputDir},
 	}
 
-	errs := RenderAll(context.Background(), pages, cfg)
+	errs := RenderAll(context.Background(), pages, cfg, nil)
 	if len(errs) != 0 {
 		t.Fatalf("unexpected errors: %v", errs)
 	}
@@ -247,7 +247,7 @@ func TestRenderAllWithCustomRenderer(t *testing.T) {
 		Dirs: config.DirsConfig{Theme: themeDir, Output: outputDir},
 	}
 
-	errs := RenderAll(context.Background(), pages, cfg)
+	errs := RenderAll(context.Background(), pages, cfg, nil)
 	if len(errs) != 0 {
 		t.Fatalf("unexpected errors: %v", errs)
 	}
@@ -302,7 +302,7 @@ func TestRenderAllMultiplePages(t *testing.T) {
 		Dirs: config.DirsConfig{Theme: themeDir, Output: outputDir},
 	}
 
-	errs := RenderAll(context.Background(), pages, cfg)
+	errs := RenderAll(context.Background(), pages, cfg, nil)
 	if len(errs) != 0 {
 		t.Fatalf("unexpected errors: %v", errs)
 	}

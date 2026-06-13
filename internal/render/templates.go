@@ -3,9 +3,12 @@ package render
 import (
 	"fmt"
 	"html/template"
+	"io/fs"
 	"os"
-	"path/filepath"
+	"path"
 	"strings"
+
+	"github.com/FabioSol/fuego/core"
 )
 
 // TemplateCache holds all pre-parsed templates for rendering.
@@ -18,9 +21,17 @@ type TemplateCache struct {
 	usesJSON  map[*template.Template]bool
 }
 
-// LoadTemplates scans the theme directory and pre-parses all templates.
-// It builds the template cache used by the render phase.
-func LoadTemplates(themeDir string) (*TemplateCache, error) {
+// themeLayer is one source of theme templates. Layers are ordered lowest
+// precedence first: packs in registration order, the user theme dir last.
+type themeLayer struct {
+	packName string // "" for the user theme dir
+	fsys     fs.FS
+}
+
+// LoadTemplates pre-parses all templates from the user theme directory
+// layered over any registered pack themes. The user's files always win;
+// among packs, later registration wins with a logged warning.
+func LoadTemplates(themeDir string, packs []core.Pack) (*TemplateCache, error) {
 	tc := &TemplateCache{
 		layouts:   make(map[string]*template.Template),
 		renderers: make(map[string]*template.Template),
@@ -29,50 +40,64 @@ func LoadTemplates(themeDir string) (*TemplateCache, error) {
 
 	tc.funcMap = tc.buildFuncMap()
 
-	// Load base.html
-	basePath := filepath.Join(themeDir, "base.html")
-	baseContent, err := os.ReadFile(basePath)
-	if err != nil {
-		return nil, fmt.Errorf("reading base template: %w", err)
+	var layers []themeLayer
+	for _, p := range packs {
+		if p.Theme != nil {
+			layers = append(layers, themeLayer{packName: p.Name, fsys: p.Theme})
+		}
+	}
+	if info, err := os.Stat(themeDir); err == nil && info.IsDir() {
+		layers = append(layers, themeLayer{fsys: os.DirFS(themeDir)})
 	}
 
+	// base.html from the highest layer that provides it.
+	var baseContent []byte
+	found := false
+	for i := len(layers) - 1; i >= 0; i-- {
+		if b, err := fs.ReadFile(layers[i].fsys, "base.html"); err == nil {
+			baseContent = b
+			found = true
+			break
+		}
+	}
+	if !found {
+		return nil, fmt.Errorf("reading base template: no base.html in %s or any registered pack theme", themeDir)
+	}
+
+	var err error
 	tc.base, err = template.New("base.html").Funcs(tc.funcMap).Parse(string(baseContent))
 	if err != nil {
 		return nil, fmt.Errorf("parsing base template: %w", err)
 	}
 
-	// Load layout templates from theme/layouts/
-	layoutsDir := filepath.Join(themeDir, "layouts")
-	if info, err := os.Stat(layoutsDir); err == nil && info.IsDir() {
-		entries, _ := os.ReadDir(layoutsDir)
-		for _, entry := range entries {
-			if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".html") {
-				continue
-			}
-
-			name := strings.TrimSuffix(entry.Name(), ".html")
-			content, err := os.ReadFile(filepath.Join(layoutsDir, entry.Name()))
-			if err != nil {
-				return nil, fmt.Errorf("reading layout %q: %w", name, err)
-			}
-
-			// Clone base template and parse layout on top
-			tmpl, err := template.Must(tc.base.Clone()).Funcs(tc.funcMap).Parse(string(content))
-			if err != nil {
-				return nil, fmt.Errorf("parsing layout %q: %w", name, err)
-			}
-			tc.layouts[name] = tmpl
+	layoutSrc, err := mergeLayerDir(layers, "layouts")
+	if err != nil {
+		return nil, err
+	}
+	for name, content := range layoutSrc {
+		// Clone base template and parse layout on top
+		tmpl, err := template.Must(tc.base.Clone()).Funcs(tc.funcMap).Parse(content)
+		if err != nil {
+			return nil, fmt.Errorf("parsing layout %q: %w", name, err)
 		}
+		tc.layouts[name] = tmpl
 	}
 
-	// Load per-type renderer templates from theme/renderers/
-	if err := tc.loadStandaloneDir(filepath.Join(themeDir, "renderers"), "renderer", tc.renderers); err != nil {
-		return nil, err
-	}
-
-	// Load partial templates from theme/partials/, callable via {{partial "name" .}}
-	if err := tc.loadStandaloneDir(filepath.Join(themeDir, "partials"), "partial", tc.partials); err != nil {
-		return nil, err
+	for kind, dst := range map[string]map[string]*template.Template{
+		"renderers": tc.renderers,
+		"partials":  tc.partials,
+	} {
+		src, err := mergeLayerDir(layers, kind)
+		if err != nil {
+			return nil, err
+		}
+		for name, content := range src {
+			tmpl, err := template.New(name).Funcs(tc.funcMap).Parse(content)
+			if err != nil {
+				return nil, fmt.Errorf("parsing %s/%s.html: %w", kind, name, err)
+			}
+			dst[name] = tmpl
+		}
 	}
 
 	// Detect which templates reference .JSON so the render phase only
@@ -86,39 +111,42 @@ func LoadTemplates(themeDir string) (*TemplateCache, error) {
 	return tc, nil
 }
 
+// mergeLayerDir collects {name}.html files from subDir across all layers.
+// Later layers overwrite earlier ones; a pack overwriting another pack's
+// template logs a warning, the user theme overriding a pack is silent.
+func mergeLayerDir(layers []themeLayer, subDir string) (map[string]string, error) {
+	files := make(map[string]string)
+	owner := make(map[string]string)
+
+	for _, layer := range layers {
+		entries, err := fs.ReadDir(layer.fsys, subDir)
+		if err != nil {
+			continue // layer doesn't provide this directory
+		}
+		for _, entry := range entries {
+			if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".html") {
+				continue
+			}
+			name := strings.TrimSuffix(entry.Name(), ".html")
+			content, err := fs.ReadFile(layer.fsys, path.Join(subDir, entry.Name()))
+			if err != nil {
+				return nil, fmt.Errorf("reading %s/%s.html: %w", subDir, name, err)
+			}
+			if prev, taken := owner[name]; taken && prev != "" && layer.packName != "" {
+				fmt.Fprintf(os.Stderr, "fuego: warning: %s/%s.html from pack %q overridden by pack %q\n",
+					subDir, name, prev, layer.packName)
+			}
+			files[name] = string(content)
+			owner[name] = layer.packName
+		}
+	}
+	return files, nil
+}
+
 // UsesJSON reports whether the given (already resolved) template references
 // .JSON anywhere in its tree.
 func (tc *TemplateCache) UsesJSON(tmpl *template.Template) bool {
 	return tc.usesJSON[tmpl]
-}
-
-// loadStandaloneDir parses every .html file in dir as an independent template
-// with the shared funcMap, storing it in dst under its base name.
-func (tc *TemplateCache) loadStandaloneDir(dir, kind string, dst map[string]*template.Template) error {
-	info, err := os.Stat(dir)
-	if err != nil || !info.IsDir() {
-		return nil
-	}
-
-	entries, _ := os.ReadDir(dir)
-	for _, entry := range entries {
-		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".html") {
-			continue
-		}
-
-		name := strings.TrimSuffix(entry.Name(), ".html")
-		content, err := os.ReadFile(filepath.Join(dir, entry.Name()))
-		if err != nil {
-			return fmt.Errorf("reading %s %q: %w", kind, name, err)
-		}
-
-		tmpl, err := template.New(name).Funcs(tc.funcMap).Parse(string(content))
-		if err != nil {
-			return fmt.Errorf("parsing %s %q: %w", kind, name, err)
-		}
-		dst[name] = tmpl
-	}
-	return nil
 }
 
 // GetLayout returns the template for the given layout name.

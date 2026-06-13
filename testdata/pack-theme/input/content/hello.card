@@ -1,0 +1,6 @@
+---
+title: Hello Card
+layout: deck
+---
+front: What is a format pack?
+back: A parser plus a theme in one Go module.

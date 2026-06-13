@@ -1,0 +1,10 @@
+site:
+  name: "Site Pages"
+  base_url: "https://example.com"
+
+taxonomies:
+  tags:
+    path: "/tags/{term}"
+    layout: "tag"
+    index_path: "/tags"
+    index_layout: "tag-index"

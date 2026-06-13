@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"testing/fstest"
 
 	"github.com/FabioSol/fuego/core"
 	"github.com/FabioSol/fuego/internal/config"
@@ -26,7 +27,8 @@ func fixtureParserRegistry(fixtureName string) map[string]core.Parser {
 	}
 
 	switch fixtureName {
-	case "compiled-parser", "declarative-compiled-collision", "comprehensive":
+	case "compiled-parser", "declarative-compiled-collision", "comprehensive",
+		"pack-theme", "pack-theme-override":
 		parsers["card"] = &cardParser{}
 	case "no-envelope":
 		parsers["env"] = &envParser{}
@@ -85,6 +87,36 @@ func fixtureHooks(fixtureName string) *core.Hooks {
 	return nil
 }
 
+// cardPackTheme is an in-memory pack theme, standing in for a pack's embed.FS.
+var cardPackTheme = fstest.MapFS{
+	"base.html": &fstest.MapFile{Data: []byte(`<!DOCTYPE html>
+<html lang="en">
+<head><title>{{.Page.Envelope.title}} | {{.Site.Name}}</title></head>
+<body class="card-pack">
+{{partial "brand" .}}
+{{block "content" .}}<main>{{.Page.Content}}</main>{{end}}
+</body>
+</html>
+`)},
+	"layouts/deck.html":     &fstest.MapFile{Data: []byte(`{{define "content"}}<section class="deck">{{.Page.Content}}</section>{{end}}`)},
+	"renderers/front.html":  &fstest.MapFile{Data: []byte(`<div class="front">{{.Content}}</div>`)},
+	"renderers/back.html":   &fstest.MapFile{Data: []byte(`<div class="back">{{.Content}}</div>`)},
+	"partials/brand.html":   &fstest.MapFile{Data: []byte(`<header>card-pack theme</header>`)},
+}
+
+// fixturePacks returns format packs for fixtures that exercise the pack API.
+func fixturePacks(fixtureName string) []core.Pack {
+	switch fixtureName {
+	case "pack-theme", "pack-theme-override":
+		return []core.Pack{{
+			Name:    "cards",
+			Parsers: []core.Parser{&cardParser{}},
+			Theme:   cardPackTheme,
+		}}
+	}
+	return nil
+}
+
 func TestIntegrationFixtures(t *testing.T) {
 	fixtures, err := filepath.Glob("testdata/*")
 	if err != nil {
@@ -132,7 +164,7 @@ func TestIntegrationFixtures(t *testing.T) {
 			hooks := fixtureHooks(fixtureName)
 
 			if isErrorCase {
-				err := pipeline.Build(context.Background(), cfg, parsers, hooks)
+				err := pipeline.Build(context.Background(), cfg, parsers, hooks, fixturePacks(fixtureName))
 				if err == nil {
 					t.Fatal("expected pipeline to fail, but it succeeded")
 				}
@@ -141,7 +173,7 @@ func TestIntegrationFixtures(t *testing.T) {
 			}
 
 			// Run pipeline
-			err = pipeline.Build(context.Background(), cfg, parsers, hooks)
+			err = pipeline.Build(context.Background(), cfg, parsers, hooks, fixturePacks(fixtureName))
 			if err != nil {
 				t.Fatalf("pipeline failed: %v", err)
 			}

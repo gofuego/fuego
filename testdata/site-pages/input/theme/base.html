@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><title>{{.Page.Envelope.title}} | {{.Site.Name}}</title></head>
+<body>
+{{partial "nav" .}}
+{{block "content" .}}<main>{{.Page.Content}}</main>{{end}}
+</body>
+</html>

@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newBuildCmd(parsers map[string]core.Parser, hooks *core.Hooks, configPath *string) *cobra.Command {
+func newBuildCmd(parsers map[string]core.Parser, hooks *core.Hooks, packs []core.Pack, configPath *string) *cobra.Command {
 	return &cobra.Command{
 		Use:   "build",
 		Short: "Build the static site",
@@ -21,7 +21,7 @@ func newBuildCmd(parsers map[string]core.Parser, hooks *core.Hooks, configPath *
 			}
 
 			ctx := context.Background()
-			return pipeline.Build(ctx, cfg, parsers, hooks)
+			return pipeline.Build(ctx, cfg, parsers, hooks, packs)
 		},
 	}
 }
