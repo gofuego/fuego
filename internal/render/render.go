@@ -70,9 +70,15 @@ func BuildPageRefs(pages []*core.Page) []PageRef {
 	return refs
 }
 
-// RenderAll renders all pages to HTML files in the output directory.
-// Uses errgroup for parallel rendering.
-func RenderAll(ctx context.Context, pages []*core.Page, cfg *config.Config, packs []core.Pack) []core.EngineError {
+// RenderAll renders pages to HTML files in the output directory, in parallel.
+//
+// On a narrowed incremental rebuild (narrow=true), only the affected set is
+// re-rendered: pages whose content changed (changed[RelPath]), all virtual
+// pages (they aggregate content), and pages whose template reads .Site.Pages.
+// Site-blind, unchanged pages keep their existing output. With narrow=false,
+// every page is rendered. The .Site.Pages refs are always built from the full
+// page set.
+func RenderAll(ctx context.Context, pages []*core.Page, cfg *config.Config, packs []core.Pack, changed map[string]bool, narrow bool) []core.EngineError {
 	themeDir := cfg.Dirs.Theme
 	outputDir := cfg.Dirs.Output
 
@@ -101,6 +107,10 @@ func RenderAll(ctx context.Context, pages []*core.Page, cfg *config.Config, pack
 		idx := i
 		p := page
 
+		if narrow && !affected(p, tc, changed) {
+			continue
+		}
+
 		g.Go(func() error {
 			if engErr := renderPage(p, tc, site, outputDir); engErr != nil {
 				errs[idx] = *engErr
@@ -119,6 +129,17 @@ func RenderAll(ctx context.Context, pages []*core.Page, cfg *config.Config, pack
 		}
 	}
 	return validErrs
+}
+
+// affected reports whether a page must be re-rendered on a narrowed rebuild.
+func affected(p *core.Page, tc *TemplateCache, changed map[string]bool) bool {
+	if p.SourcePath == "" {
+		return true // virtual page — aggregates content, always re-render
+	}
+	if changed[p.RelPath] {
+		return true // content changed
+	}
+	return tc.UsesSitePages(tc.GetLayout(p.Layout)) // depends on the site page list
 }
 
 func renderPage(page *core.Page, tc *TemplateCache, site SiteTemplateData, outputDir string) *core.EngineError {

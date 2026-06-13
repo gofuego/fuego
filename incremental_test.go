@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/FabioSol/fuego/core"
 	"github.com/FabioSol/fuego/internal/config"
@@ -57,6 +58,63 @@ func TestIncrementalEquivalence(t *testing.T) {
 			buildSite(t, input, out, cacheDir, true) // incremental, in place
 			assertCleanParity(t, input, out)
 		})
+	}
+}
+
+// TestIncrementalNarrowsRendering proves the narrowing actually skips work: on
+// a site with a site-blind layout, editing one page must re-render only that
+// page and the virtual (aggregate) pages, leaving other content pages' output
+// untouched. Detected via mtimes reset to a known epoch before the rebuild.
+func TestIncrementalNarrowsRendering(t *testing.T) {
+	input := t.TempDir()
+	// A site-blind theme: no .Site.Pages anywhere, so content pages don't
+	// depend on each other.
+	write(t, filepath.Join(input, "config.yaml"), "site:\n  name: Blind\n"+`
+taxonomies:
+  tags:
+    path: "/tags/{term}"
+    layout: "doc"
+    index_path: "/tags"
+    index_layout: "doc"
+`)
+	write(t, filepath.Join(input, "theme/base.html"),
+		"<html><head><title>{{.Page.Envelope.title}}</title></head><body>{{block \"content\" .}}{{.Page.Content}}{{end}}</body></html>")
+	write(t, filepath.Join(input, "theme/layouts/doc.html"), `{{define "content"}}<main>{{.Page.Content}}</main>{{end}}`)
+	write(t, filepath.Join(input, "content/a.md"), "---\ntitle: A\nlayout: doc\ntags: [go]\n---\nA.\n")
+	write(t, filepath.Join(input, "content/b.md"), "---\ntitle: B\nlayout: doc\ntags: [go]\n---\nB.\n")
+
+	out, cache := t.TempDir(), t.TempDir()
+	buildSite(t, input, out, cache, true) // cold
+
+	// Reset every output file's mtime to a known epoch.
+	epoch := time.Unix(1000000, 0)
+	filepath.WalkDir(out, func(p string, d os.DirEntry, err error) error {
+		if err == nil && !d.IsDir() {
+			os.Chtimes(p, epoch, epoch)
+		}
+		return nil
+	})
+
+	// Edit only b.md, then rebuild incrementally.
+	appendFile(t, filepath.Join(input, "content/b.md"), "\nedited.\n")
+	buildSite(t, input, out, cache, true)
+
+	rewritten := func(rel string) bool {
+		info, err := os.Stat(filepath.Join(out, rel))
+		if err != nil {
+			t.Fatalf("stat %s: %v", rel, err)
+		}
+		return info.ModTime().After(epoch)
+	}
+
+	if rewritten("a/index.html") {
+		t.Error("unchanged site-blind page a was re-rendered; narrowing should have skipped it")
+	}
+	if !rewritten("b/index.html") {
+		t.Error("edited page b was not re-rendered")
+	}
+	if !rewritten("tags/go/index.html") {
+		t.Error("virtual taxonomy page was not re-rendered (must always re-render)")
 	}
 }
 

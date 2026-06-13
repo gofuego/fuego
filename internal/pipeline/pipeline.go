@@ -114,7 +114,9 @@ func Build(ctx context.Context, cfg *config.Config, compiledParsers map[string]c
 	}
 
 	// === RENDER ===
-	renderErrs := render.RenderAll(ctx, renderable, cfg, packs)
+	// A warm incremental rebuild (prevCache != nil) narrows rendering to the
+	// affected set; a full/cold build renders everything.
+	renderErrs := render.RenderAll(ctx, renderable, cfg, packs, res.CacheStats.Changed, prevCache != nil)
 	for _, e := range renderErrs {
 		res.Errors.Add(e)
 	}

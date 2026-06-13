@@ -16,8 +16,9 @@ import (
 
 // CacheStats reports what an incremental parse reused versus reparsed.
 type CacheStats struct {
-	Parsed int // files parsed this build
-	Reused int // files served from cache
+	Parsed  int             // files parsed this build
+	Reused  int             // files served from cache
+	Changed map[string]bool // RelPaths parsed this build (new or modified)
 }
 
 // ParseAll processes all content files in parallel, dispatching to the
@@ -88,7 +89,7 @@ func ParseAllCached(ctx context.Context, files []discover.FileEntry, parsers map
 	var validPages []*core.Page
 	var validErrs []core.EngineError
 	newMap := make(map[string]buildcache.ParsedPage, len(files))
-	var stats CacheStats
+	stats := CacheStats{Changed: map[string]bool{}}
 
 	for i := range files {
 		if hasErr[i] {
@@ -104,6 +105,7 @@ func ParseAllCached(ctx context.Context, files []discover.FileEntry, parsers map
 			stats.Reused++
 		} else {
 			stats.Parsed++
+			stats.Changed[files[i].RelPath] = true
 		}
 	}
 

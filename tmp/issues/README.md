@@ -59,7 +59,12 @@ Partial scope may ship as **0.3.0** with the remainder in **0.3.1** — mileston
     fixture-parity sweep (23 fixtures, warm-reuse == clean) + parse-counter test. Smoke: docs 0/19→1/18.
 
 **Wave 7 (0.3.1):**
-- 14 render narrowing (after 13) · 11 `init --pack` (after 09, 15)
+- 14 render narrowing ✅ DONE 2026-06-13 · 11 `init --pack` (after 09, 15)
+  - 14: incremental RENDER narrowed to affected set = changed pages ∪ virtual pages (SourcePath=="")
+    ∪ pages whose template reads .Site.Pages (precise — .Site.Name is build-constant). render/sitedetect.go
+    detects .Site.Pages incl. transitive partials (fixpoint). CacheStats.Changed threaded to RenderAll.
+    Bench: 10k single-file edit = 324ms vs 3852ms full (~12x). Equivalence/parity suites pass with
+    narrowing on (now exercise skipping). TestIncrementalNarrowsRendering proves skip via mtime.
 
 → **tag v0.3.1**
 

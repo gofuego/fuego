@@ -19,6 +19,7 @@ type TemplateCache struct {
 	partials  map[string]*template.Template
 	funcMap   template.FuncMap
 	usesJSON  map[*template.Template]bool
+	usesSite  map[*template.Template]bool
 }
 
 // themeLayer is one source of theme templates. Layers are ordered lowest
@@ -115,7 +116,23 @@ func LoadTemplates(themeDir string, packs []core.Pack) (*TemplateCache, error) {
 		tc.usesJSON[tmpl] = templateReferencesJSON(tmpl)
 	}
 
+	// Detect which templates read .Site.Pages (directly or via partials), so
+	// an incremental build can skip re-rendering site-blind pages.
+	baseSite, layoutSite, _ := computeSitePages(tc.base, tc.layouts, tc.partials)
+	tc.usesSite = make(map[*template.Template]bool, len(tc.layouts)+1)
+	tc.usesSite[tc.base] = baseSite
+	for name, tmpl := range tc.layouts {
+		tc.usesSite[tmpl] = baseSite || layoutSite[name]
+	}
+
 	return tc, nil
+}
+
+// UsesSitePages reports whether the given resolved template reads .Site.Pages,
+// meaning its output can change when any other page is added, removed, or
+// edited.
+func (tc *TemplateCache) UsesSitePages(tmpl *template.Template) bool {
+	return tc.usesSite[tmpl]
 }
 
 // mergeLayerDir collects {name}.html files from subDir across all layers.

@@ -62,6 +62,51 @@ func BenchmarkBuild(b *testing.B) {
 	}
 }
 
+// BenchmarkIncrementalEdit measures a warm incremental rebuild after editing a
+// single content file on a 10k-page site. The bench theme is site-blind (it
+// reads .Site.Name, not .Site.Pages), so narrowing re-renders only the edited
+// page plus virtual pages. Compare to BenchmarkBuild/10000pages.
+// Run with: go test -bench=IncrementalEdit -benchtime=5x .
+func BenchmarkIncrementalEdit(b *testing.B) {
+	const pages = 10000
+	inputDir := b.TempDir()
+	outputDir := b.TempDir()
+	cacheDir := b.TempDir()
+	generateBenchSite(b, inputDir, pages, true)
+
+	cfg, err := config.Load(filepath.Join(inputDir, "config.yaml"))
+	if err != nil {
+		b.Fatalf("loading config: %v", err)
+	}
+	cfg.Dirs.Content = filepath.Join(inputDir, cfg.Dirs.Content)
+	cfg.Dirs.Theme = filepath.Join(inputDir, cfg.Dirs.Theme)
+	cfg.Dirs.Static = filepath.Join(inputDir, cfg.Dirs.Static)
+	cfg.Dirs.Output = outputDir
+
+	parsers := map[string]core.Parser{"md": markdown.Parser()}
+	opts := pipeline.Options{Incremental: true, CacheDir: cacheDir}
+
+	if err := pipeline.Build(context.Background(), cfg, parsers, nil, nil, opts); err != nil {
+		b.Fatalf("cold build: %v", err)
+	}
+
+	target := filepath.Join(inputDir, "content/posts/page-00001.md")
+	orig, err := os.ReadFile(target)
+	if err != nil {
+		b.Fatalf("reading edit target: %v", err)
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		os.WriteFile(target, append(append([]byte{}, orig...), []byte(fmt.Sprintf("\n\nedit %d\n", i))...), 0644)
+		if err := pipeline.Build(context.Background(), cfg, parsers, nil, nil, opts); err != nil {
+			b.Fatalf("incremental build: %v", err)
+		}
+	}
+	b.StopTimer()
+	b.ReportMetric(b.Elapsed().Seconds()/float64(b.N)*1000, "ms/edit-rebuild")
+}
+
 var benchTags = []string{"go", "ssg", "fuego", "templates", "parsers", "routing", "hooks", "themes"}
 
 // generateBenchSite writes a deterministic synthetic site. Everything derives
