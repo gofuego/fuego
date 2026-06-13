@@ -1,6 +1,8 @@
 ---
 title: Getting Started
 layout: doc
+nav_section: "Getting Started"
+nav_weight: 1
 tags:
   - getting-started
   - tutorial

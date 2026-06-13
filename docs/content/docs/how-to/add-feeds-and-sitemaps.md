@@ -1,6 +1,8 @@
 ---
 title: Add an RSS Feed and Sitemap
 layout: doc
+nav_section: "Guides"
+nav_weight: 4
 tags:
   - how-to
   - templates

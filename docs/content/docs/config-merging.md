@@ -1,6 +1,8 @@
 ---
 title: Config Merging
 layout: doc
+nav_section: "Reference"
+nav_weight: 6
 tags:
   - reference
   - config

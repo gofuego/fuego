@@ -1,6 +1,8 @@
 ---
 title: Templates
 layout: doc
+nav_section: "Reference"
+nav_weight: 3
 tags:
   - reference
   - templates

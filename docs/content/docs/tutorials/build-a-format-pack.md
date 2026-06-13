@@ -1,6 +1,8 @@
 ---
 title: "Tutorial: Build a Format Pack"
 layout: doc
+nav_section: "Tutorials"
+nav_weight: 3
 order: 3
 tags:
   - tutorial

@@ -1,6 +1,8 @@
 ---
 title: Custom Parsers
 layout: doc
+nav_section: "Reference"
+nav_weight: 4
 tags:
   - reference
   - parsers

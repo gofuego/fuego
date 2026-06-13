@@ -1,6 +1,8 @@
 ---
 title: Add Taxonomies
 layout: doc
+nav_section: "Guides"
+nav_weight: 1
 tags:
   - how-to
   - config

@@ -1,6 +1,8 @@
 ---
 title: Configuration
 layout: doc
+nav_section: "Reference"
+nav_weight: 1
 tags:
   - reference
   - config

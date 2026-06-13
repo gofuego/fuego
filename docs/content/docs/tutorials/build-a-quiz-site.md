@@ -1,6 +1,8 @@
 ---
 title: "Tutorial: Build a Quiz Site"
 layout: doc
+nav_section: "Tutorials"
+nav_weight: 1
 order: 1
 tags:
   - tutorial

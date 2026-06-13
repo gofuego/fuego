@@ -1,6 +1,8 @@
 ---
 title: Why Format-Agnostic?
 layout: doc
+nav_section: "Concepts"
+nav_weight: 1
 tags:
   - concepts
   - architecture

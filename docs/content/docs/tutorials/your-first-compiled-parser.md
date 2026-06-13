@@ -1,6 +1,8 @@
 ---
 title: "Tutorial: Your First Compiled Parser"
 layout: doc
+nav_section: "Tutorials"
+nav_weight: 2
 order: 2
 tags:
   - tutorial

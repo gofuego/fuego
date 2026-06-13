@@ -1,6 +1,8 @@
 ---
 title: Build a Navigation Menu
 layout: doc
+nav_section: "Guides"
+nav_weight: 2
 tags:
   - how-to
   - templates

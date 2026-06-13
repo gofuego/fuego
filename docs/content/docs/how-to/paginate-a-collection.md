@@ -1,6 +1,8 @@
 ---
 title: Paginate a Collection
 layout: doc
+nav_section: "Guides"
+nav_weight: 3
 tags:
   - how-to
   - collections

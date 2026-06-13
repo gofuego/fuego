@@ -1,6 +1,8 @@
 ---
 title: CLI Reference
 layout: doc
+nav_section: "Reference"
+nav_weight: 2
 tags:
   - reference
   - cli

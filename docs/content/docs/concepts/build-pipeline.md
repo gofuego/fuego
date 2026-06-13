@@ -1,6 +1,8 @@
 ---
 title: The Build Pipeline
 layout: doc
+nav_section: "Concepts"
+nav_weight: 2
 tags:
   - concepts
   - architecture

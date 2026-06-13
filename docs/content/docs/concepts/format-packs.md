@@ -1,6 +1,8 @@
 ---
 title: Format Packs
 layout: doc
+nav_section: "Concepts"
+nav_weight: 3
 tags:
   - concepts
   - packs

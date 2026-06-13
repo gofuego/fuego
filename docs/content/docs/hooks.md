@@ -1,6 +1,8 @@
 ---
 title: Hooks
 layout: doc
+nav_section: "Reference"
+nav_weight: 5
 tags:
   - reference
   - go

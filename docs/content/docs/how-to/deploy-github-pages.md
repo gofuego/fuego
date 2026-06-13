@@ -1,6 +1,8 @@
 ---
 title: Deploy to GitHub Pages
 layout: doc
+nav_section: "Guides"
+nav_weight: 5
 tags:
   - how-to
   - deployment
