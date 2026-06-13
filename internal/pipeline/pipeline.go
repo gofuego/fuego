@@ -3,11 +3,16 @@ package pipeline
 import (
 	"context"
 	"fmt"
+	"io/fs"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
+	"gopkg.in/yaml.v3"
+
 	"github.com/FabioSol/fuego/core"
+	"github.com/FabioSol/fuego/internal/buildcache"
 	"github.com/FabioSol/fuego/internal/config"
 	"github.com/FabioSol/fuego/internal/discover"
 	"github.com/FabioSol/fuego/internal/index"
@@ -16,6 +21,25 @@ import (
 	"github.com/FabioSol/fuego/internal/render"
 	"github.com/FabioSol/fuego/internal/route"
 )
+
+// Options controls a build invocation.
+type Options struct {
+	// Incremental reuses parsed pages from a prior build whose content is
+	// unchanged, and updates the output in place (removing orphaned files)
+	// instead of cleaning it. A change to the engine binary, resolved config,
+	// or theme falls back to a full rebuild.
+	Incremental bool
+	// CacheDir holds the build cache. Defaults to ".fuego" when empty.
+	CacheDir string
+}
+
+func (o Options) cachePath() string {
+	dir := o.CacheDir
+	if dir == "" {
+		dir = ".fuego"
+	}
+	return filepath.Join(dir, "cache.bin")
+}
 
 // Phase identifies how far through the pipeline to run.
 type Phase int
@@ -30,25 +54,45 @@ const (
 
 // Result holds the intermediate state after a partial pipeline run.
 type Result struct {
-	Pages      []*core.Page
-	AssetFiles []discover.FileEntry
-	Errors     *core.ErrorAccumulator
+	Pages       []*core.Page
+	AssetFiles  []discover.FileEntry
+	Errors      *core.ErrorAccumulator
+	ParsedPages map[string]buildcache.ParsedPage // fresh parse cache covering current files
+	CacheStats  parse.CacheStats
 }
 
 // Build executes the full build pipeline:
 // INIT → DISCOVER → PARSE → ROUTE → INDEX → RENDER → STATIC
-func Build(ctx context.Context, cfg *config.Config, compiledParsers map[string]core.Parser, hooks *core.Hooks, packs []core.Pack) error {
+func Build(ctx context.Context, cfg *config.Config, compiledParsers map[string]core.Parser, hooks *core.Hooks, packs []core.Pack, opts Options) error {
 	// === PREBUILD ===
 	if err := runPrebuild(cfg.Prebuild); err != nil {
 		return err
 	}
 
-	// Clean the output directory
-	if err := render.CleanOutput(cfg.Dirs.Output); err != nil {
-		return fmt.Errorf("cleaning output directory: %w", err)
+	// === CACHE ===
+	// Decide whether parsed pages from a prior build may be reused. A change
+	// to the engine binary, resolved config, or theme invalidates the cache
+	// and falls back to a full, clean rebuild.
+	var prevCache *buildcache.Cache
+	var prevParsed map[string]buildcache.ParsedPage
+	header := buildHeader(cfg, packs)
+	incremental := opts.Incremental && header.BinaryID != ""
+	if incremental {
+		if c, ok := buildcache.Load(opts.cachePath()); ok && c.Valid(header) {
+			prevCache = c
+			prevParsed = c.Pages
+		}
 	}
 
-	res, err := RunUntil(ctx, cfg, compiledParsers, hooks, packs, PhaseIndex)
+	// Full rebuild cleans the output dir; an incremental rebuild with a usable
+	// cache updates it in place and removes orphans afterward.
+	if prevCache == nil {
+		if err := render.CleanOutput(cfg.Dirs.Output); err != nil {
+			return fmt.Errorf("cleaning output directory: %w", err)
+		}
+	}
+
+	res, err := RunUntil(ctx, cfg, compiledParsers, hooks, packs, prevParsed, PhaseIndex)
 	if err != nil {
 		return err
 	}
@@ -96,6 +140,18 @@ func Build(ctx context.Context, cfg *config.Config, compiledParsers map[string]c
 		return fmt.Errorf("writing manifest: %w", err)
 	}
 
+	// === ORPHAN REMOVAL ===
+	// On an incremental rebuild the output dir was not cleaned, so pages that
+	// no longer exist must have their output files removed.
+	newOutputs := outputRelPaths(renderable)
+	if prevCache != nil {
+		orphans := buildcache.OrphanedOutputs(prevCache.Outputs, newOutputs)
+		for _, rel := range orphans {
+			os.Remove(filepath.Join(cfg.Dirs.Output, rel))
+		}
+		buildcache.PruneEmptyDirs(cfg.Dirs.Output, orphans)
+	}
+
 	// === STATIC ===
 	if err := render.CopyPublicDir(cfg.Dirs.Static, cfg.Dirs.Output); err != nil {
 		return fmt.Errorf("copying static files: %w", err)
@@ -107,6 +163,16 @@ func Build(ctx context.Context, cfg *config.Config, compiledParsers map[string]c
 		}
 	}
 
+	// === SAVE CACHE ===
+	if opts.Incremental && header.BinaryID != "" {
+		nc := buildcache.New(header)
+		nc.Pages = res.ParsedPages
+		nc.Outputs = newOutputs
+		if err := buildcache.Save(opts.cachePath(), nc); err != nil {
+			fmt.Fprintf(os.Stderr, "fuego: warning: could not write build cache: %v\n", err)
+		}
+	}
+
 	// Report warnings
 	for _, e := range res.Errors.Errors() {
 		if e.Severity == core.Warning {
@@ -114,8 +180,37 @@ func Build(ctx context.Context, cfg *config.Config, compiledParsers map[string]c
 		}
 	}
 
-	fmt.Printf("fuego: built %d pages\n", len(renderable))
+	if prevCache != nil {
+		fmt.Printf("fuego: built %d pages (%d reparsed, %d cached)\n",
+			len(renderable), res.CacheStats.Parsed, res.CacheStats.Reused)
+	} else {
+		fmt.Printf("fuego: built %d pages\n", len(renderable))
+	}
 	return nil
+}
+
+// buildHeader computes the cache header for the current build environment.
+func buildHeader(cfg *config.Config, packs []core.Pack) buildcache.Header {
+	binID, _ := buildcache.BinaryID()
+	cfgBytes, _ := yaml.Marshal(cfg)
+	var packThemes []fs.FS
+	for _, p := range packs {
+		packThemes = append(packThemes, p.Theme)
+	}
+	return buildcache.Header{
+		BinaryID:   binID,
+		ConfigHash: buildcache.HashBytes(cfgBytes),
+		ThemeHash:  buildcache.ThemeHash(cfg.Dirs.Theme, packThemes),
+	}
+}
+
+// outputRelPaths returns the output index.html paths for the renderable pages.
+func outputRelPaths(pages []*core.Page) []string {
+	out := make([]string, 0, len(pages))
+	for _, p := range pages {
+		out = append(out, buildcache.OutputRelPath(p.URL))
+	}
+	return out
 }
 
 // runPackInit calls each pack's Init (if set), merging parsers and hooks it
@@ -168,7 +263,7 @@ func hasSkipped(pages []*core.Page) bool {
 
 // RunUntil executes pipeline phases up to and including the given phase.
 // It does NOT clean the output directory — callers that render must do that themselves.
-func RunUntil(ctx context.Context, cfg *config.Config, compiledParsers map[string]core.Parser, hooks *core.Hooks, packs []core.Pack, until Phase) (*Result, error) {
+func RunUntil(ctx context.Context, cfg *config.Config, compiledParsers map[string]core.Parser, hooks *core.Hooks, packs []core.Pack, prevParsed map[string]buildcache.ParsedPage, until Phase) (*Result, error) {
 	acc := &core.ErrorAccumulator{}
 
 	// === INIT ===
@@ -239,13 +334,16 @@ func RunUntil(ctx context.Context, cfg *config.Config, compiledParsers map[strin
 	}
 
 	// === PARSE ===
-	pages, parseErrs := parse.ParseAll(ctx, contentFiles, parsers)
+	pages, parseErrs, parsedMap, stats := parse.ParseAllCached(ctx, contentFiles, parsers, prevParsed)
+	res.Pages = pages
+	res.ParsedPages = parsedMap
+	res.CacheStats = stats
 	for _, e := range parseErrs {
 		acc.Add(e)
 	}
 
 	if acc.HasGlobalFatal() {
-		return &Result{Pages: pages, AssetFiles: assetFiles, Errors: acc}, reportErrors(acc)
+		return res, reportErrors(acc)
 	}
 
 	if len(parseErrs) > 0 {
@@ -253,8 +351,6 @@ func RunUntil(ctx context.Context, cfg *config.Config, compiledParsers map[strin
 			fmt.Fprintf(os.Stderr, "fuego: %s\n", e.Error())
 		}
 	}
-
-	res.Pages = pages
 
 	if until == PhaseParse {
 		return res, nil

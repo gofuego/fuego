@@ -49,7 +49,7 @@ func BenchmarkBuild(b *testing.B) {
 
 			b.ResetTimer()
 			for i := 0; i < b.N; i++ {
-				if err := pipeline.Build(context.Background(), cfg, parsers, nil, nil); err != nil {
+				if err := pipeline.Build(context.Background(), cfg, parsers, nil, nil, pipeline.Options{}); err != nil {
 					b.Fatalf("pipeline failed: %v", err)
 				}
 			}

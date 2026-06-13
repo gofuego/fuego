@@ -221,7 +221,7 @@ func TestIntegrationFixtures(t *testing.T) {
 			hooks := fixtureHooks(fixtureName)
 
 			if isErrorCase {
-				err := pipeline.Build(context.Background(), cfg, parsers, hooks, packs)
+				err := pipeline.Build(context.Background(), cfg, parsers, hooks, packs, pipeline.Options{})
 				if err == nil {
 					t.Fatal("expected pipeline to fail, but it succeeded")
 				}
@@ -230,7 +230,7 @@ func TestIntegrationFixtures(t *testing.T) {
 			}
 
 			// Run pipeline
-			err = pipeline.Build(context.Background(), cfg, parsers, hooks, packs)
+			err = pipeline.Build(context.Background(), cfg, parsers, hooks, packs, pipeline.Options{})
 			if err != nil {
 				t.Fatalf("pipeline failed: %v", err)
 			}

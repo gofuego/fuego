@@ -1,4 +1,5 @@
 build/
+.fuego/
 *.exe
 *.exe~
 *.dll

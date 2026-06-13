@@ -30,7 +30,10 @@ Build the static site. Runs the full pipeline and writes output to `build/`.
 
 ```bash
 fuego build
+fuego build --incremental    # reuse cached parses for unchanged content
 ```
+
+With `--incremental`, Fuego keeps a build cache and re-parses only the content files whose bytes changed since the last build; deleted pages have their output removed. A change to the engine binary, the resolved config, or the theme invalidates the cache and triggers a full, clean rebuild — so incremental output is always identical to a clean build. The dev server (`serve`) uses incremental builds automatically. See [The Build Pipeline](/docs/concepts/build-pipeline/#incremental-builds).
 
 ### serve
 

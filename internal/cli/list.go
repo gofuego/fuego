@@ -22,7 +22,7 @@ func newListCmd(parsers map[string]core.Parser, hooks *core.Hooks, packs []core.
 			}
 
 			ctx := context.Background()
-			res, err := pipeline.RunUntil(ctx, cfg, parsers, hooks, packs, pipeline.PhaseIndex)
+			res, err := pipeline.RunUntil(ctx, cfg, parsers, hooks, packs, nil, pipeline.PhaseIndex)
 			if err != nil {
 				return err
 			}

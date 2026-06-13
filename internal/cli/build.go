@@ -10,7 +10,8 @@ import (
 )
 
 func newBuildCmd(parsers map[string]core.Parser, hooks *core.Hooks, packs []core.Pack, configPath *string) *cobra.Command {
-	return &cobra.Command{
+	var incremental bool
+	cmd := &cobra.Command{
 		Use:   "build",
 		Short: "Build the static site",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -20,7 +21,12 @@ func newBuildCmd(parsers map[string]core.Parser, hooks *core.Hooks, packs []core
 			}
 
 			ctx := context.Background()
-			return pipeline.Build(ctx, cfg, parsers, hooks, packs)
+			return pipeline.Build(ctx, cfg, parsers, hooks, packs, pipeline.Options{
+				Incremental: incremental,
+			})
 		},
 	}
+	cmd.Flags().BoolVar(&incremental, "incremental", false,
+		"reuse cached parses for unchanged content (falls back to a full rebuild if the binary, config, or theme changed)")
+	return cmd
 }

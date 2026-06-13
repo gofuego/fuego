@@ -107,3 +107,14 @@ Copies `public/` contents to the output root and colocated binary assets to thei
 ## Partial Execution
 
 `validate` runs through INDEX without RENDER — catching config errors, parse failures, and collisions without producing output. `list` runs through ROUTE and prints the page table. This is controlled by `pipeline.RunUntil(phase)`.
+
+## Incremental Builds
+
+`fuego build --incremental` (and the dev server, always) keeps an on-disk cache of parsed pages so unchanged content isn't re-parsed on every rebuild.
+
+The cache is keyed by a header — a hash of the **engine binary**, the **resolved config**, and the **theme tree** — plus a per-file **content hash**:
+
+- If the header matches, content files whose hash is unchanged skip PARSE and are restored from cache; changed and new files are parsed normally; deleted files have their output removed (orphan cleanup via a manifest-style diff).
+- If the header doesn't match — you rebuilt the engine, edited `config.yaml`, or touched a template — the whole cache is discarded and the build falls back to a full, clean rebuild.
+
+Everything after PARSE (ROUTE, INDEX, RENDER, OUTPUTS) runs normally, so an incremental build produces **byte-identical output to a clean build** of the same inputs. That guarantee is enforced in CI: every fixture is built clean and then incrementally under each mutation (edit, add, delete, theme touch, config touch) and the output trees are compared byte-for-byte. A corrupt or version-mismatched cache is treated as a miss, never an error.

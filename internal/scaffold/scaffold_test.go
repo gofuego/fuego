@@ -35,7 +35,7 @@ func TestScaffoldBuilds(t *testing.T) {
 	// The scaffold's main.go registers Markdown; the card parser is declarative.
 	parsers := map[string]core.Parser{"md": markdown.Parser()}
 
-	if err := pipeline.Build(context.Background(), cfg, parsers, nil, nil); err != nil {
+	if err := pipeline.Build(context.Background(), cfg, parsers, nil, nil, pipeline.Options{}); err != nil {
 		t.Fatalf("scaffold site failed to build: %v", err)
 	}
 

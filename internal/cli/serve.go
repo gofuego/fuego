@@ -100,5 +100,7 @@ func runServe(cfg *config.Config, parsers map[string]core.Parser, hooks *core.Ho
 
 func doBuild(cfg *config.Config, parsers map[string]core.Parser, hooks *core.Hooks, packs []core.Pack) error {
 	ctx := context.Background()
-	return pipeline.Build(ctx, cfg, parsers, hooks, packs)
+	// The dev server rebuilds on every change, so incremental parsing keeps
+	// rebuilds fast on large sites.
+	return pipeline.Build(ctx, cfg, parsers, hooks, packs, pipeline.Options{Incremental: true})
 }

@@ -9,17 +9,35 @@ import (
 	"strings"
 
 	"github.com/FabioSol/fuego/core"
+	"github.com/FabioSol/fuego/internal/buildcache"
 	"github.com/FabioSol/fuego/internal/discover"
 	"golang.org/x/sync/errgroup"
 )
+
+// CacheStats reports what an incremental parse reused versus reparsed.
+type CacheStats struct {
+	Parsed int // files parsed this build
+	Reused int // files served from cache
+}
 
 // ParseAll processes all content files in parallel, dispatching to the
 // appropriate parser. Files with no matching parser are passed through
 // as raw content nodes.
 func ParseAll(ctx context.Context, files []discover.FileEntry, parsers map[string]core.Parser) ([]*core.Page, []core.EngineError) {
+	pages, errs, _, _ := ParseAllCached(ctx, files, parsers, nil)
+	return pages, errs
+}
+
+// ParseAllCached is like ParseAll but reuses parsed pages from prev whose
+// content hash is unchanged, parsing only new or modified files. It returns
+// the compacted pages and errors, the fresh page map to persist (covering
+// exactly the current files), and reuse statistics. prev may be nil.
+func ParseAllCached(ctx context.Context, files []discover.FileEntry, parsers map[string]core.Parser, prev map[string]buildcache.ParsedPage) ([]*core.Page, []core.EngineError, map[string]buildcache.ParsedPage, CacheStats) {
 	pages := make([]*core.Page, len(files))
 	errs := make([]core.EngineError, len(files))
 	hasErr := make([]bool, len(files))
+	cached := make([]buildcache.ParsedPage, len(files))
+	reused := make([]bool, len(files))
 
 	g, ctx := errgroup.WithContext(ctx)
 	g.SetLimit(runtime.NumCPU())
@@ -29,32 +47,82 @@ func ParseAll(ctx context.Context, files []discover.FileEntry, parsers map[strin
 		file := f
 
 		g.Go(func() error {
-			page, engErr := parseFile(file, parsers)
+			raw, err := os.ReadFile(file.Path)
+			if err != nil {
+				errs[idx] = core.EngineError{Phase: "PARSE", File: file.RelPath, Severity: core.LocalFatal, Err: fmt.Errorf("reading file: %w", err)}
+				hasErr[idx] = true
+				return nil
+			}
+			hash := buildcache.HashBytes(raw)
+
+			if prev != nil {
+				if cp, ok := prev[file.RelPath]; ok && cp.ContentHash == hash {
+					pages[idx] = pageFromCache(file, cp)
+					cached[idx] = cp
+					reused[idx] = true
+					return nil
+				}
+			}
+
+			page, engErr := buildPage(file, parsers, raw)
 			if engErr != nil {
 				errs[idx] = *engErr
 				hasErr[idx] = true
-			} else {
-				pages[idx] = page
+				return nil
 			}
-			return nil // never return error; we collect EngineErrors instead
+			pages[idx] = page
+			cached[idx] = buildcache.ParsedPage{
+				ContentHash: hash,
+				Envelope:    page.Envelope,
+				Nodes:       page.Nodes,
+				Type:        page.Type,
+				Layout:      page.Layout,
+				IsRaw:       page.IsRaw,
+			}
+			return nil
 		})
 	}
 
 	g.Wait()
 
-	// Compact results
 	var validPages []*core.Page
 	var validErrs []core.EngineError
+	newMap := make(map[string]buildcache.ParsedPage, len(files))
+	var stats CacheStats
 
 	for i := range files {
 		if hasErr[i] {
 			validErrs = append(validErrs, errs[i])
-		} else if pages[i] != nil {
-			validPages = append(validPages, pages[i])
+			continue
+		}
+		if pages[i] == nil {
+			continue
+		}
+		validPages = append(validPages, pages[i])
+		newMap[files[i].RelPath] = cached[i]
+		if reused[i] {
+			stats.Reused++
+		} else {
+			stats.Parsed++
 		}
 	}
 
-	return validPages, validErrs
+	return validPages, validErrs, newMap, stats
+}
+
+// pageFromCache reconstructs a post-PARSE page from a cache entry, taking the
+// filesystem paths from the freshly discovered file.
+func pageFromCache(file discover.FileEntry, cp buildcache.ParsedPage) *core.Page {
+	return &core.Page{
+		SourcePath: file.Path,
+		RelPath:    file.RelPath,
+		Ext:        file.Ext,
+		Envelope:   cp.Envelope,
+		Nodes:      cp.Nodes,
+		Type:       cp.Type,
+		Layout:     cp.Layout,
+		IsRaw:      cp.IsRaw,
+	}
 }
 
 // parseErrorLine extracts the source line from a core.ParseError anywhere
@@ -77,7 +145,11 @@ func parseFile(file discover.FileEntry, parsers map[string]core.Parser) (*core.P
 			Err:      fmt.Errorf("reading file: %w", err),
 		}
 	}
+	return buildPage(file, parsers, raw)
+}
 
+// buildPage parses already-read file bytes into a post-PARSE page.
+func buildPage(file discover.FileEntry, parsers map[string]core.Parser, raw []byte) (*core.Page, *core.EngineError) {
 	page := &core.Page{
 		SourcePath: file.Path,
 		RelPath:    file.RelPath,
