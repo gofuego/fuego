@@ -1,7 +1,0 @@
-site:
-  name: "Fuego"
-  # Served by fuego-studio at /<owner>/<repo>/ — base_url must equal the mount path.
-  base_url: "/gofuego/fuego"
-
-# Taxonomy and collection config come from the docs pack (see docspack/)
-# and are deep-merged here. Run `go run . config` to inspect the result.

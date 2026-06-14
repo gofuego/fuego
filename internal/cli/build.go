@@ -11,6 +11,7 @@ import (
 
 func newBuildCmd(parsers map[string]core.Parser, hooks *core.Hooks, packs []core.Pack, configPath *string) *cobra.Command {
 	var incremental bool
+	var baseURL string
 	cmd := &cobra.Command{
 		Use:   "build",
 		Short: "Build the static site",
@@ -18,6 +19,9 @@ func newBuildCmd(parsers map[string]core.Parser, hooks *core.Hooks, packs []core
 			cfg, err := loadConfig(*configPath, packs)
 			if err != nil {
 				return fmt.Errorf("loading config: %w", err)
+			}
+			if cmd.Flags().Changed("base-url") {
+				cfg.Site.BaseURL = baseURL
 			}
 
 			ctx := context.Background()
@@ -28,5 +32,7 @@ func newBuildCmd(parsers map[string]core.Parser, hooks *core.Hooks, packs []core
 	}
 	cmd.Flags().BoolVar(&incremental, "incremental", false,
 		"reuse cached parses for unchanged content (falls back to a full rebuild if the binary, config, or theme changed)")
+	cmd.Flags().StringVar(&baseURL, "base-url", "",
+		"override the site base_url (deploy subpath, e.g. /owner/repo); empty for root")
 	return cmd
 }

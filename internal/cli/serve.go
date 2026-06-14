@@ -12,7 +12,8 @@ import (
 )
 
 func newServeCmd(parsers map[string]core.Parser, hooks *core.Hooks, packs []core.Pack, configPath *string) *cobra.Command {
-	return &cobra.Command{
+	var baseURL string
+	cmd := &cobra.Command{
 		Use:   "serve",
 		Short: "Start the development server with live reload",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -20,11 +21,17 @@ func newServeCmd(parsers map[string]core.Parser, hooks *core.Hooks, packs []core
 			if err != nil {
 				return fmt.Errorf("loading config: %w", err)
 			}
+			if cmd.Flags().Changed("base-url") {
+				cfg.Site.BaseURL = baseURL
+			}
 			return serve.Run(cfg, func() error {
 				return doBuild(cfg, parsers, hooks, packs)
 			})
 		},
 	}
+	cmd.Flags().StringVar(&baseURL, "base-url", "",
+		"override the site base_url (deploy subpath, e.g. /owner/repo); empty for root")
+	return cmd
 }
 
 func doBuild(cfg *config.Config, parsers map[string]core.Parser, hooks *core.Hooks, packs []core.Pack) error {
