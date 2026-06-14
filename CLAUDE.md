@@ -155,6 +155,11 @@ STATIC         →  Copy pack static/, then public/, then colocated binary asset
 - Pages in manifest are sorted by URL
 - Integration tests verify determinism with `go test -count=3`
 
+### Site manifest
+- `internal/manifest` writes `site-manifest.json`. Each page entry carries `url`, `type`, `layout`, `title`, `summary`, `output_path` (`<url>/index.html`), `source_path` (the page's `RelPath` — content-dir-relative, forward slashes; empty for virtual pages so they're non-editable), and the flattened `envelope`
+- The top-level `content_root` is the content dir relative to the enclosing git root (empty outside a git repo). A host maps a page's repo-relative source to `content_root` + `source_path` — this is what fuego-studio uses to fetch/commit a page's source
+- The `build`/`serve` `--base-url` flag overrides `site.base_url` for a single run (override only when the flag is set), so a deploy can target a subpath without a separate config file
+
 ### Testing
 - Unit tests live next to their source files (`*_test.go`)
 - Integration tests: `integration_test.go` at the root, fixtures in `testdata/`

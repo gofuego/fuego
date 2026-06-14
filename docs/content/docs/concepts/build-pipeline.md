@@ -98,7 +98,7 @@ Renders every file under `theme/outputs/` as a text template fed with `.Site`, w
 
 ### MANIFEST
 
-Writes `site-manifest.json` — a JSON index of all pages, taxonomy terms, and collection membership. Useful for client-side search, navigation, or API-like access to site data.
+Writes `site-manifest.json` — a JSON index of all pages, taxonomy terms, and collection membership. Each page entry records its `url`, `type`, `layout`, `title`, `output_path` (the generated file, e.g. `blog/post/index.html`), and `source_path` (the source file relative to the content directory — empty for virtual pages); the top-level `content_root` is the content directory relative to the repository root. This is useful for client-side search and navigation, and for mapping a served URL back to the source file it was built from — what an external host or in-place editor needs.
 
 ### STATIC
 

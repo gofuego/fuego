@@ -62,7 +62,7 @@ fuego serve          # dev server at http://localhost:8080
 - **Incremental builds** — opt-in parse cache + render narrowing, byte-identical to a clean build
 - **Embeddable** — a programmatic API (`engine.Build/Serve/Validate`) for building domain-specific generators on top of Fuego
 - **Dev server** — file watching, live rebuild, optional Vite proxy
-- **Site manifest** — `site-manifest.json` with page index, taxonomy terms, and collection membership
+- **Site manifest** — `site-manifest.json` with a page index (each page's source and output paths), taxonomy terms, and collection membership
 - **Deterministic output** — sorted keys, reproducible builds
 
 ## Example: Custom Parser in Config
