@@ -10,4 +10,4 @@ go run github.com/gofuego/fuego/cmd/fuego@latest init mysite
 cd mysite && go run . serve
 ```
 
-Discovery, routing, taxonomies, pagination, feeds, a dev server — Fuego handles the infrastructure every generator needs. You bring the format. Markdown is a first-party parser you opt into; no format is privileged. This very site is built with Fuego.
+Discovery, routing, taxonomies, pagination, feeds, a dev server — Fuego handles the infrastructure every generator needs. You bring the format. Markdown is a first-party parser you opt into; no format is privileged. This very site is built with Fuego
