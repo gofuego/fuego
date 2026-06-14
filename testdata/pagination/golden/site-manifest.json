@@ -1,4 +1,5 @@
 {
+  "content_root": "testdata/pagination/input/content",
   "pages": [
     {
       "url": "/all-posts/",

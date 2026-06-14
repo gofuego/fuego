@@ -1,4 +1,5 @@
 {
+  "content_root": "testdata/declarative-compiled-collision/input/content",
   "pages": [
     {
       "url": "/test/",

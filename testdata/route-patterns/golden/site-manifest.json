@@ -1,4 +1,5 @@
 {
+  "content_root": "testdata/route-patterns/input/content",
   "pages": [
     {
       "url": "/about/",

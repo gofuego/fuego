@@ -1,4 +1,5 @@
 {
+  "content_root": "testdata/compiled-parser/input/content",
   "pages": [
     {
       "url": "/concurrency/",

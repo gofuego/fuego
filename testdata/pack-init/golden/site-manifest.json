@@ -1,4 +1,5 @@
 {
+  "content_root": "testdata/pack-init/input/content",
   "pages": [
     {
       "url": "/hello/",

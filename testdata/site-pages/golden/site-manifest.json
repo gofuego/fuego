@@ -1,4 +1,5 @@
 {
+  "content_root": "testdata/site-pages/input/content",
   "pages": [
     {
       "url": "/index/",

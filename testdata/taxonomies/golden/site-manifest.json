@@ -1,4 +1,5 @@
 {
+  "content_root": "testdata/taxonomies/input/content",
   "pages": [
     {
       "url": "/post1/",

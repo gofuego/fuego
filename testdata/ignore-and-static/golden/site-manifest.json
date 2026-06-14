@@ -1,4 +1,5 @@
 {
+  "content_root": "testdata/ignore-and-static/input/content",
   "pages": [
     {
       "url": "/blog/post/",

@@ -1,4 +1,5 @@
 {
+  "content_root": "testdata/index-hook/input/content",
   "pages": [
     {
       "url": "/about/",

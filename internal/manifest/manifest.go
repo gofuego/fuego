@@ -41,6 +41,11 @@ type CollectionEntry struct {
 
 // Manifest is the top-level site manifest structure.
 type Manifest struct {
+	// ContentRoot is the content directory relative to the repository (git)
+	// root, e.g. "docs/content". A page's repo-relative source file is
+	// ContentRoot joined with its SourcePath — what a host needs to fetch or
+	// edit the source. Empty when the build is not inside a git repository.
+	ContentRoot string                     `json:"content_root,omitempty"`
 	Pages       []PageEntry                `json:"pages"`
 	Taxonomies  map[string]TaxonomyEntry   `json:"taxonomies,omitempty"`
 	Collections map[string]CollectionEntry `json:"collections,omitempty"`
@@ -84,7 +89,8 @@ func Generate(pages []*core.Page, cfg *config.Config) *Manifest {
 	}
 
 	m := &Manifest{
-		Pages: entries,
+		ContentRoot: contentRoot(cfg.Dirs.Content),
+		Pages:       entries,
 	}
 
 	// Build taxonomy sections
@@ -98,6 +104,45 @@ func Generate(pages []*core.Page, cfg *config.Config) *Manifest {
 	}
 
 	return m
+}
+
+// contentRoot returns the content directory relative to the enclosing git
+// repository root (forward slashes), or "" when the dir is empty or not inside
+// a git repo. This lets a host map a page's content-relative source path back to
+// its real path within the repository.
+func contentRoot(contentDir string) string {
+	if contentDir == "" {
+		return ""
+	}
+	abs, err := filepath.Abs(contentDir)
+	if err != nil {
+		return ""
+	}
+	root := gitRoot(abs)
+	if root == "" {
+		return ""
+	}
+	rel, err := filepath.Rel(root, abs)
+	if err != nil {
+		return ""
+	}
+	return filepath.ToSlash(rel)
+}
+
+// gitRoot walks up from start looking for a .git entry (directory or file, for
+// worktrees), returning the directory that contains it, or "".
+func gitRoot(start string) string {
+	dir := start
+	for {
+		if _, err := os.Stat(filepath.Join(dir, ".git")); err == nil {
+			return dir
+		}
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			return ""
+		}
+		dir = parent
+	}
 }
 
 // outputPath returns the generated file path (relative to the output root) for

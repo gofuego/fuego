@@ -1,4 +1,5 @@
 {
+  "content_root": "testdata/no-envelope/input/content",
   "pages": [
     {
       "url": "/example/",

@@ -1,4 +1,5 @@
 {
+  "content_root": "testdata/pack-theme/input/content",
   "pages": [
     {
       "url": "/hello/",
