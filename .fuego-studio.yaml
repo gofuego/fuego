@@ -1,0 +1,2 @@
+# ADRs are immutable decision records — serve them read-only in fuego-studio.
+editing: false

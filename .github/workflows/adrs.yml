@@ -1,0 +1,17 @@
+name: ADRs
+
+on:
+  push:
+    branches: [main]
+    paths: [adrs/**]
+  workflow_dispatch:
+
+jobs:
+  adrs:
+    # Engine ADRs: public repo, served read-only in fuego-studio at /gofuego/fuego.
+    permissions:
+      contents: write
+    uses: gofuego/.github/.github/workflows/fuego-adr-deploy.yml@main
+    with:
+      adr_path: adrs
+      studio_base: /gofuego/fuego
