@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/FabioSol/fuego/core"
+	"github.com/gofuego/fuego/core"
 )
 
 // paginate splits a listing virtual page into N pages of at most pageSize

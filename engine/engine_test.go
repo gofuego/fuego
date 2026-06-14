@@ -3,7 +3,7 @@ package engine
 import (
 	"testing"
 
-	"github.com/FabioSol/fuego/core"
+	"github.com/gofuego/fuego/core"
 )
 
 // mockParser is a minimal Parser implementation for testing.

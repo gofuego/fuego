@@ -140,7 +140,7 @@ func resolveDeps(dir, packImport string) {
 		return
 	}
 
-	mods := []string{"github.com/FabioSol/fuego@latest"}
+	mods := []string{"github.com/gofuego/fuego@latest"}
 	if packImport != "" {
 		mods = append(mods, packImport+"@latest")
 	}

@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"sort"
 
-	"github.com/FabioSol/fuego/core"
-	"github.com/FabioSol/fuego/internal/config"
+	"github.com/gofuego/fuego/core"
+	"github.com/gofuego/fuego/internal/config"
 )
 
 // PageEntry is a single page in the manifest.

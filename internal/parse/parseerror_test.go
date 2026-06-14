@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/FabioSol/fuego/core"
-	"github.com/FabioSol/fuego/internal/discover"
+	"github.com/gofuego/fuego/core"
+	"github.com/gofuego/fuego/internal/discover"
 )
 
 // lineReportingParser always fails with a positioned ParseError.

@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/FabioSol/fuego/internal/discover"
+	"github.com/gofuego/fuego/internal/discover"
 )
 
 func TestCopyPublicDir(t *testing.T) {

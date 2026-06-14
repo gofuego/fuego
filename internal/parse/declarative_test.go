@@ -3,8 +3,8 @@ package parse
 import (
 	"testing"
 
-	"github.com/FabioSol/fuego/core"
-	"github.com/FabioSol/fuego/internal/config"
+	"github.com/gofuego/fuego/core"
+	"github.com/gofuego/fuego/internal/config"
 )
 
 func TestNewDeclarativeParser_InvalidRegex(t *testing.T) {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/FabioSol/fuego/internal/discover"
+	"github.com/gofuego/fuego/internal/discover"
 )
 
 func TestParseAllCachedReuse(t *testing.T) {

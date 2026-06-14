@@ -10,7 +10,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/FabioSol/fuego/internal/config"
+	"github.com/gofuego/fuego/internal/config"
 )
 
 // Run starts the development server: an initial build, a dev subprocess (if

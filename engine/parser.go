@@ -1,6 +1,6 @@
 package engine
 
-import "github.com/FabioSol/fuego/core"
+import "github.com/gofuego/fuego/core"
 
 // Re-export core types as the public API surface.
 type (

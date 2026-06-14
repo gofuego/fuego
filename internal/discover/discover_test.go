@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/FabioSol/fuego/internal/config"
+	"github.com/gofuego/fuego/internal/config"
 )
 
 func setupContentDir(t *testing.T, files map[string]string) string {

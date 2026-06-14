@@ -11,7 +11,7 @@ Most SSGs are Markdown-first. Fuego is format-agnostic. You define the content f
 ## Install
 
 ```bash
-go install github.com/FabioSol/fuego/cmd/fuego@latest
+go install github.com/gofuego/fuego/cmd/fuego@latest
 ```
 
 Requires Go 1.23+. Adds `fuego` to `$GOPATH/bin` (usually `~/go/bin`).

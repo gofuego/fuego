@@ -3,7 +3,7 @@ package route
 import (
 	"testing"
 
-	"github.com/FabioSol/fuego/core"
+	"github.com/gofuego/fuego/core"
 )
 
 func TestDetectCollisionsNormalizesTrailingSlash(t *testing.T) {

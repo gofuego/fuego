@@ -18,7 +18,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/FabioSol/fuego/core"
+	"github.com/gofuego/fuego/core"
 )
 
 // cacheVersion is bumped when the on-disk format changes; a mismatch is

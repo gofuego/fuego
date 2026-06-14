@@ -3,7 +3,7 @@ package render
 import (
 	"testing"
 
-	"github.com/FabioSol/fuego/core"
+	"github.com/gofuego/fuego/core"
 )
 
 func TestBuildPageRefsSortedAndSkipFiltered(t *testing.T) {

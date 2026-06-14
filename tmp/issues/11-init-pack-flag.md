@@ -8,7 +8,7 @@ blocked_by: [09, 15]
 
 ## What to build
 
-`fuego init mysite --pack github.com/FabioSol/fuego-adr` scaffolds the generic skeleton, then writes a main.go importing the pack module and calling `eng.Use(pkg.Pack())`, runs `go mod init` + `go get <module>`. Convention: a pack module's root package exports `Pack() core.Pack`. **Init never executes third-party code** — pack config defaults flow at runtime via deep merge (#09), so no config writing is needed; `fuego config` shows the resolved result. Richer pack-provided sample content is explicitly out of scope (future `scaffold` subcommand on the user's own binary).
+`fuego init mysite --pack github.com/gofuego/fuego-adr` scaffolds the generic skeleton, then writes a main.go importing the pack module and calling `eng.Use(pkg.Pack())`, runs `go mod init` + `go get <module>`. Convention: a pack module's root package exports `Pack() core.Pack`. **Init never executes third-party code** — pack config defaults flow at runtime via deep merge (#09), so no config writing is needed; `fuego config` shows the resolved result. Richer pack-provided sample content is explicitly out of scope (future `scaffold` subcommand on the user's own binary).
 
 ## Acceptance criteria
 

@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/FabioSol/fuego/core"
+	"github.com/gofuego/fuego/core"
 )
 
 func TestSaveLoadRoundTrip(t *testing.T) {

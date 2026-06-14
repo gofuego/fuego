@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/FabioSol/fuego/core"
-	"github.com/FabioSol/fuego/internal/cli"
+	"github.com/gofuego/fuego/core"
+	"github.com/gofuego/fuego/internal/cli"
 )
 
 // Engine is the core orchestrator for the Fuego static site generator.

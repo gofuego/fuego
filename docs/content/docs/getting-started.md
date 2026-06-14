@@ -13,7 +13,7 @@ tags:
 Fuego requires Go 1.23 or later.
 
 ```bash
-go install github.com/FabioSol/fuego/cmd/fuego@latest
+go install github.com/gofuego/fuego/cmd/fuego@latest
 ```
 
 This adds the `fuego` binary to your `$GOPATH/bin` (usually `~/go/bin`). Make sure it's in your PATH:
@@ -25,7 +25,7 @@ export PATH="$HOME/go/bin:$PATH"
 You can also run without installing:
 
 ```bash
-go run github.com/FabioSol/fuego/cmd/fuego@latest init mysite
+go run github.com/gofuego/fuego/cmd/fuego@latest init mysite
 ```
 
 ## Scaffold a Project
@@ -62,7 +62,7 @@ type you want — Markdown ADRs, Kubernetes diagrams, flashcards — scaffold wi
 it pre-installed:
 
 ```bash
-fuego init mysite --pack github.com/FabioSol/fuego-adr/adr
+fuego init mysite --pack github.com/gofuego/fuego-adr/adr
 ```
 
 This wires `eng.Use(adr.Pack())` into `main.go` and runs `go get` to install

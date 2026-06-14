@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"unicode"
 
-	"github.com/FabioSol/fuego/internal/scaffold"
+	"github.com/gofuego/fuego/internal/scaffold"
 	"github.com/spf13/cobra"
 )
 
@@ -64,7 +64,7 @@ func newInitCmd() *cobra.Command {
 	}
 
 	cmd.Flags().StringVar(&packModule, "pack", "",
-		"format pack module to install and wire in (e.g. github.com/FabioSol/fuego-adr/adr)")
+		"format pack module to install and wire in (e.g. github.com/gofuego/fuego-adr/adr)")
 	cmd.Flags().StringVar(&packSymbol, "pack-symbol", "",
 		"package identifier for the pack's Pack() call (default: the module's last path segment)")
 

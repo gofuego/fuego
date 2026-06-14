@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"github.com/FabioSol/fuego/core"
+	"github.com/gofuego/fuego/core"
 	"github.com/spf13/cobra"
 )
 

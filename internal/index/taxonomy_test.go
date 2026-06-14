@@ -3,8 +3,8 @@ package index
 import (
 	"testing"
 
-	"github.com/FabioSol/fuego/core"
-	"github.com/FabioSol/fuego/internal/config"
+	"github.com/gofuego/fuego/core"
+	"github.com/gofuego/fuego/internal/config"
 )
 
 func TestBuildTaxonomies_BasicTermPages(t *testing.T) {

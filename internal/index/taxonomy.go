@@ -5,8 +5,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/FabioSol/fuego/core"
-	"github.com/FabioSol/fuego/internal/config"
+	"github.com/gofuego/fuego/core"
+	"github.com/gofuego/fuego/internal/config"
 )
 
 // BuildTaxonomies scans page envelopes for taxonomy fields declared in config,

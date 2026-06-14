@@ -9,7 +9,7 @@ package docspack
 import (
 	_ "embed"
 
-	"github.com/FabioSol/fuego/core"
+	"github.com/gofuego/fuego/core"
 )
 
 //go:embed config-defaults.yaml

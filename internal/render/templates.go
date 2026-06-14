@@ -8,7 +8,7 @@ import (
 	"path"
 	"strings"
 
-	"github.com/FabioSol/fuego/core"
+	"github.com/gofuego/fuego/core"
 )
 
 // TemplateCache holds all pre-parsed templates for rendering.

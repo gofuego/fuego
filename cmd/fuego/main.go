@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/FabioSol/fuego/engine"
+	"github.com/gofuego/fuego/engine"
 )
 
 func main() {

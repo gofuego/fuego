@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/FabioSol/fuego/internal/scaffold"
+	"github.com/gofuego/fuego/internal/scaffold"
 )
 
 // TestScaffoldWithPack verifies that --pack wiring is generated offline (no
@@ -17,7 +17,7 @@ func TestScaffoldWithPack(t *testing.T) {
 	err := scaffold.WriteFiles(dir, scaffold.Data{
 		Name:       "site",
 		Module:     "site",
-		PackImport: "github.com/FabioSol/fuego-adr/adr",
+		PackImport: "github.com/gofuego/fuego-adr/adr",
 		PackSymbol: "adr",
 	})
 	if err != nil {
@@ -29,7 +29,7 @@ func TestScaffoldWithPack(t *testing.T) {
 		t.Fatal(err)
 	}
 	got := string(main)
-	if !strings.Contains(got, `"github.com/FabioSol/fuego-adr/adr"`) {
+	if !strings.Contains(got, `"github.com/gofuego/fuego-adr/adr"`) {
 		t.Errorf("main.go missing pack import:\n%s", got)
 	}
 	if !strings.Contains(got, "eng.Use(adr.Pack())") {
@@ -40,7 +40,7 @@ func TestScaffoldWithPack(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(string(claude), "github.com/FabioSol/fuego-adr/adr") {
+	if !strings.Contains(string(claude), "github.com/gofuego/fuego-adr/adr") {
 		t.Error("CLAUDE.md should mention the installed pack")
 	}
 	if !strings.Contains(string(claude), "go run . config") {

@@ -32,7 +32,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/FabioSol/fuego/core"
+	"github.com/gofuego/fuego/core"
 )
 
 type noteParser struct{}
@@ -86,7 +86,7 @@ import (
 	"embed"
 	"io/fs"
 
-	"github.com/FabioSol/fuego/core"
+	"github.com/gofuego/fuego/core"
 )
 
 //go:embed theme

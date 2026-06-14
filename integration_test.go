@@ -10,10 +10,10 @@ import (
 	"testing"
 	"testing/fstest"
 
-	"github.com/FabioSol/fuego/core"
-	"github.com/FabioSol/fuego/internal/config"
-	"github.com/FabioSol/fuego/internal/pipeline"
-	"github.com/FabioSol/fuego/parsers/markdown"
+	"github.com/gofuego/fuego/core"
+	"github.com/gofuego/fuego/internal/config"
+	"github.com/gofuego/fuego/internal/pipeline"
+	"github.com/gofuego/fuego/parsers/markdown"
 )
 
 var update = flag.Bool("update", false, "update golden files")

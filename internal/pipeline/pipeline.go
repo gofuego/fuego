@@ -11,15 +11,15 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/FabioSol/fuego/core"
-	"github.com/FabioSol/fuego/internal/buildcache"
-	"github.com/FabioSol/fuego/internal/config"
-	"github.com/FabioSol/fuego/internal/discover"
-	"github.com/FabioSol/fuego/internal/index"
-	"github.com/FabioSol/fuego/internal/manifest"
-	"github.com/FabioSol/fuego/internal/parse"
-	"github.com/FabioSol/fuego/internal/render"
-	"github.com/FabioSol/fuego/internal/route"
+	"github.com/gofuego/fuego/core"
+	"github.com/gofuego/fuego/internal/buildcache"
+	"github.com/gofuego/fuego/internal/config"
+	"github.com/gofuego/fuego/internal/discover"
+	"github.com/gofuego/fuego/internal/index"
+	"github.com/gofuego/fuego/internal/manifest"
+	"github.com/gofuego/fuego/internal/parse"
+	"github.com/gofuego/fuego/internal/render"
+	"github.com/gofuego/fuego/internal/route"
 )
 
 // Options controls a build invocation.

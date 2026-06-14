@@ -198,7 +198,7 @@ STATIC         →  Copy pack static/, then public/, then colocated binary asset
 ### Building a tool on Fuego (pack + programmatic API)
 1. Put the format logic in a `core.Pack` returned by `Pack()` — parsers, hooks, an embedded theme FS (with `static/`), and a `ConfigDefaults` YAML fragment
 2. Drive the engine with `engine.Build/Serve/Validate` and `engine.BuildOptions` (no temp config file)
-3. See the self-hosted docs "Embedding Fuego" and "Format Packs", and `github.com/FabioSol/fuego-adr` as the reference implementation
+3. See the self-hosted docs "Embedding Fuego" and "Format Packs", and `github.com/gofuego/fuego-adr` as the reference implementation
 
 ### Adding a new config field
 1. Add the field to the appropriate struct in `internal/config/config.go`

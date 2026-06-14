@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/FabioSol/fuego/core"
+	"github.com/gofuego/fuego/core"
 )
 
 // buildFuncMap constructs the function map shared by the base template,

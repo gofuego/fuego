@@ -8,9 +8,9 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/FabioSol/fuego/core"
-	"github.com/FabioSol/fuego/internal/buildcache"
-	"github.com/FabioSol/fuego/internal/discover"
+	"github.com/gofuego/fuego/core"
+	"github.com/gofuego/fuego/internal/buildcache"
+	"github.com/gofuego/fuego/internal/discover"
 	"golang.org/x/sync/errgroup"
 )
 

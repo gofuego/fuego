@@ -8,8 +8,8 @@ import (
 	"path"
 	"path/filepath"
 
-	"github.com/FabioSol/fuego/core"
-	"github.com/FabioSol/fuego/internal/discover"
+	"github.com/gofuego/fuego/core"
+	"github.com/gofuego/fuego/internal/discover"
 )
 
 // CopyPackStatic copies each pack theme's static/ subtree to the output root,

@@ -15,7 +15,7 @@ In this tutorial you'll build a trivia quiz site from scratch using a custom `.t
 ## 1. Scaffold the Project
 
 ```bash
-go run github.com/FabioSol/fuego/cmd/fuego@latest init quiz-site
+go run github.com/gofuego/fuego/cmd/fuego@latest init quiz-site
 cd quiz-site
 ```
 

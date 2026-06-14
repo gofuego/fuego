@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/FabioSol/fuego/core"
-	"github.com/FabioSol/fuego/internal/config"
+	"github.com/gofuego/fuego/core"
+	"github.com/gofuego/fuego/internal/config"
 )
 
 // ResolveAll assigns a URL to each page using the three-tier priority:

@@ -1,4 +1,4 @@
-module github.com/FabioSol/fuego
+module github.com/gofuego/fuego
 
 go 1.25.0
 

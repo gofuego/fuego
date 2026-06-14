@@ -5,8 +5,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/FabioSol/fuego/core"
-	"github.com/FabioSol/fuego/internal/config"
+	"github.com/gofuego/fuego/core"
+	"github.com/gofuego/fuego/internal/config"
 )
 
 // compiledRule is a single regex rule with its pre-compiled pattern and emit template.

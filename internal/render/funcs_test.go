@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/FabioSol/fuego/core"
+	"github.com/gofuego/fuego/core"
 )
 
 // pageRefLike mirrors the shape .Site.Pages refs will have: exported fields

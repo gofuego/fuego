@@ -6,7 +6,7 @@ import (
 	"html/template"
 	"strings"
 
-	"github.com/FabioSol/fuego/core"
+	"github.com/gofuego/fuego/core"
 )
 
 // DefaultRenderer produces semantic HTML from a []Node tree using

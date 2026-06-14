@@ -7,11 +7,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/FabioSol/fuego/core"
-	"github.com/FabioSol/fuego/internal/config"
-	"github.com/FabioSol/fuego/internal/pipeline"
-	"github.com/FabioSol/fuego/internal/scaffold"
-	"github.com/FabioSol/fuego/parsers/markdown"
+	"github.com/gofuego/fuego/core"
+	"github.com/gofuego/fuego/internal/config"
+	"github.com/gofuego/fuego/internal/pipeline"
+	"github.com/gofuego/fuego/internal/scaffold"
+	"github.com/gofuego/fuego/parsers/markdown"
 )
 
 // TestScaffoldBuilds generates a project and builds it through the real

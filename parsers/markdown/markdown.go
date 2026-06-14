@@ -10,7 +10,7 @@ package markdown
 import (
 	"bytes"
 
-	"github.com/FabioSol/fuego/core"
+	"github.com/gofuego/fuego/core"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"
 )

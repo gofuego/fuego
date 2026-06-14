@@ -7,9 +7,9 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/FabioSol/fuego/internal/config"
-	"github.com/FabioSol/fuego/internal/pipeline"
-	"github.com/FabioSol/fuego/internal/serve"
+	"github.com/gofuego/fuego/internal/config"
+	"github.com/gofuego/fuego/internal/pipeline"
+	"github.com/gofuego/fuego/internal/serve"
 )
 
 // BuildOptions configures a build, serve, or validate driven through the Go

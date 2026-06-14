@@ -42,7 +42,7 @@ package main
 
 import (
     "strings"
-    "github.com/FabioSol/fuego/core"
+    "github.com/gofuego/fuego/core"
 )
 
 type RecipeParser struct{}

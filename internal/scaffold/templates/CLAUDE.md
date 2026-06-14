@@ -1,6 +1,6 @@
 # CLAUDE.md — Fuego Site
 
-This is a static site built with [Fuego](https://github.com/FabioSol/fuego), a format-agnostic meta-engine for static site generation in Go.
+This is a static site built with [Fuego](https://github.com/gofuego/fuego), a format-agnostic meta-engine for static site generation in Go.
 
 ## Commands
 

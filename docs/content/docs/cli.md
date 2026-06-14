@@ -11,7 +11,7 @@ tags:
 ## Install
 
 ```bash
-go install github.com/FabioSol/fuego/cmd/fuego@latest
+go install github.com/gofuego/fuego/cmd/fuego@latest
 ```
 
 Requires Go 1.23+. The binary is placed in `$GOPATH/bin` (usually `~/go/bin`). Ensure this directory is in your `PATH`.
@@ -19,7 +19,7 @@ Requires Go 1.23+. The binary is placed in `$GOPATH/bin` (usually `~/go/bin`). E
 Alternatively, run any command without installing:
 
 ```bash
-go run github.com/FabioSol/fuego/cmd/fuego@latest <command>
+go run github.com/gofuego/fuego/cmd/fuego@latest <command>
 ```
 
 ## Commands
@@ -86,7 +86,7 @@ Creates a working project with a `.card` flashcard DSL, theme, and sample conten
 **Start from a format pack** with `--pack`:
 
 ```bash
-fuego init mysite --pack github.com/FabioSol/fuego-adr/adr
+fuego init mysite --pack github.com/gofuego/fuego-adr/adr
 ```
 
 This scaffolds the project, wires the pack into `main.go`

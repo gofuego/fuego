@@ -12,7 +12,7 @@ tags:
 Fuego isn't only a CLI — it's a library for **building your own static site
 generator**. A domain-specific tool (an ADR site builder, an infra-diagram
 generator, a changelog publisher) is typically a [format pack](/docs/concepts/format-packs/)
-plus a thin program that drives the engine in-process. [fuego-adr](https://github.com/FabioSol/fuego-adr)
+plus a thin program that drives the engine in-process. [fuego-adr](https://github.com/gofuego/fuego-adr)
 is exactly this shape.
 
 ## Two ways to drive the engine
@@ -37,7 +37,7 @@ From there you either:
 ```go
 import (
 	"context"
-	"github.com/FabioSol/fuego/engine"
+	"github.com/gofuego/fuego/engine"
 )
 
 func main() {

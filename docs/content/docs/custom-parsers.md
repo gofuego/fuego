@@ -96,7 +96,7 @@ A file is discovered as content only if a registered parser matches its extensio
 Markdown is a first-party, opt-in parser — not a built-in. Register it like any other compiled parser:
 
 ```go
-import "github.com/FabioSol/fuego/parsers/markdown"
+import "github.com/gofuego/fuego/parsers/markdown"
 
 eng.Register(markdown.Parser())
 ```

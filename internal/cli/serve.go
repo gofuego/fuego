@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/FabioSol/fuego/core"
-	"github.com/FabioSol/fuego/internal/config"
-	"github.com/FabioSol/fuego/internal/pipeline"
-	"github.com/FabioSol/fuego/internal/serve"
+	"github.com/gofuego/fuego/core"
+	"github.com/gofuego/fuego/internal/config"
+	"github.com/gofuego/fuego/internal/pipeline"
+	"github.com/gofuego/fuego/internal/serve"
 	"github.com/spf13/cobra"
 )
 

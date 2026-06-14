@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/FabioSol/fuego/internal/config"
+	"github.com/gofuego/fuego/internal/config"
 )
 
 // FileEntry represents a discovered file in the content directory.

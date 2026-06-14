@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/FabioSol/fuego/core"
-	"github.com/FabioSol/fuego/internal/pipeline"
+	"github.com/gofuego/fuego/core"
+	"github.com/gofuego/fuego/internal/pipeline"
 	"github.com/spf13/cobra"
 )
 

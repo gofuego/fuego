@@ -8,8 +8,8 @@ import (
 	"testing"
 	"testing/fstest"
 
-	"github.com/FabioSol/fuego/core"
-	"github.com/FabioSol/fuego/parsers/markdown"
+	"github.com/gofuego/fuego/core"
+	"github.com/gofuego/fuego/parsers/markdown"
 )
 
 func writeFile(t *testing.T, path, content string) {

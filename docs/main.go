@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/FabioSol/fuego/docs/docspack"
-	"github.com/FabioSol/fuego/engine"
-	"github.com/FabioSol/fuego/parsers/markdown"
+	"github.com/gofuego/fuego/docs/docspack"
+	"github.com/gofuego/fuego/engine"
+	"github.com/gofuego/fuego/parsers/markdown"
 )
 
 func main() {

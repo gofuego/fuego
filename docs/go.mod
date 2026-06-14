@@ -1,8 +1,8 @@
-module github.com/FabioSol/fuego/docs
+module github.com/gofuego/fuego/docs
 
 go 1.25.0
 
-require github.com/FabioSol/fuego v0.0.0
+require github.com/gofuego/fuego v0.0.0
 
 require (
 	github.com/bmatcuk/doublestar/v4 v4.10.0 // indirect
@@ -16,4 +16,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/FabioSol/fuego => ../
+replace github.com/gofuego/fuego => ../
