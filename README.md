@@ -98,16 +98,7 @@ fuego init <dir> [--pack M]   Scaffold a new project (optionally with a format p
 
 ## Documentation
 
-Full documentation is available at **[fabiosol.github.io/fuego](https://fabiosol.github.io/fuego/index/)** — built with Fuego itself.
-
-- [Getting Started](https://fabiosol.github.io/fuego/docs/getting-started/)
-- [Configuration](https://fabiosol.github.io/fuego/docs/configuration/)
-- [Custom Parsers](https://fabiosol.github.io/fuego/docs/custom-parsers/)
-- [Templates](https://fabiosol.github.io/fuego/docs/templates/)
-- [Hooks](https://fabiosol.github.io/fuego/docs/hooks/)
-- [Format Packs](https://fabiosol.github.io/fuego/docs/concepts/format-packs/)
-- [Embedding Fuego](https://fabiosol.github.io/fuego/docs/concepts/embedding/)
-- [CLI Reference](https://fabiosol.github.io/fuego/docs/cli/)
+The docs site lives in its own repo — **[gofuego/fuego-docs](https://github.com/gofuego/fuego-docs)** — itself a Fuego project (dogfooding), built against the published engine and hosted + edited in place via [fuego-studio](https://github.com/gofuego/fuego-studio). It covers getting started, configuration, custom parsers, templates, hooks, format packs, embedding, and the CLI reference.
 
 ## License
 

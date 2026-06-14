@@ -1,7 +1,0 @@
-site:
-  name: "Fuego"
-  base_url: ""
-
-# The tags taxonomy and tutorials collection come from the docs pack
-# (see docspack/) and are deep-merged here. Run `go run . config` to see
-# the resolved configuration with per-key provenance.
