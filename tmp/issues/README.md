@@ -51,12 +51,19 @@ Partial scope may ship as **0.3.0** with the remainder in **0.3.1** — mileston
 → **0.3.0 COMPLETE — ready to tag v0.3.0** (all of 01-10, 12, 17, 18 done & committed)
 
 **Wave 6 (0.3.1):**
-- 13 incremental core ✅ DONE 2026-06-13 · 15 port fuego-adr, 16 port fuego-devops (after 09, 10 — HITL, separate repos)
+- 13 incremental core ✅ DONE 2026-06-13 · 15 port fuego-adr ✅ DONE 2026-06-13 · 16 port fuego-devops ✅ DONE 2026-06-14 (HITL, separate repos)
   - 13: internal/buildcache (gob cache: header = binaryID+configHash+themeHash, per-file content hash;
     orphan removal; version-mismatch → miss). parse.ParseAllCached reuses unchanged. pipeline.Options
     {Incremental,CacheDir}; full rebuild cleans, incremental updates in place. CLI `build --incremental`;
     serve implicit. byte-equivalence test (controlled site × {noop,edit,add,delete,theme,config}) +
     fixture-parity sweep (23 fixtures, warm-reuse == clean) + parse-counter test. Smoke: docs 0/19→1/18.
+  - 15: fuego-adr restructured to a pack (adr.Pack()), CLI thin shim over engine.Build/Serve/Validate.
+    Published git@github.com:FabioSol/fuego-adr.git, tag v0.1.0. Drove the v0.3.1 engine additions
+    (pack static assets + programmatic API).
+  - 16: fuego-devops rebuilt on the pack API (devops.Pack() + scanner front-end → engine.Build/Serve).
+    Scanner made Kustomize/Helm-aware (render leaf overlays/charts, dedup by cluster identity); overview
+    reworked (server-rendered per-namespace summary + deterministic physics-free diagram). Consumed fuego
+    v0.3.2 unchanged — no new engine gaps. Tagged fuego-devops v0.2.0.
 
 **Wave 7 (0.3.1):**
 - 14 render narrowing ✅ DONE 2026-06-13 · 11 `init --pack` ✅ DONE 2026-06-13
@@ -71,7 +78,8 @@ Partial scope may ship as **0.3.0** with the remainder in **0.3.1** — mileston
     Bench: 10k single-file edit = 324ms vs 3852ms full (~12x). Equivalence/parity suites pass with
     narrowing on (now exercise skipping). TestIncrementalNarrowsRendering proves skip via mtime.
 
-→ **tag v0.3.1**
+→ **ALL 18 ISSUES DONE.** Engine tagged v0.3.0 / v0.3.1 / v0.3.2 (v0.3.2 = extra docs pass).
+Both satellite ports published (fuego-adr v0.1.0, fuego-devops v0.2.0). v1.0 (API freeze) now unblocked.
 
 ## Milestone summary
 
