@@ -3,6 +3,8 @@
     {
       "url": "/post1/",
       "type": "md",
+      "source_path": "post1.md",
+      "output_path": "post1/index.html",
       "title": "Learning Go",
       "envelope": {
         "tags": [
@@ -15,6 +17,8 @@
     {
       "url": "/post2/",
       "type": "md",
+      "source_path": "post2.md",
+      "output_path": "post2/index.html",
       "title": "Web Development",
       "envelope": {
         "tags": [
@@ -28,6 +32,8 @@
       "url": "/tags/",
       "type": "taxonomy-index",
       "layout": "tag-index",
+      "source_path": "_virtual/taxonomy/tags/_index",
+      "output_path": "tags/index.html",
       "title": "All Tags",
       "envelope": {
         "taxonomy": "tags",
@@ -38,6 +44,8 @@
       "url": "/tags/go/",
       "type": "taxonomy-term",
       "layout": "tag",
+      "source_path": "_virtual/taxonomy/tags/go",
+      "output_path": "tags/go/index.html",
       "title": "Tags: go",
       "envelope": {
         "taxonomy": "tags",
@@ -49,6 +57,8 @@
       "url": "/tags/programming/",
       "type": "taxonomy-term",
       "layout": "tag",
+      "source_path": "_virtual/taxonomy/tags/programming",
+      "output_path": "tags/programming/index.html",
       "title": "Tags: programming",
       "envelope": {
         "taxonomy": "tags",
@@ -60,6 +70,8 @@
       "url": "/tags/web/",
       "type": "taxonomy-term",
       "layout": "tag",
+      "source_path": "_virtual/taxonomy/tags/web",
+      "output_path": "tags/web/index.html",
       "title": "Tags: web",
       "envelope": {
         "taxonomy": "tags",

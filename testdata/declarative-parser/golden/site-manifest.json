@@ -3,6 +3,8 @@
     {
       "url": "/geography/",
       "type": "trivia",
+      "source_path": "geography.trivia",
+      "output_path": "geography/index.html",
       "title": "World Capitals",
       "envelope": {
         "title": "World Capitals"

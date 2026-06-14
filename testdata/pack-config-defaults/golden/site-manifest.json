@@ -4,6 +4,8 @@
       "url": "/cards/hello/",
       "type": "card",
       "layout": "deck",
+      "source_path": "hello.card",
+      "output_path": "cards/hello/index.html",
       "title": "Hello Card",
       "envelope": {
         "layout": "deck",
@@ -15,6 +17,8 @@
       "url": "/topics/greetings/",
       "type": "taxonomy-term",
       "layout": "deck",
+      "source_path": "_virtual/taxonomy/topic/greetings",
+      "output_path": "topics/greetings/index.html",
       "title": "Topic: greetings",
       "envelope": {
         "taxonomy": "topic",

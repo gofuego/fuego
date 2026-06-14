@@ -3,6 +3,8 @@
     {
       "url": "/index/",
       "type": "md",
+      "source_path": "index.md",
+      "output_path": "index/index.html",
       "title": "Home",
       "envelope": {
         "title": "Home"
@@ -11,6 +13,8 @@
     {
       "url": "/install/",
       "type": "doc",
+      "source_path": "install.md",
+      "output_path": "install/index.html",
       "title": "Install",
       "envelope": {
         "tags": [
@@ -25,6 +29,8 @@
       "url": "/tags/",
       "type": "taxonomy-index",
       "layout": "tag-index",
+      "source_path": "_virtual/taxonomy/tags/_index",
+      "output_path": "tags/index.html",
       "title": "All Tags",
       "envelope": {
         "taxonomy": "tags",
@@ -35,6 +41,8 @@
       "url": "/tags/advanced/",
       "type": "taxonomy-term",
       "layout": "tag",
+      "source_path": "_virtual/taxonomy/tags/advanced",
+      "output_path": "tags/advanced/index.html",
       "title": "Tags: advanced",
       "envelope": {
         "taxonomy": "tags",
@@ -46,6 +54,8 @@
       "url": "/tags/guide/",
       "type": "taxonomy-term",
       "layout": "tag",
+      "source_path": "_virtual/taxonomy/tags/guide",
+      "output_path": "tags/guide/index.html",
       "title": "Tags: guide",
       "envelope": {
         "taxonomy": "tags",
@@ -56,6 +66,8 @@
     {
       "url": "/usage/",
       "type": "doc",
+      "source_path": "usage.md",
+      "output_path": "usage/index.html",
       "title": "Usage",
       "envelope": {
         "tags": [

@@ -3,6 +3,8 @@
     {
       "url": "/concurrency/",
       "type": "card",
+      "source_path": "concurrency.card",
+      "output_path": "concurrency/index.html",
       "title": "Concurrency",
       "envelope": {
         "title": "Concurrency",
@@ -12,6 +14,8 @@
     {
       "url": "/go-basics/",
       "type": "card",
+      "source_path": "go-basics.card",
+      "output_path": "go-basics/index.html",
       "title": "Go Basics",
       "envelope": {
         "title": "Go Basics"
@@ -20,6 +24,8 @@
     {
       "url": "/override/",
       "type": "card",
+      "source_path": "override.card",
+      "output_path": "override/index.html",
       "title": "Override Test",
       "envelope": {
         "title": "Override Test"

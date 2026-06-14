@@ -3,6 +3,8 @@
     {
       "url": "/blog/post/",
       "type": "md",
+      "source_path": "blog/post.md",
+      "output_path": "blog/post/index.html",
       "title": "Published Post",
       "envelope": {
         "title": "Published Post"

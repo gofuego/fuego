@@ -4,6 +4,8 @@
       "url": "/history-trivia/",
       "type": "collection",
       "layout": "listing",
+      "source_path": "_virtual/collection/history-trivia",
+      "output_path": "history-trivia/index.html",
       "title": "History-trivia",
       "envelope": {
         "collection": "history-trivia",
@@ -13,6 +15,8 @@
     {
       "url": "/history/q1/",
       "type": "trivia",
+      "source_path": "history/q1.trivia",
+      "output_path": "history/q1/index.html",
       "title": "Nash Equilibrium",
       "envelope": {
         "points": 30,
@@ -22,6 +26,8 @@
     {
       "url": "/history/q2/",
       "type": "trivia",
+      "source_path": "history/q2.trivia",
+      "output_path": "history/q2/index.html",
       "title": "Ancient Rome",
       "envelope": {
         "points": 10,
@@ -31,6 +37,8 @@
     {
       "url": "/science/q1/",
       "type": "trivia",
+      "source_path": "science/q1.trivia",
+      "output_path": "science/q1/index.html",
       "title": "Gravity",
       "envelope": {
         "points": 20,

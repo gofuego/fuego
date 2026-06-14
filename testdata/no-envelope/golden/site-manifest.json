@@ -3,6 +3,8 @@
     {
       "url": "/example/",
       "type": "env",
+      "source_path": "example.env",
+      "output_path": "example/index.html",
       "title": "Environment Variables",
       "envelope": {
         "title": "Environment Variables"

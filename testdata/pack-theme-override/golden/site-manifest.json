@@ -4,6 +4,8 @@
       "url": "/hello/",
       "type": "card",
       "layout": "deck",
+      "source_path": "hello.card",
+      "output_path": "hello/index.html",
       "title": "Hello Card",
       "envelope": {
         "layout": "deck",

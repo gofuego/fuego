@@ -4,6 +4,8 @@
       "url": "/blog/welcome/",
       "type": "md",
       "layout": "post",
+      "source_path": "blog/welcome.md",
+      "output_path": "blog/welcome/index.html",
       "title": "Welcome",
       "summary": "Welcome to the site.",
       "envelope": {
@@ -18,6 +20,8 @@
     {
       "url": "/cards/go-basics/",
       "type": "card",
+      "source_path": "cards/go-basics.card",
+      "output_path": "cards/go-basics/index.html",
       "title": "Go Basics",
       "envelope": {
         "tags": [
@@ -30,6 +34,8 @@
       "url": "/history-quiz/",
       "type": "collection",
       "layout": "listing",
+      "source_path": "_virtual/collection/history-quiz",
+      "output_path": "history-quiz/index.html",
       "title": "History-quiz",
       "envelope": {
         "collection": "history-quiz",
@@ -39,6 +45,8 @@
     {
       "url": "/quiz/trivia/history/napoleon/",
       "type": "trivia",
+      "source_path": "trivia/history/napoleon.trivia",
+      "output_path": "quiz/trivia/history/napoleon/index.html",
       "title": "Napoleon",
       "envelope": {
         "points": 20,
@@ -52,6 +60,8 @@
     {
       "url": "/quiz/trivia/history/roman-empire/",
       "type": "trivia",
+      "source_path": "trivia/history/rome.trivia",
+      "output_path": "quiz/trivia/history/roman-empire/index.html",
       "title": "Fall of Rome",
       "envelope": {
         "points": 10,
@@ -66,6 +76,8 @@
       "url": "/tags/",
       "type": "taxonomy-index",
       "layout": "tag-index",
+      "source_path": "_virtual/taxonomy/tags/_index",
+      "output_path": "tags/index.html",
       "title": "All Tags",
       "envelope": {
         "taxonomy": "tags",
@@ -76,6 +88,8 @@
       "url": "/tags/europe/",
       "type": "taxonomy-term",
       "layout": "tag",
+      "source_path": "_virtual/taxonomy/tags/europe",
+      "output_path": "tags/europe/index.html",
       "title": "Tags: europe",
       "envelope": {
         "taxonomy": "tags",
@@ -87,6 +101,8 @@
       "url": "/tags/history/",
       "type": "taxonomy-term",
       "layout": "tag",
+      "source_path": "_virtual/taxonomy/tags/history",
+      "output_path": "tags/history/index.html",
       "title": "Tags: history",
       "envelope": {
         "taxonomy": "tags",
@@ -98,6 +114,8 @@
       "url": "/tags/meta/",
       "type": "taxonomy-term",
       "layout": "tag",
+      "source_path": "_virtual/taxonomy/tags/meta",
+      "output_path": "tags/meta/index.html",
       "title": "Tags: meta",
       "envelope": {
         "taxonomy": "tags",
@@ -109,6 +127,8 @@
       "url": "/tags/programming/",
       "type": "taxonomy-term",
       "layout": "tag",
+      "source_path": "_virtual/taxonomy/tags/programming",
+      "output_path": "tags/programming/index.html",
       "title": "Tags: programming",
       "envelope": {
         "taxonomy": "tags",

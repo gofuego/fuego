@@ -3,6 +3,8 @@
     {
       "url": "/test/",
       "type": "card",
+      "source_path": "test.card",
+      "output_path": "test/index.html",
       "title": "Collision Test",
       "envelope": {
         "title": "Collision Test"

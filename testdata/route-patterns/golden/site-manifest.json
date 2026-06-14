@@ -3,6 +3,8 @@
     {
       "url": "/about/",
       "type": "md",
+      "source_path": "about.md",
+      "output_path": "about/index.html",
       "title": "About",
       "envelope": {
         "title": "About"
@@ -11,6 +13,8 @@
     {
       "url": "/quiz/fundamentals/",
       "type": "trivia",
+      "source_path": "basics.trivia",
+      "output_path": "quiz/fundamentals/index.html",
       "title": "Trivia Basics",
       "envelope": {
         "slug": "fundamentals",
@@ -20,6 +24,8 @@
     {
       "url": "/quiz/history/nash-eq/",
       "type": "trivia",
+      "source_path": "history/nash-eq.trivia",
+      "output_path": "quiz/history/nash-eq/index.html",
       "title": "Nash Equilibrium",
       "envelope": {
         "title": "Nash Equilibrium"

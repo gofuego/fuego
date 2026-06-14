@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 
 	"github.com/gofuego/fuego/core"
 	"github.com/gofuego/fuego/internal/config"
@@ -13,12 +14,19 @@ import (
 
 // PageEntry is a single page in the manifest.
 type PageEntry struct {
-	URL      string         `json:"url"`
-	Type     string         `json:"type"`
-	Layout   string         `json:"layout,omitempty"`
-	Title    string         `json:"title,omitempty"`
-	Summary  string         `json:"summary,omitempty"`
-	Envelope map[string]any `json:"envelope,omitempty"`
+	URL    string `json:"url"`
+	Type   string `json:"type"`
+	Layout string `json:"layout,omitempty"`
+	// SourcePath is the content-dir-relative path of the source file this page
+	// was built from (forward slashes). Empty for virtual pages (taxonomy,
+	// collection, and other generated pages), which therefore aren't editable.
+	SourcePath string `json:"source_path,omitempty"`
+	// OutputPath is the generated file's path relative to the output root,
+	// e.g. "blog/post/index.html" — what a host serves for this page's URL.
+	OutputPath string         `json:"output_path"`
+	Title      string         `json:"title,omitempty"`
+	Summary    string         `json:"summary,omitempty"`
+	Envelope   map[string]any `json:"envelope,omitempty"`
 }
 
 // TaxonomyEntry represents a taxonomy in the manifest.
@@ -64,12 +72,14 @@ func Generate(pages []*core.Page, cfg *config.Config) *Manifest {
 		}
 
 		entries[i] = PageEntry{
-			URL:      p.URL,
-			Type:     p.Type,
-			Layout:   p.Layout,
-			Title:    title,
-			Summary:  summary,
-			Envelope: env,
+			URL:        p.URL,
+			Type:       p.Type,
+			Layout:     p.Layout,
+			SourcePath: filepath.ToSlash(p.RelPath),
+			OutputPath: outputPath(p.URL),
+			Title:      title,
+			Summary:    summary,
+			Envelope:   env,
 		}
 	}
 
@@ -88,6 +98,16 @@ func Generate(pages []*core.Page, cfg *config.Config) *Manifest {
 	}
 
 	return m
+}
+
+// outputPath returns the generated file path (relative to the output root) for
+// a page URL, matching what the render phase writes: "<url>/index.html".
+func outputPath(url string) string {
+	rel := strings.Trim(url, "/")
+	if rel == "" {
+		return "index.html"
+	}
+	return rel + "/index.html"
 }
 
 // Write serializes the manifest to site-manifest.json in the output directory.

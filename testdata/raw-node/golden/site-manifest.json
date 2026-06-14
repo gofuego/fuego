@@ -3,6 +3,8 @@
     {
       "url": "/page/",
       "type": "raw",
+      "source_path": "page.raw",
+      "output_path": "page/index.html",
       "title": "Raw Page",
       "envelope": {
         "title": "Raw Page"

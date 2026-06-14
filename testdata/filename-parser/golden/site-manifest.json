@@ -3,6 +3,8 @@
     {
       "url": "/Dockerfile/",
       "type": "dockerfile",
+      "source_path": "Dockerfile",
+      "output_path": "Dockerfile/index.html",
       "title": "Dockerfile",
       "envelope": {
         "title": "Dockerfile"

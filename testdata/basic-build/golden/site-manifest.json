@@ -3,6 +3,8 @@
     {
       "url": "/about/",
       "type": "md",
+      "source_path": "about.md",
+      "output_path": "about/index.html",
       "title": "About",
       "envelope": {
         "title": "About"
@@ -12,6 +14,8 @@
       "url": "/docs/quickstart/",
       "type": "md",
       "layout": "default",
+      "source_path": "docs/getting-started.md",
+      "output_path": "docs/quickstart/index.html",
       "title": "Getting Started",
       "envelope": {
         "layout": "default",
@@ -23,6 +27,8 @@
       "url": "/hello/",
       "type": "md",
       "layout": "default",
+      "source_path": "hello.md",
+      "output_path": "hello/index.html",
       "title": "Hello World",
       "envelope": {
         "layout": "default",

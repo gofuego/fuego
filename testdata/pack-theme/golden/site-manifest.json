@@ -4,6 +4,8 @@
       "url": "/hello/",
       "type": "card",
       "layout": "deck",
+      "source_path": "hello.card",
+      "output_path": "hello/index.html",
       "title": "Hello Card",
       "envelope": {
         "layout": "deck",
@@ -13,6 +15,8 @@
     {
       "url": "/index/",
       "type": "md",
+      "source_path": "index.md",
+      "output_path": "index/index.html",
       "title": "Home",
       "envelope": {
         "title": "Home"

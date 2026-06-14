@@ -4,6 +4,8 @@
       "url": "/all-posts/",
       "type": "collection",
       "layout": "listing",
+      "source_path": "_virtual/collection/posts",
+      "output_path": "all-posts/index.html",
       "title": "Posts",
       "envelope": {
         "collection": "posts",
@@ -14,6 +16,8 @@
       "url": "/all-posts/page/2/",
       "type": "collection",
       "layout": "listing",
+      "source_path": "_virtual/collection/posts/page-2",
+      "output_path": "all-posts/page/2/index.html",
       "title": "Posts",
       "envelope": {
         "collection": "posts",
@@ -24,6 +28,8 @@
       "url": "/all-posts/page/3/",
       "type": "collection",
       "layout": "listing",
+      "source_path": "_virtual/collection/posts/page-3",
+      "output_path": "all-posts/page/3/index.html",
       "title": "Posts",
       "envelope": {
         "collection": "posts",
@@ -33,6 +39,8 @@
     {
       "url": "/posts/post-1/",
       "type": "md",
+      "source_path": "posts/post-1.md",
+      "output_path": "posts/post-1/index.html",
       "title": "Post 1",
       "envelope": {
         "order": 1,
@@ -45,6 +53,8 @@
     {
       "url": "/posts/post-2/",
       "type": "md",
+      "source_path": "posts/post-2.md",
+      "output_path": "posts/post-2/index.html",
       "title": "Post 2",
       "envelope": {
         "order": 2,
@@ -57,6 +67,8 @@
     {
       "url": "/posts/post-3/",
       "type": "md",
+      "source_path": "posts/post-3.md",
+      "output_path": "posts/post-3/index.html",
       "title": "Post 3",
       "envelope": {
         "order": 3,
@@ -69,6 +81,8 @@
     {
       "url": "/posts/post-4/",
       "type": "md",
+      "source_path": "posts/post-4.md",
+      "output_path": "posts/post-4/index.html",
       "title": "Post 4",
       "envelope": {
         "order": 4,
@@ -81,6 +95,8 @@
     {
       "url": "/posts/post-5/",
       "type": "md",
+      "source_path": "posts/post-5.md",
+      "output_path": "posts/post-5/index.html",
       "title": "Post 5",
       "envelope": {
         "order": 5,
@@ -94,6 +110,8 @@
       "url": "/tags/news/",
       "type": "taxonomy-term",
       "layout": "listing",
+      "source_path": "_virtual/taxonomy/tags/news",
+      "output_path": "tags/news/index.html",
       "title": "Tags: news",
       "envelope": {
         "taxonomy": "tags",
@@ -105,6 +123,8 @@
       "url": "/tags/news/page/2/",
       "type": "taxonomy-term",
       "layout": "listing",
+      "source_path": "_virtual/taxonomy/tags/news/page-2",
+      "output_path": "tags/news/page/2/index.html",
       "title": "Tags: news",
       "envelope": {
         "taxonomy": "tags",
@@ -116,6 +136,8 @@
       "url": "/tags/news/page/3/",
       "type": "taxonomy-term",
       "layout": "listing",
+      "source_path": "_virtual/taxonomy/tags/news/page-3",
+      "output_path": "tags/news/page/3/index.html",
       "title": "Tags: news",
       "envelope": {
         "taxonomy": "tags",

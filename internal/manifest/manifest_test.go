@@ -37,6 +37,38 @@ func TestGenerate_BasicPages(t *testing.T) {
 	}
 }
 
+func TestGenerate_SourceAndOutputPath(t *testing.T) {
+	t.Parallel()
+
+	pages := []*core.Page{
+		// real, file-backed page
+		{URL: "/blog/post/", Type: "md", RelPath: "blog/post.md", Envelope: core.Envelope{"title": "Post"}},
+		// virtual page (no source file)
+		{URL: "/tags/go/", Type: "taxonomy-term", Envelope: core.Envelope{"title": "go"}},
+		// root page
+		{URL: "/", Type: "md", RelPath: "index.md", Envelope: core.Envelope{"title": "Home"}},
+	}
+
+	m := Generate(pages, &config.Config{})
+
+	byURL := map[string]PageEntry{}
+	for _, e := range m.Pages {
+		byURL[e.URL] = e
+	}
+
+	if got := byURL["/blog/post/"]; got.SourcePath != "blog/post.md" || got.OutputPath != "blog/post/index.html" {
+		t.Errorf("real page: source_path=%q output_path=%q, want blog/post.md and blog/post/index.html", got.SourcePath, got.OutputPath)
+	}
+	if got := byURL["/"]; got.SourcePath != "index.md" || got.OutputPath != "index.html" {
+		t.Errorf("root page: source_path=%q output_path=%q, want index.md and index.html", got.SourcePath, got.OutputPath)
+	}
+	// Virtual pages carry no source path (so they're non-editable) but still
+	// have an output path.
+	if got := byURL["/tags/go/"]; got.SourcePath != "" || got.OutputPath != "tags/go/index.html" {
+		t.Errorf("virtual page: source_path=%q (want empty) output_path=%q (want tags/go/index.html)", got.SourcePath, got.OutputPath)
+	}
+}
+
 func TestGenerate_WithSummary(t *testing.T) {
 	t.Parallel()
 
