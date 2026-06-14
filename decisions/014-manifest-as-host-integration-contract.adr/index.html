@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The site manifest is the host-integration contract — ADR Documentation</title>
+  <base href="/gofuego/fuego/">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen">
+  <nav class="border-b border-gray-800 px-6 py-4">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <a href="." class="text-lg font-bold text-white hover:text-blue-400 transition-colors">ADR Documentation</a>
+      <div class="flex gap-6 text-sm text-gray-400">
+        <a href="." class="hover:text-white transition-colors">Home</a>
+        <a href="timeline" class="hover:text-white transition-colors">Timeline</a>
+        <a href="tags" class="hover:text-white transition-colors">Tags</a>
+        <a href="affects" class="hover:text-white transition-colors">Affected Files</a>
+      </div>
+    </div>
+  </nav>
+  <main class="max-w-4xl mx-auto px-6 py-8">
+    
+<article>
+  
+  <div class="mb-8">
+    <div class="flex items-center gap-3 mb-2">
+      <span class="text-sm font-mono text-gray-500">ADR-14</span>
+      
+      <span class="px-2 py-0.5 rounded text-xs font-semibold
+        bg-green-900 text-green-300
+        ">accepted</span>
+      
+    </div>
+    <h1 class="text-3xl font-bold text-white mb-4">The site manifest is the host-integration contract</h1>
+
+    
+    <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm text-gray-400 border-b border-gray-800 pb-4">
+      
+      <div><span class="text-gray-500">Author:</span> fabio</div>
+      
+      
+      <div><span class="text-gray-500">Proposed:</span> 2026-06-13</div>
+      
+      
+      <div><span class="text-gray-500">Approvers:</span> fabio</div>
+      
+      
+      <div><span class="text-gray-500">Accepted:</span> 2026-06-13</div>
+      
+      
+    </div>
+
+    
+    
+
+    
+    
+    <div class="mt-3 flex gap-2 flex-wrap">
+      
+      <a href="tags/manifest" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#manifest</a>
+      
+      <a href="tags/integration" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#integration</a>
+      
+      <a href="tags/architecture" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#architecture</a>
+      
+    </div>
+    
+  </div>
+
+  
+  <div class="prose prose-invert prose-sm max-w-none">
+    <div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Context</h2>
+  <div class="text-gray-300 leading-relaxed"><p>A host like fuego-studio serves a built site and, for editing, needs to map a
+rendered page back to its source file in the repo. The engine knows the build facts
+(where content came from, where output went); the host knows policy (who may edit,
+which branch). The question is what the engine exposes, and where the line between
+&quot;build fact&quot; and &quot;workflow policy&quot; sits.</p>
+</div>
+</div>
+<div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Decision</h2>
+  <div class="text-gray-300 leading-relaxed"><p><code>internal/manifest</code> writes <code>site-manifest.json</code> with, per page, <code>url</code>, <code>type</code>,
+<code>layout</code>, <code>title</code>, <code>summary</code>, <code>output_path</code> (<code>&lt;url&gt;/index.html</code>), <code>source_path</code>
+(the content-dir-relative <code>RelPath</code>, empty for virtual pages so they're
+non-editable), and the flattened <code>envelope</code>. The top-level <code>content_root</code> is the
+content dir relative to the enclosing git root, so a host maps a page's repo source
+as <code>content_root</code> + <code>source_path</code>. The <code>build</code>/<code>serve</code> <code>--base-url</code> flag overrides
+<code>site.base_url</code> for one run, so a deploy can target a subpath. The engine exposes
+<strong>build facts only</strong> — editing policy lives in the host.</p>
+</div>
+</div>
+<div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Consequences</h2>
+  <div class="text-gray-300 leading-relaxed"><ul>
+<li><strong>+</strong> A host can fetch and commit any page's source unambiguously, including for
+sites built from a subdirectory.</li>
+<li><strong>+</strong> Virtual pages are marked non-editable by an empty <code>source_path</code>.</li>
+<li><strong>+</strong> <code>--base-url</code> lets one repo serve different mount paths (e.g. GitHub Pages and
+a studio mount) without a separate config file.</li>
+<li><strong>−</strong> The manifest is a public contract — changing a field is a breaking change for
+hosts that read it.</li>
+<li>Keeps the engine editing-agnostic; the manifest carries facts, the host owns
+policy.</li>
+</ul>
+</div>
+</div>
+
+  </div>
+
+  
+  
+  <div class="mt-8 border-t border-gray-800 pt-6">
+    <h2 class="text-lg font-semibold text-white mb-3">Affected Files</h2>
+    <div class="space-y-1" data-affects-list>
+      
+      <div class="text-sm font-mono" data-affects-pattern="internal/manifest/**">
+        <span class="text-gray-400">internal/manifest/**</span>
+      </div>
+      
+    </div>
+  </div>
+  
+</article>
+
+  </main>
+  <script type="application/json" id="fuego-data">{"envelope":{"adr_number":14,"affects":["internal/manifest/**"],"approvers":["fabio"],"author":["fabio"],"date_accepted":"2026-06-13","date_proposed":"2026-06-13","status":"accepted","tags":["manifest","integration","architecture"],"title":"The site manifest is the host-integration contract"},"nodes":[{"type":"context","content":"\u003cp\u003eA host like fuego-studio serves a built site and, for editing, needs to map a\nrendered page back to its source file in the repo. The engine knows the build facts\n(where content came from, where output went); the host knows policy (who may edit,\nwhich branch). The question is what the engine exposes, and where the line between\n\u0026quot;build fact\u0026quot; and \u0026quot;workflow policy\u0026quot; sits.\u003c/p\u003e\n","raw":true},{"type":"decision","content":"\u003cp\u003e\u003ccode\u003einternal/manifest\u003c/code\u003e writes \u003ccode\u003esite-manifest.json\u003c/code\u003e with, per page, \u003ccode\u003eurl\u003c/code\u003e, \u003ccode\u003etype\u003c/code\u003e,\n\u003ccode\u003elayout\u003c/code\u003e, \u003ccode\u003etitle\u003c/code\u003e, \u003ccode\u003esummary\u003c/code\u003e, \u003ccode\u003eoutput_path\u003c/code\u003e (\u003ccode\u003e\u0026lt;url\u0026gt;/index.html\u003c/code\u003e), \u003ccode\u003esource_path\u003c/code\u003e\n(the content-dir-relative \u003ccode\u003eRelPath\u003c/code\u003e, empty for virtual pages so they're\nnon-editable), and the flattened \u003ccode\u003eenvelope\u003c/code\u003e. The top-level \u003ccode\u003econtent_root\u003c/code\u003e is the\ncontent dir relative to the enclosing git root, so a host maps a page's repo source\nas \u003ccode\u003econtent_root\u003c/code\u003e + \u003ccode\u003esource_path\u003c/code\u003e. The \u003ccode\u003ebuild\u003c/code\u003e/\u003ccode\u003eserve\u003c/code\u003e \u003ccode\u003e--base-url\u003c/code\u003e flag overrides\n\u003ccode\u003esite.base_url\u003c/code\u003e for one run, so a deploy can target a subpath. The engine exposes\n\u003cstrong\u003ebuild facts only\u003c/strong\u003e — editing policy lives in the host.\u003c/p\u003e\n","raw":true},{"type":"consequences","content":"\u003cul\u003e\n\u003cli\u003e\u003cstrong\u003e+\u003c/strong\u003e A host can fetch and commit any page's source unambiguously, including for\nsites built from a subdirectory.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e+\u003c/strong\u003e Virtual pages are marked non-editable by an empty \u003ccode\u003esource_path\u003c/code\u003e.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e+\u003c/strong\u003e \u003ccode\u003e--base-url\u003c/code\u003e lets one repo serve different mount paths (e.g. GitHub Pages and\na studio mount) without a separate config file.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e−\u003c/strong\u003e The manifest is a public contract — changing a field is a breaking change for\nhosts that read it.\u003c/li\u003e\n\u003cli\u003eKeeps the engine editing-agnostic; the manifest carries facts, the host owns\npolicy.\u003c/li\u003e\n\u003c/ul\u003e\n","raw":true}],"url":"/decisions/014-manifest-as-host-integration-contract.adr/"}</script>
+  <script src="app.js"></script>
+</body>
+</html>
+

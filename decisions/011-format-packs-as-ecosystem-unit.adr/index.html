@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Format packs bundle a content format as one installable unit — ADR Documentation</title>
+  <base href="/gofuego/fuego/">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen">
+  <nav class="border-b border-gray-800 px-6 py-4">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <a href="." class="text-lg font-bold text-white hover:text-blue-400 transition-colors">ADR Documentation</a>
+      <div class="flex gap-6 text-sm text-gray-400">
+        <a href="." class="hover:text-white transition-colors">Home</a>
+        <a href="timeline" class="hover:text-white transition-colors">Timeline</a>
+        <a href="tags" class="hover:text-white transition-colors">Tags</a>
+        <a href="affects" class="hover:text-white transition-colors">Affected Files</a>
+      </div>
+    </div>
+  </nav>
+  <main class="max-w-4xl mx-auto px-6 py-8">
+    
+<article>
+  
+  <div class="mb-8">
+    <div class="flex items-center gap-3 mb-2">
+      <span class="text-sm font-mono text-gray-500">ADR-11</span>
+      
+      <span class="px-2 py-0.5 rounded text-xs font-semibold
+        bg-green-900 text-green-300
+        ">accepted</span>
+      
+    </div>
+    <h1 class="text-3xl font-bold text-white mb-4">Format packs bundle a content format as one installable unit</h1>
+
+    
+    <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm text-gray-400 border-b border-gray-800 pb-4">
+      
+      <div><span class="text-gray-500">Author:</span> fabio</div>
+      
+      
+      <div><span class="text-gray-500">Proposed:</span> 2026-06-13</div>
+      
+      
+      <div><span class="text-gray-500">Approvers:</span> fabio</div>
+      
+      
+      <div><span class="text-gray-500">Accepted:</span> 2026-06-13</div>
+      
+      
+    </div>
+
+    
+    
+
+    
+    
+    <div class="mt-3 flex gap-2 flex-wrap">
+      
+      <a href="tags/packs" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#packs</a>
+      
+      <a href="tags/architecture" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#architecture</a>
+      
+      <a href="tags/extensibility" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#extensibility</a>
+      
+    </div>
+    
+  </div>
+
+  
+  <div class="prose prose-invert prose-sm max-w-none">
+    <div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Context</h2>
+  <div class="text-gray-300 leading-relaxed"><p>Parsers, hooks, themes, and config defaults for a domain (ADRs, Kubernetes
+manifests) are useless scattered. For an ecosystem to exist, a format needs to ship
+as <strong>one thing</strong> a vanilla project consumes with a single line — without dragging
+the whole engine into the pack author's dependency graph.</p>
+</div>
+</div>
+<div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Decision</h2>
+  <div class="text-gray-300 leading-relaxed"><p><code>core.Pack</code> bundles parsers, hooks, an embedded theme FS (<code>base.html</code>, <code>layouts/</code>,
+<code>renderers/</code>, <code>partials/</code>, and a <code>static/</code> subtree), and a <code>ConfigDefaults</code> YAML
+fragment, registered via <code>eng.Use(pack)</code>. An optional <code>Init(ctx, *PackContext)</code>
+reads the pack's <code>packs.{name}</code> config subtree. <code>core.Pack</code> stays in <code>core/</code>
+(stdlib-only) so a pack imports <code>core</code> without the engine. Precedence: user
+parsers and user theme files always win over packs; among packs, later registration
+wins (with a warning). Pack <code>ConfigDefaults</code> deep-merge under the user config;
+pack <code>static/</code> is copied during STATIC; the theme FS layers under the user theme
+dir in <code>render.LoadTemplates</code>.</p>
+</div>
+</div>
+<div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Consequences</h2>
+  <div class="text-gray-300 leading-relaxed"><ul>
+<li><strong>+</strong> A domain-specific SSG ships as an importable Go module (e.g. <code>fuego-adr</code>)
+consumed in one line.</li>
+<li><strong>+</strong> Packs inject into the normal phases — no pack-specific branching in the
+engine.</li>
+<li><strong>+</strong> Clear, debuggable precedence (user &gt; later pack &gt; earlier pack), with
+provenance visible via <code>fuego config</code>.</li>
+<li><strong>−</strong> More resolution machinery (deep merge, theme layering, the Init lifecycle)
+than a single-project engine would need.</li>
+</ul>
+</div>
+</div>
+
+  </div>
+
+  
+  
+  <div class="mt-8 border-t border-gray-800 pt-6">
+    <h2 class="text-lg font-semibold text-white mb-3">Affected Files</h2>
+    <div class="space-y-1" data-affects-list>
+      
+      <div class="text-sm font-mono" data-affects-pattern="core/**">
+        <span class="text-gray-400">core/**</span>
+      </div>
+      
+      <div class="text-sm font-mono" data-affects-pattern="internal/render/**">
+        <span class="text-gray-400">internal/render/**</span>
+      </div>
+      
+      <div class="text-sm font-mono" data-affects-pattern="internal/config/**">
+        <span class="text-gray-400">internal/config/**</span>
+      </div>
+      
+    </div>
+  </div>
+  
+</article>
+
+  </main>
+  <script type="application/json" id="fuego-data">{"envelope":{"adr_number":11,"affects":["core/**","internal/render/**","internal/config/**"],"approvers":["fabio"],"author":["fabio"],"date_accepted":"2026-06-13","date_proposed":"2026-06-13","status":"accepted","tags":["packs","architecture","extensibility"],"title":"Format packs bundle a content format as one installable unit"},"nodes":[{"type":"context","content":"\u003cp\u003eParsers, hooks, themes, and config defaults for a domain (ADRs, Kubernetes\nmanifests) are useless scattered. For an ecosystem to exist, a format needs to ship\nas \u003cstrong\u003eone thing\u003c/strong\u003e a vanilla project consumes with a single line — without dragging\nthe whole engine into the pack author's dependency graph.\u003c/p\u003e\n","raw":true},{"type":"decision","content":"\u003cp\u003e\u003ccode\u003ecore.Pack\u003c/code\u003e bundles parsers, hooks, an embedded theme FS (\u003ccode\u003ebase.html\u003c/code\u003e, \u003ccode\u003elayouts/\u003c/code\u003e,\n\u003ccode\u003erenderers/\u003c/code\u003e, \u003ccode\u003epartials/\u003c/code\u003e, and a \u003ccode\u003estatic/\u003c/code\u003e subtree), and a \u003ccode\u003eConfigDefaults\u003c/code\u003e YAML\nfragment, registered via \u003ccode\u003eeng.Use(pack)\u003c/code\u003e. An optional \u003ccode\u003eInit(ctx, *PackContext)\u003c/code\u003e\nreads the pack's \u003ccode\u003epacks.{name}\u003c/code\u003e config subtree. \u003ccode\u003ecore.Pack\u003c/code\u003e stays in \u003ccode\u003ecore/\u003c/code\u003e\n(stdlib-only) so a pack imports \u003ccode\u003ecore\u003c/code\u003e without the engine. Precedence: user\nparsers and user theme files always win over packs; among packs, later registration\nwins (with a warning). Pack \u003ccode\u003eConfigDefaults\u003c/code\u003e deep-merge under the user config;\npack \u003ccode\u003estatic/\u003c/code\u003e is copied during STATIC; the theme FS layers under the user theme\ndir in \u003ccode\u003erender.LoadTemplates\u003c/code\u003e.\u003c/p\u003e\n","raw":true},{"type":"consequences","content":"\u003cul\u003e\n\u003cli\u003e\u003cstrong\u003e+\u003c/strong\u003e A domain-specific SSG ships as an importable Go module (e.g. \u003ccode\u003efuego-adr\u003c/code\u003e)\nconsumed in one line.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e+\u003c/strong\u003e Packs inject into the normal phases — no pack-specific branching in the\nengine.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e+\u003c/strong\u003e Clear, debuggable precedence (user \u0026gt; later pack \u0026gt; earlier pack), with\nprovenance visible via \u003ccode\u003efuego config\u003c/code\u003e.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e−\u003c/strong\u003e More resolution machinery (deep merge, theme layering, the Init lifecycle)\nthan a single-project engine would need.\u003c/li\u003e\n\u003c/ul\u003e\n","raw":true}],"url":"/decisions/011-format-packs-as-ecosystem-unit.adr/"}</script>
+  <script src="app.js"></script>
+</body>
+</html>
+

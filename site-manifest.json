@@ -1,0 +1,1272 @@
+{
+  "pages": [
+    {
+      "url": "/",
+      "type": "virtual",
+      "layout": "homepage",
+      "title": "Home",
+      "envelope": {
+        "accepted_adrs": [
+          {
+            "number": 1,
+            "status": "accepted",
+            "tags": [
+              "architecture",
+              "core",
+              "parsing"
+            ],
+            "title": "A universal AST with free-form node types",
+            "url": "/decisions/001-universal-ast-free-form-nodes.adr/"
+          },
+          {
+            "number": 2,
+            "status": "accepted",
+            "tags": [
+              "parsing",
+              "core",
+              "architecture"
+            ],
+            "title": "Parsers own envelope extraction",
+            "url": "/decisions/002-parser-owned-envelope-extraction.adr/"
+          },
+          {
+            "number": 3,
+            "status": "accepted",
+            "tags": [
+              "parsing",
+              "architecture"
+            ],
+            "title": "No built-in parsers; two-tier parser precedence",
+            "url": "/decisions/003-no-built-in-parsers-two-tier-precedence.adr/"
+          },
+          {
+            "number": 4,
+            "status": "accepted",
+            "tags": [
+              "architecture",
+              "core",
+              "pipeline"
+            ],
+            "title": "core.Page is the mutable pipeline spine",
+            "url": "/decisions/004-page-as-mutable-pipeline-spine.adr/"
+          },
+          {
+            "number": 5,
+            "status": "accepted",
+            "tags": [
+              "parsing",
+              "routing",
+              "architecture"
+            ],
+            "title": "Parser dispatch by extension or filename, not frontmatter type",
+            "url": "/decisions/005-extension-filename-parser-dispatch.adr/"
+          },
+          {
+            "number": 6,
+            "status": "accepted",
+            "tags": [
+              "discovery",
+              "parsing",
+              "architecture"
+            ],
+            "title": "Content discovery is driven by registered parsers",
+            "url": "/decisions/006-content-discovery-driven-by-parsers.adr/"
+          },
+          {
+            "number": 7,
+            "status": "accepted",
+            "tags": [
+              "hooks",
+              "architecture",
+              "extensibility"
+            ],
+            "title": "Hooks are Go functions, not config",
+            "url": "/decisions/007-hooks-are-go-not-config.adr/"
+          },
+          {
+            "number": 8,
+            "status": "accepted",
+            "tags": [
+              "errors",
+              "architecture",
+              "reliability"
+            ],
+            "title": "Error accumulation with three severities, not fail-fast",
+            "url": "/decisions/008-error-accumulation-three-severities.adr/"
+          },
+          {
+            "number": 9,
+            "status": "accepted",
+            "tags": [
+              "testing",
+              "determinism",
+              "quality"
+            ],
+            "title": "Golden-file integration testing with enforced determinism",
+            "url": "/decisions/009-golden-file-determinism-testing.adr/"
+          },
+          {
+            "number": 10,
+            "status": "accepted",
+            "tags": [
+              "taxonomies",
+              "collections",
+              "pipeline",
+              "architecture"
+            ],
+            "title": "Taxonomies and collections are virtual pages",
+            "url": "/decisions/010-virtual-pages-for-taxonomies-collections.adr/"
+          },
+          {
+            "number": 11,
+            "status": "accepted",
+            "tags": [
+              "packs",
+              "architecture",
+              "extensibility"
+            ],
+            "title": "Format packs bundle a content format as one installable unit",
+            "url": "/decisions/011-format-packs-as-ecosystem-unit.adr/"
+          },
+          {
+            "number": 12,
+            "status": "accepted",
+            "tags": [
+              "incremental",
+              "performance",
+              "reliability"
+            ],
+            "title": "Incremental builds are opt-in and provably equivalent",
+            "url": "/decisions/012-opt-in-incremental-builds.adr/"
+          },
+          {
+            "number": 13,
+            "status": "accepted",
+            "tags": [
+              "api",
+              "embedding",
+              "architecture"
+            ],
+            "title": "A programmatic build API alongside the CLI",
+            "url": "/decisions/013-programmatic-api-alongside-cli.adr/"
+          },
+          {
+            "number": 14,
+            "status": "accepted",
+            "tags": [
+              "manifest",
+              "integration",
+              "architecture"
+            ],
+            "title": "The site manifest is the host-integration contract",
+            "url": "/decisions/014-manifest-as-host-integration-contract.adr/"
+          }
+        ],
+        "inactive_adrs": null,
+        "proposed_adrs": null,
+        "tbd_adrs": null,
+        "title": "Home"
+      }
+    },
+    {
+      "url": "/affects/",
+      "type": "virtual",
+      "layout": "affects-index",
+      "title": "Affected Files",
+      "envelope": {
+        "affects_entries": [
+          {
+            "adrs": [
+              {
+                "number": 1,
+                "title": "A universal AST with free-form node types",
+                "url": "/decisions/001-universal-ast-free-form-nodes.adr/"
+              },
+              {
+                "number": 2,
+                "title": "Parsers own envelope extraction",
+                "url": "/decisions/002-parser-owned-envelope-extraction.adr/"
+              },
+              {
+                "number": 4,
+                "title": "core.Page is the mutable pipeline spine",
+                "url": "/decisions/004-page-as-mutable-pipeline-spine.adr/"
+              },
+              {
+                "number": 7,
+                "title": "Hooks are Go functions, not config",
+                "url": "/decisions/007-hooks-are-go-not-config.adr/"
+              },
+              {
+                "number": 8,
+                "title": "Error accumulation with three severities, not fail-fast",
+                "url": "/decisions/008-error-accumulation-three-severities.adr/"
+              },
+              {
+                "number": 11,
+                "title": "Format packs bundle a content format as one installable unit",
+                "url": "/decisions/011-format-packs-as-ecosystem-unit.adr/"
+              }
+            ],
+            "exists": true,
+            "pattern": "core/**"
+          },
+          {
+            "adrs": [
+              {
+                "number": 7,
+                "title": "Hooks are Go functions, not config",
+                "url": "/decisions/007-hooks-are-go-not-config.adr/"
+              },
+              {
+                "number": 13,
+                "title": "A programmatic build API alongside the CLI",
+                "url": "/decisions/013-programmatic-api-alongside-cli.adr/"
+              }
+            ],
+            "exists": true,
+            "pattern": "engine/**"
+          },
+          {
+            "adrs": [
+              {
+                "number": 9,
+                "title": "Golden-file integration testing with enforced determinism",
+                "url": "/decisions/009-golden-file-determinism-testing.adr/"
+              }
+            ],
+            "exists": true,
+            "pattern": "internal/**"
+          },
+          {
+            "adrs": [
+              {
+                "number": 12,
+                "title": "Incremental builds are opt-in and provably equivalent",
+                "url": "/decisions/012-opt-in-incremental-builds.adr/"
+              }
+            ],
+            "exists": true,
+            "pattern": "internal/buildcache/**"
+          },
+          {
+            "adrs": [
+              {
+                "number": 11,
+                "title": "Format packs bundle a content format as one installable unit",
+                "url": "/decisions/011-format-packs-as-ecosystem-unit.adr/"
+              }
+            ],
+            "exists": true,
+            "pattern": "internal/config/**"
+          },
+          {
+            "adrs": [
+              {
+                "number": 5,
+                "title": "Parser dispatch by extension or filename, not frontmatter type",
+                "url": "/decisions/005-extension-filename-parser-dispatch.adr/"
+              },
+              {
+                "number": 6,
+                "title": "Content discovery is driven by registered parsers",
+                "url": "/decisions/006-content-discovery-driven-by-parsers.adr/"
+              }
+            ],
+            "exists": true,
+            "pattern": "internal/discover/**"
+          },
+          {
+            "adrs": [
+              {
+                "number": 10,
+                "title": "Taxonomies and collections are virtual pages",
+                "url": "/decisions/010-virtual-pages-for-taxonomies-collections.adr/"
+              }
+            ],
+            "exists": true,
+            "pattern": "internal/index/**"
+          },
+          {
+            "adrs": [
+              {
+                "number": 14,
+                "title": "The site manifest is the host-integration contract",
+                "url": "/decisions/014-manifest-as-host-integration-contract.adr/"
+              }
+            ],
+            "exists": true,
+            "pattern": "internal/manifest/**"
+          },
+          {
+            "adrs": [
+              {
+                "number": 2,
+                "title": "Parsers own envelope extraction",
+                "url": "/decisions/002-parser-owned-envelope-extraction.adr/"
+              },
+              {
+                "number": 3,
+                "title": "No built-in parsers; two-tier parser precedence",
+                "url": "/decisions/003-no-built-in-parsers-two-tier-precedence.adr/"
+              },
+              {
+                "number": 5,
+                "title": "Parser dispatch by extension or filename, not frontmatter type",
+                "url": "/decisions/005-extension-filename-parser-dispatch.adr/"
+              }
+            ],
+            "exists": true,
+            "pattern": "internal/parse/**"
+          },
+          {
+            "adrs": [
+              {
+                "number": 4,
+                "title": "core.Page is the mutable pipeline spine",
+                "url": "/decisions/004-page-as-mutable-pipeline-spine.adr/"
+              },
+              {
+                "number": 7,
+                "title": "Hooks are Go functions, not config",
+                "url": "/decisions/007-hooks-are-go-not-config.adr/"
+              },
+              {
+                "number": 8,
+                "title": "Error accumulation with three severities, not fail-fast",
+                "url": "/decisions/008-error-accumulation-three-severities.adr/"
+              },
+              {
+                "number": 12,
+                "title": "Incremental builds are opt-in and provably equivalent",
+                "url": "/decisions/012-opt-in-incremental-builds.adr/"
+              }
+            ],
+            "exists": true,
+            "pattern": "internal/pipeline/**"
+          },
+          {
+            "adrs": [
+              {
+                "number": 1,
+                "title": "A universal AST with free-form node types",
+                "url": "/decisions/001-universal-ast-free-form-nodes.adr/"
+              },
+              {
+                "number": 10,
+                "title": "Taxonomies and collections are virtual pages",
+                "url": "/decisions/010-virtual-pages-for-taxonomies-collections.adr/"
+              },
+              {
+                "number": 11,
+                "title": "Format packs bundle a content format as one installable unit",
+                "url": "/decisions/011-format-packs-as-ecosystem-unit.adr/"
+              },
+              {
+                "number": 12,
+                "title": "Incremental builds are opt-in and provably equivalent",
+                "url": "/decisions/012-opt-in-incremental-builds.adr/"
+              }
+            ],
+            "exists": true,
+            "pattern": "internal/render/**"
+          },
+          {
+            "adrs": [
+              {
+                "number": 13,
+                "title": "A programmatic build API alongside the CLI",
+                "url": "/decisions/013-programmatic-api-alongside-cli.adr/"
+              }
+            ],
+            "exists": true,
+            "pattern": "internal/serve/**"
+          },
+          {
+            "adrs": [
+              {
+                "number": 3,
+                "title": "No built-in parsers; two-tier parser precedence",
+                "url": "/decisions/003-no-built-in-parsers-two-tier-precedence.adr/"
+              }
+            ],
+            "exists": true,
+            "pattern": "parsers/**"
+          },
+          {
+            "adrs": [
+              {
+                "number": 9,
+                "title": "Golden-file integration testing with enforced determinism",
+                "url": "/decisions/009-golden-file-determinism-testing.adr/"
+              }
+            ],
+            "exists": true,
+            "pattern": "testdata/**"
+          }
+        ],
+        "title": "Affected Files"
+      }
+    },
+    {
+      "url": "/decisions/001-universal-ast-free-form-nodes.adr/",
+      "type": "adr",
+      "layout": "adr",
+      "title": "A universal AST with free-form node types",
+      "envelope": {
+        "adr_number": 1,
+        "affects": [
+          "core/**",
+          "internal/render/**"
+        ],
+        "approvers": [
+          "fabio"
+        ],
+        "author": [
+          "fabio"
+        ],
+        "date_accepted": "2026-05-20",
+        "date_proposed": "2026-05-20",
+        "status": "accepted",
+        "tags": [
+          "architecture",
+          "core",
+          "parsing"
+        ],
+        "title": "A universal AST with free-form node types"
+      }
+    },
+    {
+      "url": "/decisions/002-parser-owned-envelope-extraction.adr/",
+      "type": "adr",
+      "layout": "adr",
+      "title": "Parsers own envelope extraction",
+      "envelope": {
+        "adr_number": 2,
+        "affects": [
+          "core/**",
+          "internal/parse/**"
+        ],
+        "approvers": [
+          "fabio"
+        ],
+        "author": [
+          "fabio"
+        ],
+        "date_accepted": "2026-06-02",
+        "date_proposed": "2026-06-02",
+        "status": "accepted",
+        "tags": [
+          "parsing",
+          "core",
+          "architecture"
+        ],
+        "title": "Parsers own envelope extraction"
+      }
+    },
+    {
+      "url": "/decisions/003-no-built-in-parsers-two-tier-precedence.adr/",
+      "type": "adr",
+      "layout": "adr",
+      "title": "No built-in parsers; two-tier parser precedence",
+      "envelope": {
+        "adr_number": 3,
+        "affects": [
+          "internal/parse/**",
+          "parsers/**"
+        ],
+        "approvers": [
+          "fabio"
+        ],
+        "author": [
+          "fabio"
+        ],
+        "date_accepted": "2026-06-02",
+        "date_proposed": "2026-06-02",
+        "status": "accepted",
+        "tags": [
+          "parsing",
+          "architecture"
+        ],
+        "title": "No built-in parsers; two-tier parser precedence"
+      }
+    },
+    {
+      "url": "/decisions/004-page-as-mutable-pipeline-spine.adr/",
+      "type": "adr",
+      "layout": "adr",
+      "title": "core.Page is the mutable pipeline spine",
+      "envelope": {
+        "adr_number": 4,
+        "affects": [
+          "core/**",
+          "internal/pipeline/**"
+        ],
+        "approvers": [
+          "fabio"
+        ],
+        "author": [
+          "fabio"
+        ],
+        "date_accepted": "2026-05-20",
+        "date_proposed": "2026-05-20",
+        "status": "accepted",
+        "tags": [
+          "architecture",
+          "core",
+          "pipeline"
+        ],
+        "title": "core.Page is the mutable pipeline spine"
+      }
+    },
+    {
+      "url": "/decisions/005-extension-filename-parser-dispatch.adr/",
+      "type": "adr",
+      "layout": "adr",
+      "title": "Parser dispatch by extension or filename, not frontmatter type",
+      "envelope": {
+        "adr_number": 5,
+        "affects": [
+          "internal/parse/**",
+          "internal/discover/**"
+        ],
+        "approvers": [
+          "fabio"
+        ],
+        "author": [
+          "fabio"
+        ],
+        "date_accepted": "2026-06-02",
+        "date_proposed": "2026-06-02",
+        "status": "accepted",
+        "tags": [
+          "parsing",
+          "routing",
+          "architecture"
+        ],
+        "title": "Parser dispatch by extension or filename, not frontmatter type"
+      }
+    },
+    {
+      "url": "/decisions/006-content-discovery-driven-by-parsers.adr/",
+      "type": "adr",
+      "layout": "adr",
+      "title": "Content discovery is driven by registered parsers",
+      "envelope": {
+        "adr_number": 6,
+        "affects": [
+          "internal/discover/**"
+        ],
+        "approvers": [
+          "fabio"
+        ],
+        "author": [
+          "fabio"
+        ],
+        "date_accepted": "2026-06-02",
+        "date_proposed": "2026-06-02",
+        "status": "accepted",
+        "tags": [
+          "discovery",
+          "parsing",
+          "architecture"
+        ],
+        "title": "Content discovery is driven by registered parsers"
+      }
+    },
+    {
+      "url": "/decisions/007-hooks-are-go-not-config.adr/",
+      "type": "adr",
+      "layout": "adr",
+      "title": "Hooks are Go functions, not config",
+      "envelope": {
+        "adr_number": 7,
+        "affects": [
+          "core/**",
+          "engine/**",
+          "internal/pipeline/**"
+        ],
+        "approvers": [
+          "fabio"
+        ],
+        "author": [
+          "fabio"
+        ],
+        "date_accepted": "2026-05-20",
+        "date_proposed": "2026-05-20",
+        "status": "accepted",
+        "tags": [
+          "hooks",
+          "architecture",
+          "extensibility"
+        ],
+        "title": "Hooks are Go functions, not config"
+      }
+    },
+    {
+      "url": "/decisions/008-error-accumulation-three-severities.adr/",
+      "type": "adr",
+      "layout": "adr",
+      "title": "Error accumulation with three severities, not fail-fast",
+      "envelope": {
+        "adr_number": 8,
+        "affects": [
+          "core/**",
+          "internal/pipeline/**"
+        ],
+        "approvers": [
+          "fabio"
+        ],
+        "author": [
+          "fabio"
+        ],
+        "date_accepted": "2026-05-20",
+        "date_proposed": "2026-05-20",
+        "status": "accepted",
+        "tags": [
+          "errors",
+          "architecture",
+          "reliability"
+        ],
+        "title": "Error accumulation with three severities, not fail-fast"
+      }
+    },
+    {
+      "url": "/decisions/009-golden-file-determinism-testing.adr/",
+      "type": "adr",
+      "layout": "adr",
+      "title": "Golden-file integration testing with enforced determinism",
+      "envelope": {
+        "adr_number": 9,
+        "affects": [
+          "testdata/**",
+          "internal/**"
+        ],
+        "approvers": [
+          "fabio"
+        ],
+        "author": [
+          "fabio"
+        ],
+        "date_accepted": "2026-05-20",
+        "date_proposed": "2026-05-20",
+        "status": "accepted",
+        "tags": [
+          "testing",
+          "determinism",
+          "quality"
+        ],
+        "title": "Golden-file integration testing with enforced determinism"
+      }
+    },
+    {
+      "url": "/decisions/010-virtual-pages-for-taxonomies-collections.adr/",
+      "type": "adr",
+      "layout": "adr",
+      "title": "Taxonomies and collections are virtual pages",
+      "envelope": {
+        "adr_number": 10,
+        "affects": [
+          "internal/index/**",
+          "internal/render/**"
+        ],
+        "approvers": [
+          "fabio"
+        ],
+        "author": [
+          "fabio"
+        ],
+        "date_accepted": "2026-05-20",
+        "date_proposed": "2026-05-20",
+        "status": "accepted",
+        "tags": [
+          "taxonomies",
+          "collections",
+          "pipeline",
+          "architecture"
+        ],
+        "title": "Taxonomies and collections are virtual pages"
+      }
+    },
+    {
+      "url": "/decisions/011-format-packs-as-ecosystem-unit.adr/",
+      "type": "adr",
+      "layout": "adr",
+      "title": "Format packs bundle a content format as one installable unit",
+      "envelope": {
+        "adr_number": 11,
+        "affects": [
+          "core/**",
+          "internal/render/**",
+          "internal/config/**"
+        ],
+        "approvers": [
+          "fabio"
+        ],
+        "author": [
+          "fabio"
+        ],
+        "date_accepted": "2026-06-13",
+        "date_proposed": "2026-06-13",
+        "status": "accepted",
+        "tags": [
+          "packs",
+          "architecture",
+          "extensibility"
+        ],
+        "title": "Format packs bundle a content format as one installable unit"
+      }
+    },
+    {
+      "url": "/decisions/012-opt-in-incremental-builds.adr/",
+      "type": "adr",
+      "layout": "adr",
+      "title": "Incremental builds are opt-in and provably equivalent",
+      "envelope": {
+        "adr_number": 12,
+        "affects": [
+          "internal/buildcache/**",
+          "internal/pipeline/**",
+          "internal/render/**"
+        ],
+        "approvers": [
+          "fabio"
+        ],
+        "author": [
+          "fabio"
+        ],
+        "date_accepted": "2026-06-13",
+        "date_proposed": "2026-06-13",
+        "status": "accepted",
+        "tags": [
+          "incremental",
+          "performance",
+          "reliability"
+        ],
+        "title": "Incremental builds are opt-in and provably equivalent"
+      }
+    },
+    {
+      "url": "/decisions/013-programmatic-api-alongside-cli.adr/",
+      "type": "adr",
+      "layout": "adr",
+      "title": "A programmatic build API alongside the CLI",
+      "envelope": {
+        "adr_number": 13,
+        "affects": [
+          "engine/**",
+          "internal/serve/**"
+        ],
+        "approvers": [
+          "fabio"
+        ],
+        "author": [
+          "fabio"
+        ],
+        "date_accepted": "2026-06-13",
+        "date_proposed": "2026-06-13",
+        "status": "accepted",
+        "tags": [
+          "api",
+          "embedding",
+          "architecture"
+        ],
+        "title": "A programmatic build API alongside the CLI"
+      }
+    },
+    {
+      "url": "/decisions/014-manifest-as-host-integration-contract.adr/",
+      "type": "adr",
+      "layout": "adr",
+      "title": "The site manifest is the host-integration contract",
+      "envelope": {
+        "adr_number": 14,
+        "affects": [
+          "internal/manifest/**"
+        ],
+        "approvers": [
+          "fabio"
+        ],
+        "author": [
+          "fabio"
+        ],
+        "date_accepted": "2026-06-13",
+        "date_proposed": "2026-06-13",
+        "status": "accepted",
+        "tags": [
+          "manifest",
+          "integration",
+          "architecture"
+        ],
+        "title": "The site manifest is the host-integration contract"
+      }
+    },
+    {
+      "url": "/tags/",
+      "type": "taxonomy-index",
+      "layout": "tag-index",
+      "title": "All Tags",
+      "envelope": {
+        "taxonomy": "tags",
+        "title": "All Tags"
+      }
+    },
+    {
+      "url": "/tags/api/",
+      "type": "taxonomy-term",
+      "layout": "tag",
+      "title": "Tags: api",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "api",
+        "title": "Tags: api"
+      }
+    },
+    {
+      "url": "/tags/architecture/",
+      "type": "taxonomy-term",
+      "layout": "tag",
+      "title": "Tags: architecture",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "architecture",
+        "title": "Tags: architecture"
+      }
+    },
+    {
+      "url": "/tags/collections/",
+      "type": "taxonomy-term",
+      "layout": "tag",
+      "title": "Tags: collections",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "collections",
+        "title": "Tags: collections"
+      }
+    },
+    {
+      "url": "/tags/core/",
+      "type": "taxonomy-term",
+      "layout": "tag",
+      "title": "Tags: core",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "core",
+        "title": "Tags: core"
+      }
+    },
+    {
+      "url": "/tags/determinism/",
+      "type": "taxonomy-term",
+      "layout": "tag",
+      "title": "Tags: determinism",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "determinism",
+        "title": "Tags: determinism"
+      }
+    },
+    {
+      "url": "/tags/discovery/",
+      "type": "taxonomy-term",
+      "layout": "tag",
+      "title": "Tags: discovery",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "discovery",
+        "title": "Tags: discovery"
+      }
+    },
+    {
+      "url": "/tags/embedding/",
+      "type": "taxonomy-term",
+      "layout": "tag",
+      "title": "Tags: embedding",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "embedding",
+        "title": "Tags: embedding"
+      }
+    },
+    {
+      "url": "/tags/errors/",
+      "type": "taxonomy-term",
+      "layout": "tag",
+      "title": "Tags: errors",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "errors",
+        "title": "Tags: errors"
+      }
+    },
+    {
+      "url": "/tags/extensibility/",
+      "type": "taxonomy-term",
+      "layout": "tag",
+      "title": "Tags: extensibility",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "extensibility",
+        "title": "Tags: extensibility"
+      }
+    },
+    {
+      "url": "/tags/hooks/",
+      "type": "taxonomy-term",
+      "layout": "tag",
+      "title": "Tags: hooks",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "hooks",
+        "title": "Tags: hooks"
+      }
+    },
+    {
+      "url": "/tags/incremental/",
+      "type": "taxonomy-term",
+      "layout": "tag",
+      "title": "Tags: incremental",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "incremental",
+        "title": "Tags: incremental"
+      }
+    },
+    {
+      "url": "/tags/integration/",
+      "type": "taxonomy-term",
+      "layout": "tag",
+      "title": "Tags: integration",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "integration",
+        "title": "Tags: integration"
+      }
+    },
+    {
+      "url": "/tags/manifest/",
+      "type": "taxonomy-term",
+      "layout": "tag",
+      "title": "Tags: manifest",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "manifest",
+        "title": "Tags: manifest"
+      }
+    },
+    {
+      "url": "/tags/packs/",
+      "type": "taxonomy-term",
+      "layout": "tag",
+      "title": "Tags: packs",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "packs",
+        "title": "Tags: packs"
+      }
+    },
+    {
+      "url": "/tags/parsing/",
+      "type": "taxonomy-term",
+      "layout": "tag",
+      "title": "Tags: parsing",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "parsing",
+        "title": "Tags: parsing"
+      }
+    },
+    {
+      "url": "/tags/performance/",
+      "type": "taxonomy-term",
+      "layout": "tag",
+      "title": "Tags: performance",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "performance",
+        "title": "Tags: performance"
+      }
+    },
+    {
+      "url": "/tags/pipeline/",
+      "type": "taxonomy-term",
+      "layout": "tag",
+      "title": "Tags: pipeline",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "pipeline",
+        "title": "Tags: pipeline"
+      }
+    },
+    {
+      "url": "/tags/quality/",
+      "type": "taxonomy-term",
+      "layout": "tag",
+      "title": "Tags: quality",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "quality",
+        "title": "Tags: quality"
+      }
+    },
+    {
+      "url": "/tags/reliability/",
+      "type": "taxonomy-term",
+      "layout": "tag",
+      "title": "Tags: reliability",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "reliability",
+        "title": "Tags: reliability"
+      }
+    },
+    {
+      "url": "/tags/routing/",
+      "type": "taxonomy-term",
+      "layout": "tag",
+      "title": "Tags: routing",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "routing",
+        "title": "Tags: routing"
+      }
+    },
+    {
+      "url": "/tags/taxonomies/",
+      "type": "taxonomy-term",
+      "layout": "tag",
+      "title": "Tags: taxonomies",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "taxonomies",
+        "title": "Tags: taxonomies"
+      }
+    },
+    {
+      "url": "/tags/testing/",
+      "type": "taxonomy-term",
+      "layout": "tag",
+      "title": "Tags: testing",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "testing",
+        "title": "Tags: testing"
+      }
+    },
+    {
+      "url": "/timeline/",
+      "type": "virtual",
+      "layout": "timeline",
+      "title": "Timeline",
+      "envelope": {
+        "timeline_entries": [
+          {
+            "date": "2026-06-13",
+            "number": 11,
+            "status": "accepted",
+            "supersedes": null,
+            "title": "Format packs bundle a content format as one installable unit",
+            "url": "/decisions/011-format-packs-as-ecosystem-unit.adr/"
+          },
+          {
+            "date": "2026-06-13",
+            "number": 14,
+            "status": "accepted",
+            "supersedes": null,
+            "title": "The site manifest is the host-integration contract",
+            "url": "/decisions/014-manifest-as-host-integration-contract.adr/"
+          },
+          {
+            "date": "2026-06-13",
+            "number": 13,
+            "status": "accepted",
+            "supersedes": null,
+            "title": "A programmatic build API alongside the CLI",
+            "url": "/decisions/013-programmatic-api-alongside-cli.adr/"
+          },
+          {
+            "date": "2026-06-13",
+            "number": 12,
+            "status": "accepted",
+            "supersedes": null,
+            "title": "Incremental builds are opt-in and provably equivalent",
+            "url": "/decisions/012-opt-in-incremental-builds.adr/"
+          },
+          {
+            "date": "2026-06-02",
+            "number": 2,
+            "status": "accepted",
+            "supersedes": null,
+            "title": "Parsers own envelope extraction",
+            "url": "/decisions/002-parser-owned-envelope-extraction.adr/"
+          },
+          {
+            "date": "2026-06-02",
+            "number": 3,
+            "status": "accepted",
+            "supersedes": null,
+            "title": "No built-in parsers; two-tier parser precedence",
+            "url": "/decisions/003-no-built-in-parsers-two-tier-precedence.adr/"
+          },
+          {
+            "date": "2026-06-02",
+            "number": 5,
+            "status": "accepted",
+            "supersedes": null,
+            "title": "Parser dispatch by extension or filename, not frontmatter type",
+            "url": "/decisions/005-extension-filename-parser-dispatch.adr/"
+          },
+          {
+            "date": "2026-06-02",
+            "number": 6,
+            "status": "accepted",
+            "supersedes": null,
+            "title": "Content discovery is driven by registered parsers",
+            "url": "/decisions/006-content-discovery-driven-by-parsers.adr/"
+          },
+          {
+            "date": "2026-05-20",
+            "number": 7,
+            "status": "accepted",
+            "supersedes": null,
+            "title": "Hooks are Go functions, not config",
+            "url": "/decisions/007-hooks-are-go-not-config.adr/"
+          },
+          {
+            "date": "2026-05-20",
+            "number": 10,
+            "status": "accepted",
+            "supersedes": null,
+            "title": "Taxonomies and collections are virtual pages",
+            "url": "/decisions/010-virtual-pages-for-taxonomies-collections.adr/"
+          },
+          {
+            "date": "2026-05-20",
+            "number": 9,
+            "status": "accepted",
+            "supersedes": null,
+            "title": "Golden-file integration testing with enforced determinism",
+            "url": "/decisions/009-golden-file-determinism-testing.adr/"
+          },
+          {
+            "date": "2026-05-20",
+            "number": 8,
+            "status": "accepted",
+            "supersedes": null,
+            "title": "Error accumulation with three severities, not fail-fast",
+            "url": "/decisions/008-error-accumulation-three-severities.adr/"
+          },
+          {
+            "date": "2026-05-20",
+            "number": 1,
+            "status": "accepted",
+            "supersedes": null,
+            "title": "A universal AST with free-form node types",
+            "url": "/decisions/001-universal-ast-free-form-nodes.adr/"
+          },
+          {
+            "date": "2026-05-20",
+            "number": 4,
+            "status": "accepted",
+            "supersedes": null,
+            "title": "core.Page is the mutable pipeline spine",
+            "url": "/decisions/004-page-as-mutable-pipeline-spine.adr/"
+          }
+        ],
+        "title": "Timeline"
+      }
+    }
+  ],
+  "taxonomies": {
+    "tags": {
+      "terms": {
+        "api": [
+          14
+        ],
+        "architecture": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          11,
+          12,
+          14,
+          15
+        ],
+        "collections": [
+          11
+        ],
+        "core": [
+          2,
+          3,
+          5
+        ],
+        "determinism": [
+          10
+        ],
+        "discovery": [
+          7
+        ],
+        "embedding": [
+          14
+        ],
+        "errors": [
+          9
+        ],
+        "extensibility": [
+          8,
+          12
+        ],
+        "hooks": [
+          8
+        ],
+        "incremental": [
+          13
+        ],
+        "integration": [
+          15
+        ],
+        "manifest": [
+          15
+        ],
+        "packs": [
+          12
+        ],
+        "parsing": [
+          2,
+          3,
+          4,
+          6,
+          7
+        ],
+        "performance": [
+          13
+        ],
+        "pipeline": [
+          5,
+          11
+        ],
+        "quality": [
+          10
+        ],
+        "reliability": [
+          9,
+          13
+        ],
+        "routing": [
+          6
+        ],
+        "taxonomies": [
+          11
+        ],
+        "testing": [
+          10
+        ]
+      }
+    }
+  }
+}

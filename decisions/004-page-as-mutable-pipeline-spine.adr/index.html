@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>core.Page is the mutable pipeline spine — ADR Documentation</title>
+  <base href="/gofuego/fuego/">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen">
+  <nav class="border-b border-gray-800 px-6 py-4">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <a href="." class="text-lg font-bold text-white hover:text-blue-400 transition-colors">ADR Documentation</a>
+      <div class="flex gap-6 text-sm text-gray-400">
+        <a href="." class="hover:text-white transition-colors">Home</a>
+        <a href="timeline" class="hover:text-white transition-colors">Timeline</a>
+        <a href="tags" class="hover:text-white transition-colors">Tags</a>
+        <a href="affects" class="hover:text-white transition-colors">Affected Files</a>
+      </div>
+    </div>
+  </nav>
+  <main class="max-w-4xl mx-auto px-6 py-8">
+    
+<article>
+  
+  <div class="mb-8">
+    <div class="flex items-center gap-3 mb-2">
+      <span class="text-sm font-mono text-gray-500">ADR-4</span>
+      
+      <span class="px-2 py-0.5 rounded text-xs font-semibold
+        bg-green-900 text-green-300
+        ">accepted</span>
+      
+    </div>
+    <h1 class="text-3xl font-bold text-white mb-4">core.Page is the mutable pipeline spine</h1>
+
+    
+    <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm text-gray-400 border-b border-gray-800 pb-4">
+      
+      <div><span class="text-gray-500">Author:</span> fabio</div>
+      
+      
+      <div><span class="text-gray-500">Proposed:</span> 2026-05-20</div>
+      
+      
+      <div><span class="text-gray-500">Approvers:</span> fabio</div>
+      
+      
+      <div><span class="text-gray-500">Accepted:</span> 2026-05-20</div>
+      
+      
+    </div>
+
+    
+    
+
+    
+    
+    <div class="mt-3 flex gap-2 flex-wrap">
+      
+      <a href="tags/architecture" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#architecture</a>
+      
+      <a href="tags/core" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#core</a>
+      
+      <a href="tags/pipeline" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#pipeline</a>
+      
+    </div>
+    
+  </div>
+
+  
+  <div class="prose prose-invert prose-sm max-w-none">
+    <div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Context</h2>
+  <div class="text-gray-300 leading-relaxed"><p>The build is a sequence of phases (discover, parse, route, index, render). Each
+needs the prior phase's output plus a little more. The choice is between threading
+an immutable value that's copied and re-shaped at every phase, or a single mutable
+struct that each phase enriches in place.</p>
+</div>
+</div>
+<div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Decision</h2>
+  <div class="text-gray-300 leading-relaxed"><p><code>core.Page</code> is a <strong>mutable pointer struct</strong> that flows through every phase. Each
+phase only adds to it: DISCOVER sets paths, PARSE sets envelope/nodes, ROUTE sets
+the URL, INDEX may append whole virtual pages. The struct lives in <code>core/</code> (not
+<code>internal/parse</code>) so the public hook API can reference it — it was originally
+<code>parse.PageData</code> and was renamed when hooks were introduced.</p>
+</div>
+</div>
+<div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Consequences</h2>
+  <div class="text-gray-300 leading-relaxed"><ul>
+<li><strong>+</strong> No copying between phases; the pipeline is strictly linear and each phase is
+&quot;page so far → page slightly more complete.&quot;</li>
+<li><strong>+</strong> Placing <code>Page</code> in <code>core/</code> lets the public hook API hand user code a
+<code>*core.Page</code> while the internals mutate it, with no import cycle.</li>
+<li><strong>−</strong> Mutability means phase order matters and a phase can observe partial state;
+the linear pipeline and phase enum keep this disciplined.</li>
+<li>Enables the hook model of <a href="007-hooks-are-go-not-config.adr.md">007</a> and the host
+contract of <a href="014-manifest-as-host-integration-contract.adr.md">014</a>.</li>
+</ul>
+</div>
+</div>
+
+  </div>
+
+  
+  
+  <div class="mt-8 border-t border-gray-800 pt-6">
+    <h2 class="text-lg font-semibold text-white mb-3">Affected Files</h2>
+    <div class="space-y-1" data-affects-list>
+      
+      <div class="text-sm font-mono" data-affects-pattern="core/**">
+        <span class="text-gray-400">core/**</span>
+      </div>
+      
+      <div class="text-sm font-mono" data-affects-pattern="internal/pipeline/**">
+        <span class="text-gray-400">internal/pipeline/**</span>
+      </div>
+      
+    </div>
+  </div>
+  
+</article>
+
+  </main>
+  <script type="application/json" id="fuego-data">{"envelope":{"adr_number":4,"affects":["core/**","internal/pipeline/**"],"approvers":["fabio"],"author":["fabio"],"date_accepted":"2026-05-20","date_proposed":"2026-05-20","status":"accepted","tags":["architecture","core","pipeline"],"title":"core.Page is the mutable pipeline spine"},"nodes":[{"type":"context","content":"\u003cp\u003eThe build is a sequence of phases (discover, parse, route, index, render). Each\nneeds the prior phase's output plus a little more. The choice is between threading\nan immutable value that's copied and re-shaped at every phase, or a single mutable\nstruct that each phase enriches in place.\u003c/p\u003e\n","raw":true},{"type":"decision","content":"\u003cp\u003e\u003ccode\u003ecore.Page\u003c/code\u003e is a \u003cstrong\u003emutable pointer struct\u003c/strong\u003e that flows through every phase. Each\nphase only adds to it: DISCOVER sets paths, PARSE sets envelope/nodes, ROUTE sets\nthe URL, INDEX may append whole virtual pages. The struct lives in \u003ccode\u003ecore/\u003c/code\u003e (not\n\u003ccode\u003einternal/parse\u003c/code\u003e) so the public hook API can reference it — it was originally\n\u003ccode\u003eparse.PageData\u003c/code\u003e and was renamed when hooks were introduced.\u003c/p\u003e\n","raw":true},{"type":"consequences","content":"\u003cul\u003e\n\u003cli\u003e\u003cstrong\u003e+\u003c/strong\u003e No copying between phases; the pipeline is strictly linear and each phase is\n\u0026quot;page so far → page slightly more complete.\u0026quot;\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e+\u003c/strong\u003e Placing \u003ccode\u003ePage\u003c/code\u003e in \u003ccode\u003ecore/\u003c/code\u003e lets the public hook API hand user code a\n\u003ccode\u003e*core.Page\u003c/code\u003e while the internals mutate it, with no import cycle.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e−\u003c/strong\u003e Mutability means phase order matters and a phase can observe partial state;\nthe linear pipeline and phase enum keep this disciplined.\u003c/li\u003e\n\u003cli\u003eEnables the hook model of \u003ca href=\"007-hooks-are-go-not-config.adr.md\"\u003e007\u003c/a\u003e and the host\ncontract of \u003ca href=\"014-manifest-as-host-integration-contract.adr.md\"\u003e014\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n","raw":true}],"url":"/decisions/004-page-as-mutable-pipeline-spine.adr/"}</script>
+  <script src="app.js"></script>
+</body>
+</html>
+

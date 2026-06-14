@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Error accumulation with three severities, not fail-fast — ADR Documentation</title>
+  <base href="/gofuego/fuego/">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen">
+  <nav class="border-b border-gray-800 px-6 py-4">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <a href="." class="text-lg font-bold text-white hover:text-blue-400 transition-colors">ADR Documentation</a>
+      <div class="flex gap-6 text-sm text-gray-400">
+        <a href="." class="hover:text-white transition-colors">Home</a>
+        <a href="timeline" class="hover:text-white transition-colors">Timeline</a>
+        <a href="tags" class="hover:text-white transition-colors">Tags</a>
+        <a href="affects" class="hover:text-white transition-colors">Affected Files</a>
+      </div>
+    </div>
+  </nav>
+  <main class="max-w-4xl mx-auto px-6 py-8">
+    
+<article>
+  
+  <div class="mb-8">
+    <div class="flex items-center gap-3 mb-2">
+      <span class="text-sm font-mono text-gray-500">ADR-8</span>
+      
+      <span class="px-2 py-0.5 rounded text-xs font-semibold
+        bg-green-900 text-green-300
+        ">accepted</span>
+      
+    </div>
+    <h1 class="text-3xl font-bold text-white mb-4">Error accumulation with three severities, not fail-fast</h1>
+
+    
+    <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm text-gray-400 border-b border-gray-800 pb-4">
+      
+      <div><span class="text-gray-500">Author:</span> fabio</div>
+      
+      
+      <div><span class="text-gray-500">Proposed:</span> 2026-05-20</div>
+      
+      
+      <div><span class="text-gray-500">Approvers:</span> fabio</div>
+      
+      
+      <div><span class="text-gray-500">Accepted:</span> 2026-05-20</div>
+      
+      
+    </div>
+
+    
+    
+
+    
+    
+    <div class="mt-3 flex gap-2 flex-wrap">
+      
+      <a href="tags/errors" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#errors</a>
+      
+      <a href="tags/architecture" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#architecture</a>
+      
+      <a href="tags/reliability" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#reliability</a>
+      
+    </div>
+    
+  </div>
+
+  
+  <div class="prose prose-invert prose-sm max-w-none">
+    <div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Context</h2>
+  <div class="text-gray-300 leading-relaxed"><p>A site can have hundreds of pages. If the build failed completely on the first bad
+file, one typo would block the whole site — painful during authoring. But some
+errors (a URL collision, a broken config) genuinely do compromise the entire
+output and must stop the build.</p>
+</div>
+</div>
+<div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Decision</h2>
+  <div class="text-gray-300 leading-relaxed"><p>The pipeline accumulates errors in a mutex-protected <code>core.ErrorAccumulator</code> with
+three severities:</p>
+<ul>
+<li><strong>Warning</strong> — logged; build continues.</li>
+<li><strong>LocalFatal</strong> — the offending page is skipped; build continues with partial
+output.</li>
+<li><strong>GlobalFatal</strong> — build halts (URL collisions, config errors), because continuing
+would produce corrupt output.</li>
+</ul>
+</div>
+</div>
+<div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Consequences</h2>
+  <div class="text-gray-300 leading-relaxed"><ul>
+<li><strong>+</strong> One malformed file can't sink a large site; the build produces partial,
+useful output.</li>
+<li><strong>+</strong> Structural problems still halt, so corrupt output is never emitted.</li>
+<li><strong>−</strong> Authors must read accumulated warnings/errors rather than getting a single
+hard stop; <code>fuego validate</code> surfaces them without rendering.</li>
+<li>The severity choice is about blast radius, and the collision re-check of
+<a href="010-virtual-pages-for-taxonomies-collections.adr.md">010</a> raises GlobalFatal.</li>
+</ul>
+</div>
+</div>
+
+  </div>
+
+  
+  
+  <div class="mt-8 border-t border-gray-800 pt-6">
+    <h2 class="text-lg font-semibold text-white mb-3">Affected Files</h2>
+    <div class="space-y-1" data-affects-list>
+      
+      <div class="text-sm font-mono" data-affects-pattern="core/**">
+        <span class="text-gray-400">core/**</span>
+      </div>
+      
+      <div class="text-sm font-mono" data-affects-pattern="internal/pipeline/**">
+        <span class="text-gray-400">internal/pipeline/**</span>
+      </div>
+      
+    </div>
+  </div>
+  
+</article>
+
+  </main>
+  <script type="application/json" id="fuego-data">{"envelope":{"adr_number":8,"affects":["core/**","internal/pipeline/**"],"approvers":["fabio"],"author":["fabio"],"date_accepted":"2026-05-20","date_proposed":"2026-05-20","status":"accepted","tags":["errors","architecture","reliability"],"title":"Error accumulation with three severities, not fail-fast"},"nodes":[{"type":"context","content":"\u003cp\u003eA site can have hundreds of pages. If the build failed completely on the first bad\nfile, one typo would block the whole site — painful during authoring. But some\nerrors (a URL collision, a broken config) genuinely do compromise the entire\noutput and must stop the build.\u003c/p\u003e\n","raw":true},{"type":"decision","content":"\u003cp\u003eThe pipeline accumulates errors in a mutex-protected \u003ccode\u003ecore.ErrorAccumulator\u003c/code\u003e with\nthree severities:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003e\u003cstrong\u003eWarning\u003c/strong\u003e — logged; build continues.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003eLocalFatal\u003c/strong\u003e — the offending page is skipped; build continues with partial\noutput.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003eGlobalFatal\u003c/strong\u003e — build halts (URL collisions, config errors), because continuing\nwould produce corrupt output.\u003c/li\u003e\n\u003c/ul\u003e\n","raw":true},{"type":"consequences","content":"\u003cul\u003e\n\u003cli\u003e\u003cstrong\u003e+\u003c/strong\u003e One malformed file can't sink a large site; the build produces partial,\nuseful output.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e+\u003c/strong\u003e Structural problems still halt, so corrupt output is never emitted.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e−\u003c/strong\u003e Authors must read accumulated warnings/errors rather than getting a single\nhard stop; \u003ccode\u003efuego validate\u003c/code\u003e surfaces them without rendering.\u003c/li\u003e\n\u003cli\u003eThe severity choice is about blast radius, and the collision re-check of\n\u003ca href=\"010-virtual-pages-for-taxonomies-collections.adr.md\"\u003e010\u003c/a\u003e raises GlobalFatal.\u003c/li\u003e\n\u003c/ul\u003e\n","raw":true}],"url":"/decisions/008-error-accumulation-three-severities.adr/"}</script>
+  <script src="app.js"></script>
+</body>
+</html>
+

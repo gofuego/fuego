@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A programmatic build API alongside the CLI — ADR Documentation</title>
+  <base href="/gofuego/fuego/">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen">
+  <nav class="border-b border-gray-800 px-6 py-4">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <a href="." class="text-lg font-bold text-white hover:text-blue-400 transition-colors">ADR Documentation</a>
+      <div class="flex gap-6 text-sm text-gray-400">
+        <a href="." class="hover:text-white transition-colors">Home</a>
+        <a href="timeline" class="hover:text-white transition-colors">Timeline</a>
+        <a href="tags" class="hover:text-white transition-colors">Tags</a>
+        <a href="affects" class="hover:text-white transition-colors">Affected Files</a>
+      </div>
+    </div>
+  </nav>
+  <main class="max-w-4xl mx-auto px-6 py-8">
+    
+<article>
+  
+  <div class="mb-8">
+    <div class="flex items-center gap-3 mb-2">
+      <span class="text-sm font-mono text-gray-500">ADR-13</span>
+      
+      <span class="px-2 py-0.5 rounded text-xs font-semibold
+        bg-green-900 text-green-300
+        ">accepted</span>
+      
+    </div>
+    <h1 class="text-3xl font-bold text-white mb-4">A programmatic build API alongside the CLI</h1>
+
+    
+    <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm text-gray-400 border-b border-gray-800 pb-4">
+      
+      <div><span class="text-gray-500">Author:</span> fabio</div>
+      
+      
+      <div><span class="text-gray-500">Proposed:</span> 2026-06-13</div>
+      
+      
+      <div><span class="text-gray-500">Approvers:</span> fabio</div>
+      
+      
+      <div><span class="text-gray-500">Accepted:</span> 2026-06-13</div>
+      
+      
+    </div>
+
+    
+    
+
+    
+    
+    <div class="mt-3 flex gap-2 flex-wrap">
+      
+      <a href="tags/api" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#api</a>
+      
+      <a href="tags/embedding" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#embedding</a>
+      
+      <a href="tags/architecture" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#architecture</a>
+      
+    </div>
+    
+  </div>
+
+  
+  <div class="prose prose-invert prose-sm max-w-none">
+    <div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Context</h2>
+  <div class="text-gray-300 leading-relaxed"><p>Tools built on Fuego — pack-based wrappers like <code>fuego-adr</code>, or a host that builds
+on demand — shouldn't have to synthesize a temp <code>config.yaml</code> and shell into the
+CLI. That path serializes config to disk, spawns a process, and parses stdout:
+slow, fragile, and untestable.</p>
+</div>
+</div>
+<div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Decision</h2>
+  <div class="text-gray-300 leading-relaxed"><p><code>engine.Build/Serve/Validate</code> plus <code>engine.BuildOptions</code> let a Go program build
+<strong>in-process</strong>. <code>engine.Run(args)</code> (the CLI) reads a <code>config.yaml</code> file; the
+programmatic API resolves config from in-memory layers (pack defaults → optional
+file → option overrides) via <code>config.ResolveLayers</code>. The serve loop lives in
+<code>internal/serve.Run</code>, so the CLI and <code>engine.Serve</code> share one watcher/rebuild/proxy
+implementation and cannot drift.</p>
+</div>
+</div>
+<div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Consequences</h2>
+  <div class="text-gray-300 leading-relaxed"><ul>
+<li><strong>+</strong> Embedding Fuego is first-class — no temp files, no subprocess, fully typed.</li>
+<li><strong>+</strong> One pipeline and one serve loop behind two front doors; the CLI and API
+can't diverge.</li>
+<li><strong>−</strong> Two public entry points to keep coherent (<code>Run</code> vs <code>Build/Serve/Validate</code>),
+though they bottom out in the same pipeline.</li>
+<li>This is what makes pack-based tools (<a href="011-format-packs-as-ecosystem-unit.adr.md">011</a>)
+practical to build.</li>
+</ul>
+</div>
+</div>
+
+  </div>
+
+  
+  
+  <div class="mt-8 border-t border-gray-800 pt-6">
+    <h2 class="text-lg font-semibold text-white mb-3">Affected Files</h2>
+    <div class="space-y-1" data-affects-list>
+      
+      <div class="text-sm font-mono" data-affects-pattern="engine/**">
+        <span class="text-gray-400">engine/**</span>
+      </div>
+      
+      <div class="text-sm font-mono" data-affects-pattern="internal/serve/**">
+        <span class="text-gray-400">internal/serve/**</span>
+      </div>
+      
+    </div>
+  </div>
+  
+</article>
+
+  </main>
+  <script type="application/json" id="fuego-data">{"envelope":{"adr_number":13,"affects":["engine/**","internal/serve/**"],"approvers":["fabio"],"author":["fabio"],"date_accepted":"2026-06-13","date_proposed":"2026-06-13","status":"accepted","tags":["api","embedding","architecture"],"title":"A programmatic build API alongside the CLI"},"nodes":[{"type":"context","content":"\u003cp\u003eTools built on Fuego — pack-based wrappers like \u003ccode\u003efuego-adr\u003c/code\u003e, or a host that builds\non demand — shouldn't have to synthesize a temp \u003ccode\u003econfig.yaml\u003c/code\u003e and shell into the\nCLI. That path serializes config to disk, spawns a process, and parses stdout:\nslow, fragile, and untestable.\u003c/p\u003e\n","raw":true},{"type":"decision","content":"\u003cp\u003e\u003ccode\u003eengine.Build/Serve/Validate\u003c/code\u003e plus \u003ccode\u003eengine.BuildOptions\u003c/code\u003e let a Go program build\n\u003cstrong\u003ein-process\u003c/strong\u003e. \u003ccode\u003eengine.Run(args)\u003c/code\u003e (the CLI) reads a \u003ccode\u003econfig.yaml\u003c/code\u003e file; the\nprogrammatic API resolves config from in-memory layers (pack defaults → optional\nfile → option overrides) via \u003ccode\u003econfig.ResolveLayers\u003c/code\u003e. The serve loop lives in\n\u003ccode\u003einternal/serve.Run\u003c/code\u003e, so the CLI and \u003ccode\u003eengine.Serve\u003c/code\u003e share one watcher/rebuild/proxy\nimplementation and cannot drift.\u003c/p\u003e\n","raw":true},{"type":"consequences","content":"\u003cul\u003e\n\u003cli\u003e\u003cstrong\u003e+\u003c/strong\u003e Embedding Fuego is first-class — no temp files, no subprocess, fully typed.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e+\u003c/strong\u003e One pipeline and one serve loop behind two front doors; the CLI and API\ncan't diverge.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e−\u003c/strong\u003e Two public entry points to keep coherent (\u003ccode\u003eRun\u003c/code\u003e vs \u003ccode\u003eBuild/Serve/Validate\u003c/code\u003e),\nthough they bottom out in the same pipeline.\u003c/li\u003e\n\u003cli\u003eThis is what makes pack-based tools (\u003ca href=\"011-format-packs-as-ecosystem-unit.adr.md\"\u003e011\u003c/a\u003e)\npractical to build.\u003c/li\u003e\n\u003c/ul\u003e\n","raw":true}],"url":"/decisions/013-programmatic-api-alongside-cli.adr/"}</script>
+  <script src="app.js"></script>
+</body>
+</html>
+

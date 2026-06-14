@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parser dispatch by extension or filename, not frontmatter type — ADR Documentation</title>
+  <base href="/gofuego/fuego/">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen">
+  <nav class="border-b border-gray-800 px-6 py-4">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <a href="." class="text-lg font-bold text-white hover:text-blue-400 transition-colors">ADR Documentation</a>
+      <div class="flex gap-6 text-sm text-gray-400">
+        <a href="." class="hover:text-white transition-colors">Home</a>
+        <a href="timeline" class="hover:text-white transition-colors">Timeline</a>
+        <a href="tags" class="hover:text-white transition-colors">Tags</a>
+        <a href="affects" class="hover:text-white transition-colors">Affected Files</a>
+      </div>
+    </div>
+  </nav>
+  <main class="max-w-4xl mx-auto px-6 py-8">
+    
+<article>
+  
+  <div class="mb-8">
+    <div class="flex items-center gap-3 mb-2">
+      <span class="text-sm font-mono text-gray-500">ADR-5</span>
+      
+      <span class="px-2 py-0.5 rounded text-xs font-semibold
+        bg-green-900 text-green-300
+        ">accepted</span>
+      
+    </div>
+    <h1 class="text-3xl font-bold text-white mb-4">Parser dispatch by extension or filename, not frontmatter type</h1>
+
+    
+    <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm text-gray-400 border-b border-gray-800 pb-4">
+      
+      <div><span class="text-gray-500">Author:</span> fabio</div>
+      
+      
+      <div><span class="text-gray-500">Proposed:</span> 2026-06-02</div>
+      
+      
+      <div><span class="text-gray-500">Approvers:</span> fabio</div>
+      
+      
+      <div><span class="text-gray-500">Accepted:</span> 2026-06-02</div>
+      
+      
+    </div>
+
+    
+    
+
+    
+    
+    <div class="mt-3 flex gap-2 flex-wrap">
+      
+      <a href="tags/parsing" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#parsing</a>
+      
+      <a href="tags/routing" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#routing</a>
+      
+      <a href="tags/architecture" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#architecture</a>
+      
+    </div>
+    
+  </div>
+
+  
+  <div class="prose prose-invert prose-sm max-w-none">
+    <div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Context</h2>
+  <div class="text-gray-300 leading-relaxed"><p>Something must decide which parser handles a file. A natural-seeming option is a
+<code>type:</code> field in the file's frontmatter. But with parsers now owning envelope
+extraction (see <a href="002-parser-owned-envelope-extraction.adr.md">002</a>), the envelope
+isn't available <em>before</em> a parser runs — so <code>type</code>-based dispatch would require the
+engine to pre-parse, reintroducing exactly the format assumption we removed.</p>
+</div>
+</div>
+<div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Decision</h2>
+  <div class="text-gray-300 leading-relaxed"><p>Parser dispatch is determined by <strong>file extension</strong> (matching <code>Parser.Type()</code>) or
+<strong>filename</strong> (matching <code>FilenameParser.Filenames()</code>, for extensionless files like
+<code>Dockerfile</code>). The <code>type</code> frontmatter field does not drive dispatch. <code>layout</code> and
+<code>slug</code> remain envelope conventions read <em>after</em> parsing.</p>
+</div>
+</div>
+<div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Consequences</h2>
+  <div class="text-gray-300 leading-relaxed"><ul>
+<li><strong>+</strong> Dispatch needs no pre-parsing and is visible in the filesystem — you can see
+which parser handles a file from its name.</li>
+<li><strong>+</strong> Extensionless files are handled cleanly via <code>FilenameParser</code>.</li>
+<li><strong>−</strong> Two files of the same logical format must share an extension; you can't mix
+formats under one extension via a <code>type</code> switch. This is a fair trade for not
+pre-parsing.</li>
+</ul>
+</div>
+</div>
+
+  </div>
+
+  
+  
+  <div class="mt-8 border-t border-gray-800 pt-6">
+    <h2 class="text-lg font-semibold text-white mb-3">Affected Files</h2>
+    <div class="space-y-1" data-affects-list>
+      
+      <div class="text-sm font-mono" data-affects-pattern="internal/parse/**">
+        <span class="text-gray-400">internal/parse/**</span>
+      </div>
+      
+      <div class="text-sm font-mono" data-affects-pattern="internal/discover/**">
+        <span class="text-gray-400">internal/discover/**</span>
+      </div>
+      
+    </div>
+  </div>
+  
+</article>
+
+  </main>
+  <script type="application/json" id="fuego-data">{"envelope":{"adr_number":5,"affects":["internal/parse/**","internal/discover/**"],"approvers":["fabio"],"author":["fabio"],"date_accepted":"2026-06-02","date_proposed":"2026-06-02","status":"accepted","tags":["parsing","routing","architecture"],"title":"Parser dispatch by extension or filename, not frontmatter type"},"nodes":[{"type":"context","content":"\u003cp\u003eSomething must decide which parser handles a file. A natural-seeming option is a\n\u003ccode\u003etype:\u003c/code\u003e field in the file's frontmatter. But with parsers now owning envelope\nextraction (see \u003ca href=\"002-parser-owned-envelope-extraction.adr.md\"\u003e002\u003c/a\u003e), the envelope\nisn't available \u003cem\u003ebefore\u003c/em\u003e a parser runs — so \u003ccode\u003etype\u003c/code\u003e-based dispatch would require the\nengine to pre-parse, reintroducing exactly the format assumption we removed.\u003c/p\u003e\n","raw":true},{"type":"decision","content":"\u003cp\u003eParser dispatch is determined by \u003cstrong\u003efile extension\u003c/strong\u003e (matching \u003ccode\u003eParser.Type()\u003c/code\u003e) or\n\u003cstrong\u003efilename\u003c/strong\u003e (matching \u003ccode\u003eFilenameParser.Filenames()\u003c/code\u003e, for extensionless files like\n\u003ccode\u003eDockerfile\u003c/code\u003e). The \u003ccode\u003etype\u003c/code\u003e frontmatter field does not drive dispatch. \u003ccode\u003elayout\u003c/code\u003e and\n\u003ccode\u003eslug\u003c/code\u003e remain envelope conventions read \u003cem\u003eafter\u003c/em\u003e parsing.\u003c/p\u003e\n","raw":true},{"type":"consequences","content":"\u003cul\u003e\n\u003cli\u003e\u003cstrong\u003e+\u003c/strong\u003e Dispatch needs no pre-parsing and is visible in the filesystem — you can see\nwhich parser handles a file from its name.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e+\u003c/strong\u003e Extensionless files are handled cleanly via \u003ccode\u003eFilenameParser\u003c/code\u003e.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e−\u003c/strong\u003e Two files of the same logical format must share an extension; you can't mix\nformats under one extension via a \u003ccode\u003etype\u003c/code\u003e switch. This is a fair trade for not\npre-parsing.\u003c/li\u003e\n\u003c/ul\u003e\n","raw":true}],"url":"/decisions/005-extension-filename-parser-dispatch.adr/"}</script>
+  <script src="app.js"></script>
+</body>
+</html>
+

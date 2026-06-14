@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home — ADR Documentation</title>
+  <base href="/gofuego/fuego/">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen">
+  <nav class="border-b border-gray-800 px-6 py-4">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <a href="." class="text-lg font-bold text-white hover:text-blue-400 transition-colors">ADR Documentation</a>
+      <div class="flex gap-6 text-sm text-gray-400">
+        <a href="." class="hover:text-white transition-colors">Home</a>
+        <a href="timeline" class="hover:text-white transition-colors">Timeline</a>
+        <a href="tags" class="hover:text-white transition-colors">Tags</a>
+        <a href="affects" class="hover:text-white transition-colors">Affected Files</a>
+      </div>
+    </div>
+  </nav>
+  <main class="max-w-4xl mx-auto px-6 py-8">
+    
+<div>
+  
+  
+
+  
+  
+
+  
+  <div>
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl font-bold text-white">Active Decisions</h2>
+      <input type="text" placeholder="Filter..." class="bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-blue-500" data-search-input>
+    </div>
+    <div class="space-y-2" data-search-list>
+      
+      <a href="/decisions/001-universal-ast-free-form-nodes.adr/" class="block p-3 rounded-lg bg-gray-900 border border-gray-800 hover:border-gray-600 transition-colors" data-search-item>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="text-xs font-mono text-gray-500">ADR-1</span>
+            <span class="text-sm text-white">A universal AST with free-form node types</span>
+          </div>
+          <div class="flex gap-1.5">
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#architecture</span>
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#core</span>
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#parsing</span>
+            
+          </div>
+        </div>
+      </a>
+      
+      <a href="/decisions/002-parser-owned-envelope-extraction.adr/" class="block p-3 rounded-lg bg-gray-900 border border-gray-800 hover:border-gray-600 transition-colors" data-search-item>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="text-xs font-mono text-gray-500">ADR-2</span>
+            <span class="text-sm text-white">Parsers own envelope extraction</span>
+          </div>
+          <div class="flex gap-1.5">
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#parsing</span>
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#core</span>
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#architecture</span>
+            
+          </div>
+        </div>
+      </a>
+      
+      <a href="/decisions/003-no-built-in-parsers-two-tier-precedence.adr/" class="block p-3 rounded-lg bg-gray-900 border border-gray-800 hover:border-gray-600 transition-colors" data-search-item>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="text-xs font-mono text-gray-500">ADR-3</span>
+            <span class="text-sm text-white">No built-in parsers; two-tier parser precedence</span>
+          </div>
+          <div class="flex gap-1.5">
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#parsing</span>
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#architecture</span>
+            
+          </div>
+        </div>
+      </a>
+      
+      <a href="/decisions/004-page-as-mutable-pipeline-spine.adr/" class="block p-3 rounded-lg bg-gray-900 border border-gray-800 hover:border-gray-600 transition-colors" data-search-item>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="text-xs font-mono text-gray-500">ADR-4</span>
+            <span class="text-sm text-white">core.Page is the mutable pipeline spine</span>
+          </div>
+          <div class="flex gap-1.5">
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#architecture</span>
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#core</span>
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#pipeline</span>
+            
+          </div>
+        </div>
+      </a>
+      
+      <a href="/decisions/005-extension-filename-parser-dispatch.adr/" class="block p-3 rounded-lg bg-gray-900 border border-gray-800 hover:border-gray-600 transition-colors" data-search-item>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="text-xs font-mono text-gray-500">ADR-5</span>
+            <span class="text-sm text-white">Parser dispatch by extension or filename, not frontmatter type</span>
+          </div>
+          <div class="flex gap-1.5">
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#parsing</span>
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#routing</span>
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#architecture</span>
+            
+          </div>
+        </div>
+      </a>
+      
+      <a href="/decisions/006-content-discovery-driven-by-parsers.adr/" class="block p-3 rounded-lg bg-gray-900 border border-gray-800 hover:border-gray-600 transition-colors" data-search-item>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="text-xs font-mono text-gray-500">ADR-6</span>
+            <span class="text-sm text-white">Content discovery is driven by registered parsers</span>
+          </div>
+          <div class="flex gap-1.5">
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#discovery</span>
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#parsing</span>
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#architecture</span>
+            
+          </div>
+        </div>
+      </a>
+      
+      <a href="/decisions/007-hooks-are-go-not-config.adr/" class="block p-3 rounded-lg bg-gray-900 border border-gray-800 hover:border-gray-600 transition-colors" data-search-item>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="text-xs font-mono text-gray-500">ADR-7</span>
+            <span class="text-sm text-white">Hooks are Go functions, not config</span>
+          </div>
+          <div class="flex gap-1.5">
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#hooks</span>
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#architecture</span>
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#extensibility</span>
+            
+          </div>
+        </div>
+      </a>
+      
+      <a href="/decisions/008-error-accumulation-three-severities.adr/" class="block p-3 rounded-lg bg-gray-900 border border-gray-800 hover:border-gray-600 transition-colors" data-search-item>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="text-xs font-mono text-gray-500">ADR-8</span>
+            <span class="text-sm text-white">Error accumulation with three severities, not fail-fast</span>
+          </div>
+          <div class="flex gap-1.5">
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#errors</span>
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#architecture</span>
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#reliability</span>
+            
+          </div>
+        </div>
+      </a>
+      
+      <a href="/decisions/009-golden-file-determinism-testing.adr/" class="block p-3 rounded-lg bg-gray-900 border border-gray-800 hover:border-gray-600 transition-colors" data-search-item>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="text-xs font-mono text-gray-500">ADR-9</span>
+            <span class="text-sm text-white">Golden-file integration testing with enforced determinism</span>
+          </div>
+          <div class="flex gap-1.5">
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#testing</span>
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#determinism</span>
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#quality</span>
+            
+          </div>
+        </div>
+      </a>
+      
+      <a href="/decisions/010-virtual-pages-for-taxonomies-collections.adr/" class="block p-3 rounded-lg bg-gray-900 border border-gray-800 hover:border-gray-600 transition-colors" data-search-item>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="text-xs font-mono text-gray-500">ADR-10</span>
+            <span class="text-sm text-white">Taxonomies and collections are virtual pages</span>
+          </div>
+          <div class="flex gap-1.5">
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#taxonomies</span>
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#collections</span>
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#pipeline</span>
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#architecture</span>
+            
+          </div>
+        </div>
+      </a>
+      
+      <a href="/decisions/011-format-packs-as-ecosystem-unit.adr/" class="block p-3 rounded-lg bg-gray-900 border border-gray-800 hover:border-gray-600 transition-colors" data-search-item>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="text-xs font-mono text-gray-500">ADR-11</span>
+            <span class="text-sm text-white">Format packs bundle a content format as one installable unit</span>
+          </div>
+          <div class="flex gap-1.5">
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#packs</span>
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#architecture</span>
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#extensibility</span>
+            
+          </div>
+        </div>
+      </a>
+      
+      <a href="/decisions/012-opt-in-incremental-builds.adr/" class="block p-3 rounded-lg bg-gray-900 border border-gray-800 hover:border-gray-600 transition-colors" data-search-item>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="text-xs font-mono text-gray-500">ADR-12</span>
+            <span class="text-sm text-white">Incremental builds are opt-in and provably equivalent</span>
+          </div>
+          <div class="flex gap-1.5">
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#incremental</span>
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#performance</span>
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#reliability</span>
+            
+          </div>
+        </div>
+      </a>
+      
+      <a href="/decisions/013-programmatic-api-alongside-cli.adr/" class="block p-3 rounded-lg bg-gray-900 border border-gray-800 hover:border-gray-600 transition-colors" data-search-item>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="text-xs font-mono text-gray-500">ADR-13</span>
+            <span class="text-sm text-white">A programmatic build API alongside the CLI</span>
+          </div>
+          <div class="flex gap-1.5">
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#api</span>
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#embedding</span>
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#architecture</span>
+            
+          </div>
+        </div>
+      </a>
+      
+      <a href="/decisions/014-manifest-as-host-integration-contract.adr/" class="block p-3 rounded-lg bg-gray-900 border border-gray-800 hover:border-gray-600 transition-colors" data-search-item>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="text-xs font-mono text-gray-500">ADR-14</span>
+            <span class="text-sm text-white">The site manifest is the host-integration contract</span>
+          </div>
+          <div class="flex gap-1.5">
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#manifest</span>
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#integration</span>
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#architecture</span>
+            
+          </div>
+        </div>
+      </a>
+      
+    </div>
+  </div>
+
+  
+  
+</div>
+
+  </main>
+  <script type="application/json" id="fuego-data">{"envelope":{"accepted_adrs":[{"number":1,"status":"accepted","tags":["architecture","core","parsing"],"title":"A universal AST with free-form node types","url":"/decisions/001-universal-ast-free-form-nodes.adr/"},{"number":2,"status":"accepted","tags":["parsing","core","architecture"],"title":"Parsers own envelope extraction","url":"/decisions/002-parser-owned-envelope-extraction.adr/"},{"number":3,"status":"accepted","tags":["parsing","architecture"],"title":"No built-in parsers; two-tier parser precedence","url":"/decisions/003-no-built-in-parsers-two-tier-precedence.adr/"},{"number":4,"status":"accepted","tags":["architecture","core","pipeline"],"title":"core.Page is the mutable pipeline spine","url":"/decisions/004-page-as-mutable-pipeline-spine.adr/"},{"number":5,"status":"accepted","tags":["parsing","routing","architecture"],"title":"Parser dispatch by extension or filename, not frontmatter type","url":"/decisions/005-extension-filename-parser-dispatch.adr/"},{"number":6,"status":"accepted","tags":["discovery","parsing","architecture"],"title":"Content discovery is driven by registered parsers","url":"/decisions/006-content-discovery-driven-by-parsers.adr/"},{"number":7,"status":"accepted","tags":["hooks","architecture","extensibility"],"title":"Hooks are Go functions, not config","url":"/decisions/007-hooks-are-go-not-config.adr/"},{"number":8,"status":"accepted","tags":["errors","architecture","reliability"],"title":"Error accumulation with three severities, not fail-fast","url":"/decisions/008-error-accumulation-three-severities.adr/"},{"number":9,"status":"accepted","tags":["testing","determinism","quality"],"title":"Golden-file integration testing with enforced determinism","url":"/decisions/009-golden-file-determinism-testing.adr/"},{"number":10,"status":"accepted","tags":["taxonomies","collections","pipeline","architecture"],"title":"Taxonomies and collections are virtual pages","url":"/decisions/010-virtual-pages-for-taxonomies-collections.adr/"},{"number":11,"status":"accepted","tags":["packs","architecture","extensibility"],"title":"Format packs bundle a content format as one installable unit","url":"/decisions/011-format-packs-as-ecosystem-unit.adr/"},{"number":12,"status":"accepted","tags":["incremental","performance","reliability"],"title":"Incremental builds are opt-in and provably equivalent","url":"/decisions/012-opt-in-incremental-builds.adr/"},{"number":13,"status":"accepted","tags":["api","embedding","architecture"],"title":"A programmatic build API alongside the CLI","url":"/decisions/013-programmatic-api-alongside-cli.adr/"},{"number":14,"status":"accepted","tags":["manifest","integration","architecture"],"title":"The site manifest is the host-integration contract","url":"/decisions/014-manifest-as-host-integration-contract.adr/"}],"inactive_adrs":null,"proposed_adrs":null,"tbd_adrs":null,"title":"Home"},"nodes":null,"url":"/"}</script>
+  <script src="app.js"></script>
+</body>
+</html>
+

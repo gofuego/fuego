@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parsers own envelope extraction — ADR Documentation</title>
+  <base href="/gofuego/fuego/">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen">
+  <nav class="border-b border-gray-800 px-6 py-4">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <a href="." class="text-lg font-bold text-white hover:text-blue-400 transition-colors">ADR Documentation</a>
+      <div class="flex gap-6 text-sm text-gray-400">
+        <a href="." class="hover:text-white transition-colors">Home</a>
+        <a href="timeline" class="hover:text-white transition-colors">Timeline</a>
+        <a href="tags" class="hover:text-white transition-colors">Tags</a>
+        <a href="affects" class="hover:text-white transition-colors">Affected Files</a>
+      </div>
+    </div>
+  </nav>
+  <main class="max-w-4xl mx-auto px-6 py-8">
+    
+<article>
+  
+  <div class="mb-8">
+    <div class="flex items-center gap-3 mb-2">
+      <span class="text-sm font-mono text-gray-500">ADR-2</span>
+      
+      <span class="px-2 py-0.5 rounded text-xs font-semibold
+        bg-green-900 text-green-300
+        ">accepted</span>
+      
+    </div>
+    <h1 class="text-3xl font-bold text-white mb-4">Parsers own envelope extraction</h1>
+
+    
+    <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm text-gray-400 border-b border-gray-800 pb-4">
+      
+      <div><span class="text-gray-500">Author:</span> fabio</div>
+      
+      
+      <div><span class="text-gray-500">Proposed:</span> 2026-06-02</div>
+      
+      
+      <div><span class="text-gray-500">Approvers:</span> fabio</div>
+      
+      
+      <div><span class="text-gray-500">Accepted:</span> 2026-06-02</div>
+      
+      
+    </div>
+
+    
+    
+
+    
+    
+    <div class="mt-3 flex gap-2 flex-wrap">
+      
+      <a href="tags/parsing" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#parsing</a>
+      
+      <a href="tags/core" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#core</a>
+      
+      <a href="tags/architecture" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#architecture</a>
+      
+    </div>
+    
+  </div>
+
+  
+  <div class="prose prose-invert prose-sm max-w-none">
+    <div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Context</h2>
+  <div class="text-gray-300 leading-relaxed"><p>Content metadata arrives in different shapes: Markdown blogs use YAML frontmatter,
+Kubernetes manifests embed metadata inside the body, Dockerfiles have none at all.
+An earlier design had the engine strip YAML frontmatter before handing the body to
+a parser — which silently assumed every format is frontmatter-shaped and made
+non-frontmatter formats second-class.</p>
+</div>
+</div>
+<div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Decision</h2>
+  <div class="text-gray-300 leading-relaxed"><p>The <code>Parser</code> interface is <code>Parse(raw []byte) (Envelope, []Node, error)</code>: the parser
+receives the <strong>entire raw file</strong> and returns both the metadata envelope and the
+parsed nodes. The engine does not pre-process the bytes. Convenience wrappers cover
+common shapes — <code>core.WithYAMLFrontmatter</code>, <code>core.WithNoEnvelope</code> — and
+<code>core.SplitFrontmatter()</code> is a public helper for parsers that want YAML
+frontmatter. The parser knows its format best, so the parser decides.</p>
+</div>
+</div>
+<div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Consequences</h2>
+  <div class="text-gray-300 leading-relaxed"><ul>
+<li><strong>+</strong> Any metadata convention is supported; no format is privileged.</li>
+<li><strong>+</strong> The engine's pre-parse stage disappears — one less place to encode a format
+assumption.</li>
+<li><strong>−</strong> Every parser must handle (or explicitly opt out of) envelope extraction;
+the wrappers exist to keep that boilerplate-free.</li>
+<li>Because the envelope isn't available until after a parser runs, dispatch cannot
+depend on it — see <a href="005-extension-filename-parser-dispatch.adr.md">005</a>.</li>
+</ul>
+</div>
+</div>
+
+  </div>
+
+  
+  
+  <div class="mt-8 border-t border-gray-800 pt-6">
+    <h2 class="text-lg font-semibold text-white mb-3">Affected Files</h2>
+    <div class="space-y-1" data-affects-list>
+      
+      <div class="text-sm font-mono" data-affects-pattern="core/**">
+        <span class="text-gray-400">core/**</span>
+      </div>
+      
+      <div class="text-sm font-mono" data-affects-pattern="internal/parse/**">
+        <span class="text-gray-400">internal/parse/**</span>
+      </div>
+      
+    </div>
+  </div>
+  
+</article>
+
+  </main>
+  <script type="application/json" id="fuego-data">{"envelope":{"adr_number":2,"affects":["core/**","internal/parse/**"],"approvers":["fabio"],"author":["fabio"],"date_accepted":"2026-06-02","date_proposed":"2026-06-02","status":"accepted","tags":["parsing","core","architecture"],"title":"Parsers own envelope extraction"},"nodes":[{"type":"context","content":"\u003cp\u003eContent metadata arrives in different shapes: Markdown blogs use YAML frontmatter,\nKubernetes manifests embed metadata inside the body, Dockerfiles have none at all.\nAn earlier design had the engine strip YAML frontmatter before handing the body to\na parser — which silently assumed every format is frontmatter-shaped and made\nnon-frontmatter formats second-class.\u003c/p\u003e\n","raw":true},{"type":"decision","content":"\u003cp\u003eThe \u003ccode\u003eParser\u003c/code\u003e interface is \u003ccode\u003eParse(raw []byte) (Envelope, []Node, error)\u003c/code\u003e: the parser\nreceives the \u003cstrong\u003eentire raw file\u003c/strong\u003e and returns both the metadata envelope and the\nparsed nodes. The engine does not pre-process the bytes. Convenience wrappers cover\ncommon shapes — \u003ccode\u003ecore.WithYAMLFrontmatter\u003c/code\u003e, \u003ccode\u003ecore.WithNoEnvelope\u003c/code\u003e — and\n\u003ccode\u003ecore.SplitFrontmatter()\u003c/code\u003e is a public helper for parsers that want YAML\nfrontmatter. The parser knows its format best, so the parser decides.\u003c/p\u003e\n","raw":true},{"type":"consequences","content":"\u003cul\u003e\n\u003cli\u003e\u003cstrong\u003e+\u003c/strong\u003e Any metadata convention is supported; no format is privileged.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e+\u003c/strong\u003e The engine's pre-parse stage disappears — one less place to encode a format\nassumption.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e−\u003c/strong\u003e Every parser must handle (or explicitly opt out of) envelope extraction;\nthe wrappers exist to keep that boilerplate-free.\u003c/li\u003e\n\u003cli\u003eBecause the envelope isn't available until after a parser runs, dispatch cannot\ndepend on it — see \u003ca href=\"005-extension-filename-parser-dispatch.adr.md\"\u003e005\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n","raw":true}],"url":"/decisions/002-parser-owned-envelope-extraction.adr/"}</script>
+  <script src="app.js"></script>
+</body>
+</html>
+

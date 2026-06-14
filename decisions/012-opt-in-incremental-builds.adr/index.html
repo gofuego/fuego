@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Incremental builds are opt-in and provably equivalent — ADR Documentation</title>
+  <base href="/gofuego/fuego/">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen">
+  <nav class="border-b border-gray-800 px-6 py-4">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <a href="." class="text-lg font-bold text-white hover:text-blue-400 transition-colors">ADR Documentation</a>
+      <div class="flex gap-6 text-sm text-gray-400">
+        <a href="." class="hover:text-white transition-colors">Home</a>
+        <a href="timeline" class="hover:text-white transition-colors">Timeline</a>
+        <a href="tags" class="hover:text-white transition-colors">Tags</a>
+        <a href="affects" class="hover:text-white transition-colors">Affected Files</a>
+      </div>
+    </div>
+  </nav>
+  <main class="max-w-4xl mx-auto px-6 py-8">
+    
+<article>
+  
+  <div class="mb-8">
+    <div class="flex items-center gap-3 mb-2">
+      <span class="text-sm font-mono text-gray-500">ADR-12</span>
+      
+      <span class="px-2 py-0.5 rounded text-xs font-semibold
+        bg-green-900 text-green-300
+        ">accepted</span>
+      
+    </div>
+    <h1 class="text-3xl font-bold text-white mb-4">Incremental builds are opt-in and provably equivalent</h1>
+
+    
+    <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm text-gray-400 border-b border-gray-800 pb-4">
+      
+      <div><span class="text-gray-500">Author:</span> fabio</div>
+      
+      
+      <div><span class="text-gray-500">Proposed:</span> 2026-06-13</div>
+      
+      
+      <div><span class="text-gray-500">Approvers:</span> fabio</div>
+      
+      
+      <div><span class="text-gray-500">Accepted:</span> 2026-06-13</div>
+      
+      
+    </div>
+
+    
+    
+
+    
+    
+    <div class="mt-3 flex gap-2 flex-wrap">
+      
+      <a href="tags/incremental" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#incremental</a>
+      
+      <a href="tags/performance" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#performance</a>
+      
+      <a href="tags/reliability" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#reliability</a>
+      
+    </div>
+    
+  </div>
+
+  
+  <div class="prose prose-invert prose-sm max-w-none">
+    <div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Context</h2>
+  <div class="text-gray-300 leading-relaxed"><p>Big-site dev rebuilds are the one place users feel a real performance gap. Caching
+parsed pages and re-rendering only what changed would fix it — but an incremental
+build that diverges from a clean build, even rarely, is worse than a slow one: it
+erodes trust in every build.</p>
+</div>
+</div>
+<div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Decision</h2>
+  <div class="text-gray-300 leading-relaxed"><p><code>Options.Incremental</code> (and the dev server, always) reuses parsed pages via
+<code>internal/buildcache</code> and narrows RENDER to the affected set. Default <code>build</code> is
+clean and cache-free. Safety is structural: the cache header pins the build
+environment (engine binary hash + resolved config hash + theme tree hash), so any
+change to those invalidates the cache and forces a full rebuild — a corrupt or
+version-mismatched cache is a <strong>miss, never an error</strong>. RENDER narrowing (changed
+pages + virtual pages + pages whose templates read <code>.Site.Pages</code>) is guarded by a
+byte-equivalence suite that builds every fixture clean and then incrementally under
+every mutation class.</p>
+</div>
+</div>
+<div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Consequences</h2>
+  <div class="text-gray-300 leading-relaxed"><ul>
+<li><strong>+</strong> Fast dev rebuilds without risking divergence; output stays byte-identical to
+a clean build.</li>
+<li><strong>+</strong> Cache safety is by construction, not vigilance — the header makes stale
+reuse impossible.</li>
+<li><strong>−</strong> A standing parity test suite must accompany every fixture, and new fixtures
+must round-trip through the cache cleanly.</li>
+<li>Relies on the determinism guarantees of
+<a href="009-golden-file-determinism-testing.adr.md">009</a>.</li>
+</ul>
+</div>
+</div>
+
+  </div>
+
+  
+  
+  <div class="mt-8 border-t border-gray-800 pt-6">
+    <h2 class="text-lg font-semibold text-white mb-3">Affected Files</h2>
+    <div class="space-y-1" data-affects-list>
+      
+      <div class="text-sm font-mono" data-affects-pattern="internal/buildcache/**">
+        <span class="text-gray-400">internal/buildcache/**</span>
+      </div>
+      
+      <div class="text-sm font-mono" data-affects-pattern="internal/pipeline/**">
+        <span class="text-gray-400">internal/pipeline/**</span>
+      </div>
+      
+      <div class="text-sm font-mono" data-affects-pattern="internal/render/**">
+        <span class="text-gray-400">internal/render/**</span>
+      </div>
+      
+    </div>
+  </div>
+  
+</article>
+
+  </main>
+  <script type="application/json" id="fuego-data">{"envelope":{"adr_number":12,"affects":["internal/buildcache/**","internal/pipeline/**","internal/render/**"],"approvers":["fabio"],"author":["fabio"],"date_accepted":"2026-06-13","date_proposed":"2026-06-13","status":"accepted","tags":["incremental","performance","reliability"],"title":"Incremental builds are opt-in and provably equivalent"},"nodes":[{"type":"context","content":"\u003cp\u003eBig-site dev rebuilds are the one place users feel a real performance gap. Caching\nparsed pages and re-rendering only what changed would fix it — but an incremental\nbuild that diverges from a clean build, even rarely, is worse than a slow one: it\nerodes trust in every build.\u003c/p\u003e\n","raw":true},{"type":"decision","content":"\u003cp\u003e\u003ccode\u003eOptions.Incremental\u003c/code\u003e (and the dev server, always) reuses parsed pages via\n\u003ccode\u003einternal/buildcache\u003c/code\u003e and narrows RENDER to the affected set. Default \u003ccode\u003ebuild\u003c/code\u003e is\nclean and cache-free. Safety is structural: the cache header pins the build\nenvironment (engine binary hash + resolved config hash + theme tree hash), so any\nchange to those invalidates the cache and forces a full rebuild — a corrupt or\nversion-mismatched cache is a \u003cstrong\u003emiss, never an error\u003c/strong\u003e. RENDER narrowing (changed\npages + virtual pages + pages whose templates read \u003ccode\u003e.Site.Pages\u003c/code\u003e) is guarded by a\nbyte-equivalence suite that builds every fixture clean and then incrementally under\nevery mutation class.\u003c/p\u003e\n","raw":true},{"type":"consequences","content":"\u003cul\u003e\n\u003cli\u003e\u003cstrong\u003e+\u003c/strong\u003e Fast dev rebuilds without risking divergence; output stays byte-identical to\na clean build.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e+\u003c/strong\u003e Cache safety is by construction, not vigilance — the header makes stale\nreuse impossible.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e−\u003c/strong\u003e A standing parity test suite must accompany every fixture, and new fixtures\nmust round-trip through the cache cleanly.\u003c/li\u003e\n\u003cli\u003eRelies on the determinism guarantees of\n\u003ca href=\"009-golden-file-determinism-testing.adr.md\"\u003e009\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n","raw":true}],"url":"/decisions/012-opt-in-incremental-builds.adr/"}</script>
+  <script src="app.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Taxonomies and collections are virtual pages — ADR Documentation</title>
+  <base href="/gofuego/fuego/">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen">
+  <nav class="border-b border-gray-800 px-6 py-4">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <a href="." class="text-lg font-bold text-white hover:text-blue-400 transition-colors">ADR Documentation</a>
+      <div class="flex gap-6 text-sm text-gray-400">
+        <a href="." class="hover:text-white transition-colors">Home</a>
+        <a href="timeline" class="hover:text-white transition-colors">Timeline</a>
+        <a href="tags" class="hover:text-white transition-colors">Tags</a>
+        <a href="affects" class="hover:text-white transition-colors">Affected Files</a>
+      </div>
+    </div>
+  </nav>
+  <main class="max-w-4xl mx-auto px-6 py-8">
+    
+<article>
+  
+  <div class="mb-8">
+    <div class="flex items-center gap-3 mb-2">
+      <span class="text-sm font-mono text-gray-500">ADR-10</span>
+      
+      <span class="px-2 py-0.5 rounded text-xs font-semibold
+        bg-green-900 text-green-300
+        ">accepted</span>
+      
+    </div>
+    <h1 class="text-3xl font-bold text-white mb-4">Taxonomies and collections are virtual pages</h1>
+
+    
+    <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm text-gray-400 border-b border-gray-800 pb-4">
+      
+      <div><span class="text-gray-500">Author:</span> fabio</div>
+      
+      
+      <div><span class="text-gray-500">Proposed:</span> 2026-05-20</div>
+      
+      
+      <div><span class="text-gray-500">Approvers:</span> fabio</div>
+      
+      
+      <div><span class="text-gray-500">Accepted:</span> 2026-05-20</div>
+      
+      
+    </div>
+
+    
+    
+
+    
+    
+    <div class="mt-3 flex gap-2 flex-wrap">
+      
+      <a href="tags/taxonomies" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#taxonomies</a>
+      
+      <a href="tags/collections" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#collections</a>
+      
+      <a href="tags/pipeline" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#pipeline</a>
+      
+      <a href="tags/architecture" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#architecture</a>
+      
+    </div>
+    
+  </div>
+
+  
+  <div class="prose prose-invert prose-sm max-w-none">
+    <div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Context</h2>
+  <div class="text-gray-300 leading-relaxed"><p>Taxonomy term pages, taxonomy indexes, and collection listings have no source file
+— they're derived from the set of real pages. They could be rendered by a special
+code path that emits HTML directly, or modelled as ordinary pages that flow through
+the normal renderer.</p>
+</div>
+</div>
+<div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Decision</h2>
+  <div class="text-gray-300 leading-relaxed"><p>These are generated as <strong>virtual <code>core.Page</code> structs</strong> appended to the page list
+during INDEX, with special types (<code>taxonomy-term</code>, <code>taxonomy-index</code>, <code>collection</code>)
+and an empty <code>RelPath</code>. They go through the <strong>same RENDER phase</strong> as real pages —
+no special rendering path. Their nodes (<code>page-ref</code>, <code>term-ref</code>) carry metadata in
+attributes, and templates render them freely. They are excluded from taxonomy term
+scanning so they don't index themselves, and INDEX re-runs collision detection
+after adding them, because a generated <code>/tags</code> can collide with a real page.</p>
+</div>
+</div>
+<div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Consequences</h2>
+  <div class="text-gray-300 leading-relaxed"><ul>
+<li><strong>+</strong> The pipeline stays uniform — RENDER never asks &quot;is this page real?&quot;</li>
+<li><strong>+</strong> Templates fully control how generated pages look, consistent with
+<a href="001-universal-ast-free-form-nodes.adr.md">001</a>.</li>
+<li><strong>+</strong> The empty <code>RelPath</code> is how the manifest marks them non-editable
+(<a href="014-manifest-as-host-integration-contract.adr.md">014</a>).</li>
+<li><strong>−</strong> Virtual pages can collide with real pages, so the post-INDEX collision
+re-check is mandatory; skipping it silently produces two pages at one path.</li>
+</ul>
+</div>
+</div>
+
+  </div>
+
+  
+  
+  <div class="mt-8 border-t border-gray-800 pt-6">
+    <h2 class="text-lg font-semibold text-white mb-3">Affected Files</h2>
+    <div class="space-y-1" data-affects-list>
+      
+      <div class="text-sm font-mono" data-affects-pattern="internal/index/**">
+        <span class="text-gray-400">internal/index/**</span>
+      </div>
+      
+      <div class="text-sm font-mono" data-affects-pattern="internal/render/**">
+        <span class="text-gray-400">internal/render/**</span>
+      </div>
+      
+    </div>
+  </div>
+  
+</article>
+
+  </main>
+  <script type="application/json" id="fuego-data">{"envelope":{"adr_number":10,"affects":["internal/index/**","internal/render/**"],"approvers":["fabio"],"author":["fabio"],"date_accepted":"2026-05-20","date_proposed":"2026-05-20","status":"accepted","tags":["taxonomies","collections","pipeline","architecture"],"title":"Taxonomies and collections are virtual pages"},"nodes":[{"type":"context","content":"\u003cp\u003eTaxonomy term pages, taxonomy indexes, and collection listings have no source file\n— they're derived from the set of real pages. They could be rendered by a special\ncode path that emits HTML directly, or modelled as ordinary pages that flow through\nthe normal renderer.\u003c/p\u003e\n","raw":true},{"type":"decision","content":"\u003cp\u003eThese are generated as \u003cstrong\u003evirtual \u003ccode\u003ecore.Page\u003c/code\u003e structs\u003c/strong\u003e appended to the page list\nduring INDEX, with special types (\u003ccode\u003etaxonomy-term\u003c/code\u003e, \u003ccode\u003etaxonomy-index\u003c/code\u003e, \u003ccode\u003ecollection\u003c/code\u003e)\nand an empty \u003ccode\u003eRelPath\u003c/code\u003e. They go through the \u003cstrong\u003esame RENDER phase\u003c/strong\u003e as real pages —\nno special rendering path. Their nodes (\u003ccode\u003epage-ref\u003c/code\u003e, \u003ccode\u003eterm-ref\u003c/code\u003e) carry metadata in\nattributes, and templates render them freely. They are excluded from taxonomy term\nscanning so they don't index themselves, and INDEX re-runs collision detection\nafter adding them, because a generated \u003ccode\u003e/tags\u003c/code\u003e can collide with a real page.\u003c/p\u003e\n","raw":true},{"type":"consequences","content":"\u003cul\u003e\n\u003cli\u003e\u003cstrong\u003e+\u003c/strong\u003e The pipeline stays uniform — RENDER never asks \u0026quot;is this page real?\u0026quot;\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e+\u003c/strong\u003e Templates fully control how generated pages look, consistent with\n\u003ca href=\"001-universal-ast-free-form-nodes.adr.md\"\u003e001\u003c/a\u003e.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e+\u003c/strong\u003e The empty \u003ccode\u003eRelPath\u003c/code\u003e is how the manifest marks them non-editable\n(\u003ca href=\"014-manifest-as-host-integration-contract.adr.md\"\u003e014\u003c/a\u003e).\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e−\u003c/strong\u003e Virtual pages can collide with real pages, so the post-INDEX collision\nre-check is mandatory; skipping it silently produces two pages at one path.\u003c/li\u003e\n\u003c/ul\u003e\n","raw":true}],"url":"/decisions/010-virtual-pages-for-taxonomies-collections.adr/"}</script>
+  <script src="app.js"></script>
+</body>
+</html>
+

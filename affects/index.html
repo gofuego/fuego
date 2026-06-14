@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Affected Files — ADR Documentation</title>
+  <base href="/gofuego/fuego/">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen">
+  <nav class="border-b border-gray-800 px-6 py-4">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <a href="." class="text-lg font-bold text-white hover:text-blue-400 transition-colors">ADR Documentation</a>
+      <div class="flex gap-6 text-sm text-gray-400">
+        <a href="." class="hover:text-white transition-colors">Home</a>
+        <a href="timeline" class="hover:text-white transition-colors">Timeline</a>
+        <a href="tags" class="hover:text-white transition-colors">Tags</a>
+        <a href="affects" class="hover:text-white transition-colors">Affected Files</a>
+      </div>
+    </div>
+  </nav>
+  <main class="max-w-4xl mx-auto px-6 py-8">
+    
+<div>
+  <h1 class="text-2xl font-bold text-white mb-6">Affected Files</h1>
+  <input type="text" placeholder="Search paths..." class="w-full bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-blue-500 mb-4" data-search-input>
+  <div class="space-y-3" data-search-list>
+    
+    <div class="p-3 rounded-lg bg-gray-900 border border-gray-800" data-search-item>
+      <div class="font-mono text-sm mb-2 text-gray-200">
+        core/**
+        
+      </div>
+      <div class="flex flex-wrap gap-2">
+        
+        <a href="/decisions/001-universal-ast-free-form-nodes.adr/" class="text-xs px-2 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700 transition-colors">
+          ADR-1 A universal AST with free-form node types
+        </a>
+        
+        <a href="/decisions/002-parser-owned-envelope-extraction.adr/" class="text-xs px-2 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700 transition-colors">
+          ADR-2 Parsers own envelope extraction
+        </a>
+        
+        <a href="/decisions/004-page-as-mutable-pipeline-spine.adr/" class="text-xs px-2 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700 transition-colors">
+          ADR-4 core.Page is the mutable pipeline spine
+        </a>
+        
+        <a href="/decisions/007-hooks-are-go-not-config.adr/" class="text-xs px-2 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700 transition-colors">
+          ADR-7 Hooks are Go functions, not config
+        </a>
+        
+        <a href="/decisions/008-error-accumulation-three-severities.adr/" class="text-xs px-2 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700 transition-colors">
+          ADR-8 Error accumulation with three severities, not fail-fast
+        </a>
+        
+        <a href="/decisions/011-format-packs-as-ecosystem-unit.adr/" class="text-xs px-2 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700 transition-colors">
+          ADR-11 Format packs bundle a content format as one installable unit
+        </a>
+        
+      </div>
+    </div>
+    
+    <div class="p-3 rounded-lg bg-gray-900 border border-gray-800" data-search-item>
+      <div class="font-mono text-sm mb-2 text-gray-200">
+        engine/**
+        
+      </div>
+      <div class="flex flex-wrap gap-2">
+        
+        <a href="/decisions/007-hooks-are-go-not-config.adr/" class="text-xs px-2 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700 transition-colors">
+          ADR-7 Hooks are Go functions, not config
+        </a>
+        
+        <a href="/decisions/013-programmatic-api-alongside-cli.adr/" class="text-xs px-2 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700 transition-colors">
+          ADR-13 A programmatic build API alongside the CLI
+        </a>
+        
+      </div>
+    </div>
+    
+    <div class="p-3 rounded-lg bg-gray-900 border border-gray-800" data-search-item>
+      <div class="font-mono text-sm mb-2 text-gray-200">
+        internal/**
+        
+      </div>
+      <div class="flex flex-wrap gap-2">
+        
+        <a href="/decisions/009-golden-file-determinism-testing.adr/" class="text-xs px-2 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700 transition-colors">
+          ADR-9 Golden-file integration testing with enforced determinism
+        </a>
+        
+      </div>
+    </div>
+    
+    <div class="p-3 rounded-lg bg-gray-900 border border-gray-800" data-search-item>
+      <div class="font-mono text-sm mb-2 text-gray-200">
+        internal/buildcache/**
+        
+      </div>
+      <div class="flex flex-wrap gap-2">
+        
+        <a href="/decisions/012-opt-in-incremental-builds.adr/" class="text-xs px-2 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700 transition-colors">
+          ADR-12 Incremental builds are opt-in and provably equivalent
+        </a>
+        
+      </div>
+    </div>
+    
+    <div class="p-3 rounded-lg bg-gray-900 border border-gray-800" data-search-item>
+      <div class="font-mono text-sm mb-2 text-gray-200">
+        internal/config/**
+        
+      </div>
+      <div class="flex flex-wrap gap-2">
+        
+        <a href="/decisions/011-format-packs-as-ecosystem-unit.adr/" class="text-xs px-2 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700 transition-colors">
+          ADR-11 Format packs bundle a content format as one installable unit
+        </a>
+        
+      </div>
+    </div>
+    
+    <div class="p-3 rounded-lg bg-gray-900 border border-gray-800" data-search-item>
+      <div class="font-mono text-sm mb-2 text-gray-200">
+        internal/discover/**
+        
+      </div>
+      <div class="flex flex-wrap gap-2">
+        
+        <a href="/decisions/005-extension-filename-parser-dispatch.adr/" class="text-xs px-2 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700 transition-colors">
+          ADR-5 Parser dispatch by extension or filename, not frontmatter type
+        </a>
+        
+        <a href="/decisions/006-content-discovery-driven-by-parsers.adr/" class="text-xs px-2 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700 transition-colors">
+          ADR-6 Content discovery is driven by registered parsers
+        </a>
+        
+      </div>
+    </div>
+    
+    <div class="p-3 rounded-lg bg-gray-900 border border-gray-800" data-search-item>
+      <div class="font-mono text-sm mb-2 text-gray-200">
+        internal/index/**
+        
+      </div>
+      <div class="flex flex-wrap gap-2">
+        
+        <a href="/decisions/010-virtual-pages-for-taxonomies-collections.adr/" class="text-xs px-2 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700 transition-colors">
+          ADR-10 Taxonomies and collections are virtual pages
+        </a>
+        
+      </div>
+    </div>
+    
+    <div class="p-3 rounded-lg bg-gray-900 border border-gray-800" data-search-item>
+      <div class="font-mono text-sm mb-2 text-gray-200">
+        internal/manifest/**
+        
+      </div>
+      <div class="flex flex-wrap gap-2">
+        
+        <a href="/decisions/014-manifest-as-host-integration-contract.adr/" class="text-xs px-2 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700 transition-colors">
+          ADR-14 The site manifest is the host-integration contract
+        </a>
+        
+      </div>
+    </div>
+    
+    <div class="p-3 rounded-lg bg-gray-900 border border-gray-800" data-search-item>
+      <div class="font-mono text-sm mb-2 text-gray-200">
+        internal/parse/**
+        
+      </div>
+      <div class="flex flex-wrap gap-2">
+        
+        <a href="/decisions/002-parser-owned-envelope-extraction.adr/" class="text-xs px-2 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700 transition-colors">
+          ADR-2 Parsers own envelope extraction
+        </a>
+        
+        <a href="/decisions/003-no-built-in-parsers-two-tier-precedence.adr/" class="text-xs px-2 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700 transition-colors">
+          ADR-3 No built-in parsers; two-tier parser precedence
+        </a>
+        
+        <a href="/decisions/005-extension-filename-parser-dispatch.adr/" class="text-xs px-2 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700 transition-colors">
+          ADR-5 Parser dispatch by extension or filename, not frontmatter type
+        </a>
+        
+      </div>
+    </div>
+    
+    <div class="p-3 rounded-lg bg-gray-900 border border-gray-800" data-search-item>
+      <div class="font-mono text-sm mb-2 text-gray-200">
+        internal/pipeline/**
+        
+      </div>
+      <div class="flex flex-wrap gap-2">
+        
+        <a href="/decisions/004-page-as-mutable-pipeline-spine.adr/" class="text-xs px-2 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700 transition-colors">
+          ADR-4 core.Page is the mutable pipeline spine
+        </a>
+        
+        <a href="/decisions/007-hooks-are-go-not-config.adr/" class="text-xs px-2 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700 transition-colors">
+          ADR-7 Hooks are Go functions, not config
+        </a>
+        
+        <a href="/decisions/008-error-accumulation-three-severities.adr/" class="text-xs px-2 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700 transition-colors">
+          ADR-8 Error accumulation with three severities, not fail-fast
+        </a>
+        
+        <a href="/decisions/012-opt-in-incremental-builds.adr/" class="text-xs px-2 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700 transition-colors">
+          ADR-12 Incremental builds are opt-in and provably equivalent
+        </a>
+        
+      </div>
+    </div>
+    
+    <div class="p-3 rounded-lg bg-gray-900 border border-gray-800" data-search-item>
+      <div class="font-mono text-sm mb-2 text-gray-200">
+        internal/render/**
+        
+      </div>
+      <div class="flex flex-wrap gap-2">
+        
+        <a href="/decisions/001-universal-ast-free-form-nodes.adr/" class="text-xs px-2 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700 transition-colors">
+          ADR-1 A universal AST with free-form node types
+        </a>
+        
+        <a href="/decisions/010-virtual-pages-for-taxonomies-collections.adr/" class="text-xs px-2 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700 transition-colors">
+          ADR-10 Taxonomies and collections are virtual pages
+        </a>
+        
+        <a href="/decisions/011-format-packs-as-ecosystem-unit.adr/" class="text-xs px-2 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700 transition-colors">
+          ADR-11 Format packs bundle a content format as one installable unit
+        </a>
+        
+        <a href="/decisions/012-opt-in-incremental-builds.adr/" class="text-xs px-2 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700 transition-colors">
+          ADR-12 Incremental builds are opt-in and provably equivalent
+        </a>
+        
+      </div>
+    </div>
+    
+    <div class="p-3 rounded-lg bg-gray-900 border border-gray-800" data-search-item>
+      <div class="font-mono text-sm mb-2 text-gray-200">
+        internal/serve/**
+        
+      </div>
+      <div class="flex flex-wrap gap-2">
+        
+        <a href="/decisions/013-programmatic-api-alongside-cli.adr/" class="text-xs px-2 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700 transition-colors">
+          ADR-13 A programmatic build API alongside the CLI
+        </a>
+        
+      </div>
+    </div>
+    
+    <div class="p-3 rounded-lg bg-gray-900 border border-gray-800" data-search-item>
+      <div class="font-mono text-sm mb-2 text-gray-200">
+        parsers/**
+        
+      </div>
+      <div class="flex flex-wrap gap-2">
+        
+        <a href="/decisions/003-no-built-in-parsers-two-tier-precedence.adr/" class="text-xs px-2 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700 transition-colors">
+          ADR-3 No built-in parsers; two-tier parser precedence
+        </a>
+        
+      </div>
+    </div>
+    
+    <div class="p-3 rounded-lg bg-gray-900 border border-gray-800" data-search-item>
+      <div class="font-mono text-sm mb-2 text-gray-200">
+        testdata/**
+        
+      </div>
+      <div class="flex flex-wrap gap-2">
+        
+        <a href="/decisions/009-golden-file-determinism-testing.adr/" class="text-xs px-2 py-0.5 bg-gray-800 text-gray-300 rounded hover:bg-gray-700 transition-colors">
+          ADR-9 Golden-file integration testing with enforced determinism
+        </a>
+        
+      </div>
+    </div>
+    
+  </div>
+</div>
+
+  </main>
+  <script type="application/json" id="fuego-data">{"envelope":{"affects_entries":[{"adrs":[{"number":1,"title":"A universal AST with free-form node types","url":"/decisions/001-universal-ast-free-form-nodes.adr/"},{"number":2,"title":"Parsers own envelope extraction","url":"/decisions/002-parser-owned-envelope-extraction.adr/"},{"number":4,"title":"core.Page is the mutable pipeline spine","url":"/decisions/004-page-as-mutable-pipeline-spine.adr/"},{"number":7,"title":"Hooks are Go functions, not config","url":"/decisions/007-hooks-are-go-not-config.adr/"},{"number":8,"title":"Error accumulation with three severities, not fail-fast","url":"/decisions/008-error-accumulation-three-severities.adr/"},{"number":11,"title":"Format packs bundle a content format as one installable unit","url":"/decisions/011-format-packs-as-ecosystem-unit.adr/"}],"exists":true,"pattern":"core/**"},{"adrs":[{"number":7,"title":"Hooks are Go functions, not config","url":"/decisions/007-hooks-are-go-not-config.adr/"},{"number":13,"title":"A programmatic build API alongside the CLI","url":"/decisions/013-programmatic-api-alongside-cli.adr/"}],"exists":true,"pattern":"engine/**"},{"adrs":[{"number":9,"title":"Golden-file integration testing with enforced determinism","url":"/decisions/009-golden-file-determinism-testing.adr/"}],"exists":true,"pattern":"internal/**"},{"adrs":[{"number":12,"title":"Incremental builds are opt-in and provably equivalent","url":"/decisions/012-opt-in-incremental-builds.adr/"}],"exists":true,"pattern":"internal/buildcache/**"},{"adrs":[{"number":11,"title":"Format packs bundle a content format as one installable unit","url":"/decisions/011-format-packs-as-ecosystem-unit.adr/"}],"exists":true,"pattern":"internal/config/**"},{"adrs":[{"number":5,"title":"Parser dispatch by extension or filename, not frontmatter type","url":"/decisions/005-extension-filename-parser-dispatch.adr/"},{"number":6,"title":"Content discovery is driven by registered parsers","url":"/decisions/006-content-discovery-driven-by-parsers.adr/"}],"exists":true,"pattern":"internal/discover/**"},{"adrs":[{"number":10,"title":"Taxonomies and collections are virtual pages","url":"/decisions/010-virtual-pages-for-taxonomies-collections.adr/"}],"exists":true,"pattern":"internal/index/**"},{"adrs":[{"number":14,"title":"The site manifest is the host-integration contract","url":"/decisions/014-manifest-as-host-integration-contract.adr/"}],"exists":true,"pattern":"internal/manifest/**"},{"adrs":[{"number":2,"title":"Parsers own envelope extraction","url":"/decisions/002-parser-owned-envelope-extraction.adr/"},{"number":3,"title":"No built-in parsers; two-tier parser precedence","url":"/decisions/003-no-built-in-parsers-two-tier-precedence.adr/"},{"number":5,"title":"Parser dispatch by extension or filename, not frontmatter type","url":"/decisions/005-extension-filename-parser-dispatch.adr/"}],"exists":true,"pattern":"internal/parse/**"},{"adrs":[{"number":4,"title":"core.Page is the mutable pipeline spine","url":"/decisions/004-page-as-mutable-pipeline-spine.adr/"},{"number":7,"title":"Hooks are Go functions, not config","url":"/decisions/007-hooks-are-go-not-config.adr/"},{"number":8,"title":"Error accumulation with three severities, not fail-fast","url":"/decisions/008-error-accumulation-three-severities.adr/"},{"number":12,"title":"Incremental builds are opt-in and provably equivalent","url":"/decisions/012-opt-in-incremental-builds.adr/"}],"exists":true,"pattern":"internal/pipeline/**"},{"adrs":[{"number":1,"title":"A universal AST with free-form node types","url":"/decisions/001-universal-ast-free-form-nodes.adr/"},{"number":10,"title":"Taxonomies and collections are virtual pages","url":"/decisions/010-virtual-pages-for-taxonomies-collections.adr/"},{"number":11,"title":"Format packs bundle a content format as one installable unit","url":"/decisions/011-format-packs-as-ecosystem-unit.adr/"},{"number":12,"title":"Incremental builds are opt-in and provably equivalent","url":"/decisions/012-opt-in-incremental-builds.adr/"}],"exists":true,"pattern":"internal/render/**"},{"adrs":[{"number":13,"title":"A programmatic build API alongside the CLI","url":"/decisions/013-programmatic-api-alongside-cli.adr/"}],"exists":true,"pattern":"internal/serve/**"},{"adrs":[{"number":3,"title":"No built-in parsers; two-tier parser precedence","url":"/decisions/003-no-built-in-parsers-two-tier-precedence.adr/"}],"exists":true,"pattern":"parsers/**"},{"adrs":[{"number":9,"title":"Golden-file integration testing with enforced determinism","url":"/decisions/009-golden-file-determinism-testing.adr/"}],"exists":true,"pattern":"testdata/**"}],"title":"Affected Files"},"nodes":null,"url":"/affects/"}</script>
+  <script src="app.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>No built-in parsers; two-tier parser precedence — ADR Documentation</title>
+  <base href="/gofuego/fuego/">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen">
+  <nav class="border-b border-gray-800 px-6 py-4">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <a href="." class="text-lg font-bold text-white hover:text-blue-400 transition-colors">ADR Documentation</a>
+      <div class="flex gap-6 text-sm text-gray-400">
+        <a href="." class="hover:text-white transition-colors">Home</a>
+        <a href="timeline" class="hover:text-white transition-colors">Timeline</a>
+        <a href="tags" class="hover:text-white transition-colors">Tags</a>
+        <a href="affects" class="hover:text-white transition-colors">Affected Files</a>
+      </div>
+    </div>
+  </nav>
+  <main class="max-w-4xl mx-auto px-6 py-8">
+    
+<article>
+  
+  <div class="mb-8">
+    <div class="flex items-center gap-3 mb-2">
+      <span class="text-sm font-mono text-gray-500">ADR-3</span>
+      
+      <span class="px-2 py-0.5 rounded text-xs font-semibold
+        bg-green-900 text-green-300
+        ">accepted</span>
+      
+    </div>
+    <h1 class="text-3xl font-bold text-white mb-4">No built-in parsers; two-tier parser precedence</h1>
+
+    
+    <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm text-gray-400 border-b border-gray-800 pb-4">
+      
+      <div><span class="text-gray-500">Author:</span> fabio</div>
+      
+      
+      <div><span class="text-gray-500">Proposed:</span> 2026-06-02</div>
+      
+      
+      <div><span class="text-gray-500">Approvers:</span> fabio</div>
+      
+      
+      <div><span class="text-gray-500">Accepted:</span> 2026-06-02</div>
+      
+      
+    </div>
+
+    
+    
+
+    
+    
+    <div class="mt-3 flex gap-2 flex-wrap">
+      
+      <a href="tags/parsing" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#parsing</a>
+      
+      <a href="tags/architecture" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#architecture</a>
+      
+    </div>
+    
+  </div>
+
+  
+  <div class="prose prose-invert prose-sm max-w-none">
+    <div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Context</h2>
+  <div class="text-gray-300 leading-relaxed"><p>A meta-engine that shipped Markdown as a built-in parser would, in practice, become
+&quot;the Markdown engine with extras&quot; — the privileged format would attract features,
+defaults, and assumptions. Yet users still need an easy on-ramp (config-only
+formats) and a powerful one (full Go).</p>
+</div>
+</div>
+<div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Decision</h2>
+  <div class="text-gray-300 leading-relaxed"><p>The engine ships <strong>zero built-in parsers</strong>. Markdown is a first-party but <strong>opt-in</strong>
+package (<code>parsers/markdown/</code>), registered like any other (<code>eng.Register(markdown.Parser())</code>).
+Parser precedence is two-tier:</p>
+<blockquote>
+<p>compiled Go parsers <strong>&gt;</strong> declarative regex parsers</p>
+</blockquote>
+<p>Compiled parsers are the most powerful (arbitrary Go); declarative parsers are the
+easiest (config-only regex rules). Registering a compiled parser for an extension
+overrides a declarative one for the same extension. The merge happens once, during
+INIT in <code>pipeline.RunUntil()</code>.</p>
+</div>
+</div>
+<div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Consequences</h2>
+  <div class="text-gray-300 leading-relaxed"><ul>
+<li><strong>+</strong> No format is privileged; Markdown is exactly as first-class as any custom
+format.</li>
+<li><strong>+</strong> Two clear authoring tiers — config for simple line-based formats, Go for
+anything real.</li>
+<li><strong>−</strong> Even a Markdown blog must register a parser explicitly; there is no
+zero-config default. We consider this honest rather than burdensome.</li>
+<li>Builds on the free-form AST of <a href="001-universal-ast-free-form-nodes.adr.md">001</a>.</li>
+</ul>
+</div>
+</div>
+
+  </div>
+
+  
+  
+  <div class="mt-8 border-t border-gray-800 pt-6">
+    <h2 class="text-lg font-semibold text-white mb-3">Affected Files</h2>
+    <div class="space-y-1" data-affects-list>
+      
+      <div class="text-sm font-mono" data-affects-pattern="internal/parse/**">
+        <span class="text-gray-400">internal/parse/**</span>
+      </div>
+      
+      <div class="text-sm font-mono" data-affects-pattern="parsers/**">
+        <span class="text-gray-400">parsers/**</span>
+      </div>
+      
+    </div>
+  </div>
+  
+</article>
+
+  </main>
+  <script type="application/json" id="fuego-data">{"envelope":{"adr_number":3,"affects":["internal/parse/**","parsers/**"],"approvers":["fabio"],"author":["fabio"],"date_accepted":"2026-06-02","date_proposed":"2026-06-02","status":"accepted","tags":["parsing","architecture"],"title":"No built-in parsers; two-tier parser precedence"},"nodes":[{"type":"context","content":"\u003cp\u003eA meta-engine that shipped Markdown as a built-in parser would, in practice, become\n\u0026quot;the Markdown engine with extras\u0026quot; — the privileged format would attract features,\ndefaults, and assumptions. Yet users still need an easy on-ramp (config-only\nformats) and a powerful one (full Go).\u003c/p\u003e\n","raw":true},{"type":"decision","content":"\u003cp\u003eThe engine ships \u003cstrong\u003ezero built-in parsers\u003c/strong\u003e. Markdown is a first-party but \u003cstrong\u003eopt-in\u003c/strong\u003e\npackage (\u003ccode\u003eparsers/markdown/\u003c/code\u003e), registered like any other (\u003ccode\u003eeng.Register(markdown.Parser())\u003c/code\u003e).\nParser precedence is two-tier:\u003c/p\u003e\n\u003cblockquote\u003e\n\u003cp\u003ecompiled Go parsers \u003cstrong\u003e\u0026gt;\u003c/strong\u003e declarative regex parsers\u003c/p\u003e\n\u003c/blockquote\u003e\n\u003cp\u003eCompiled parsers are the most powerful (arbitrary Go); declarative parsers are the\neasiest (config-only regex rules). Registering a compiled parser for an extension\noverrides a declarative one for the same extension. The merge happens once, during\nINIT in \u003ccode\u003epipeline.RunUntil()\u003c/code\u003e.\u003c/p\u003e\n","raw":true},{"type":"consequences","content":"\u003cul\u003e\n\u003cli\u003e\u003cstrong\u003e+\u003c/strong\u003e No format is privileged; Markdown is exactly as first-class as any custom\nformat.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e+\u003c/strong\u003e Two clear authoring tiers — config for simple line-based formats, Go for\nanything real.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e−\u003c/strong\u003e Even a Markdown blog must register a parser explicitly; there is no\nzero-config default. We consider this honest rather than burdensome.\u003c/li\u003e\n\u003cli\u003eBuilds on the free-form AST of \u003ca href=\"001-universal-ast-free-form-nodes.adr.md\"\u003e001\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n","raw":true}],"url":"/decisions/003-no-built-in-parsers-two-tier-precedence.adr/"}</script>
+  <script src="app.js"></script>
+</body>
+</html>
+

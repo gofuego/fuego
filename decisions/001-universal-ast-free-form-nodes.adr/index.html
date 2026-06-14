@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A universal AST with free-form node types — ADR Documentation</title>
+  <base href="/gofuego/fuego/">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen">
+  <nav class="border-b border-gray-800 px-6 py-4">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <a href="." class="text-lg font-bold text-white hover:text-blue-400 transition-colors">ADR Documentation</a>
+      <div class="flex gap-6 text-sm text-gray-400">
+        <a href="." class="hover:text-white transition-colors">Home</a>
+        <a href="timeline" class="hover:text-white transition-colors">Timeline</a>
+        <a href="tags" class="hover:text-white transition-colors">Tags</a>
+        <a href="affects" class="hover:text-white transition-colors">Affected Files</a>
+      </div>
+    </div>
+  </nav>
+  <main class="max-w-4xl mx-auto px-6 py-8">
+    
+<article>
+  
+  <div class="mb-8">
+    <div class="flex items-center gap-3 mb-2">
+      <span class="text-sm font-mono text-gray-500">ADR-1</span>
+      
+      <span class="px-2 py-0.5 rounded text-xs font-semibold
+        bg-green-900 text-green-300
+        ">accepted</span>
+      
+    </div>
+    <h1 class="text-3xl font-bold text-white mb-4">A universal AST with free-form node types</h1>
+
+    
+    <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm text-gray-400 border-b border-gray-800 pb-4">
+      
+      <div><span class="text-gray-500">Author:</span> fabio</div>
+      
+      
+      <div><span class="text-gray-500">Proposed:</span> 2026-05-20</div>
+      
+      
+      <div><span class="text-gray-500">Approvers:</span> fabio</div>
+      
+      
+      <div><span class="text-gray-500">Accepted:</span> 2026-05-20</div>
+      
+      
+    </div>
+
+    
+    
+
+    
+    
+    <div class="mt-3 flex gap-2 flex-wrap">
+      
+      <a href="tags/architecture" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#architecture</a>
+      
+      <a href="tags/core" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#core</a>
+      
+      <a href="tags/parsing" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#parsing</a>
+      
+    </div>
+    
+  </div>
+
+  
+  <div class="prose prose-invert prose-sm max-w-none">
+    <div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Context</h2>
+  <div class="text-gray-300 leading-relaxed"><p>Fuego is a meta-engine: users define arbitrary content formats (<code>.trivia</code>, <code>.card</code>,
+<code>.pitch</code>, anything) and map them to HTML. The central question is what data model
+sits between a parser and a template. A fixed AST schema — <code>heading</code>, <code>paragraph</code>,
+<code>list</code> — would be familiar and let the engine render sensible defaults. But it
+would also bake in a Markdown-shaped worldview and quietly privilege one format,
+defeating the entire premise.</p>
+</div>
+</div>
+<div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Decision</h2>
+  <div class="text-gray-300 leading-relaxed"><p>All parsers produce <code>[]core.Node</code> where <code>Type</code> is a <strong>free-form string</strong>. The
+engine never interprets node types — templates decide rendering. A trivia parser
+emits <code>question</code>/<code>answer</code> nodes; a flashcard parser emits <code>front</code>/<code>back</code>. The
+default renderer wraps each node as <code>&lt;div data-type=&quot;{Type}&quot;&gt;</code>, and production
+sites override per type via <code>theme/renderers/{type}.html</code>.</p>
+<p>A node may set <code>Raw: true</code> to pass its <code>Content</code> through as raw HTML, unwrapped and
+unescaped — any parser can use it (the Markdown parser emits one raw node rather
+than modelling every heading as a typed node).</p>
+</div>
+</div>
+<div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Consequences</h2>
+  <div class="text-gray-300 leading-relaxed"><ul>
+<li><strong>+</strong> Any content format is expressible; the engine has zero format opinions.</li>
+<li><strong>+</strong> Rendering is fully owned by templates — the engine never grows
+node-type-specific branches.</li>
+<li><strong>−</strong> The default rendering is generic and ugly; real sites must supply renderer
+templates. We accept this — out-of-the-box polish is impossible for an engine
+that doesn't know what your content <em>is</em>.</li>
+<li>This is the invariant the rest of the architecture protects; see
+<a href="003-no-built-in-parsers-two-tier-precedence.adr.md">003</a> and
+<a href="006-content-discovery-driven-by-parsers.adr.md">006</a>.</li>
+</ul>
+</div>
+</div>
+
+  </div>
+
+  
+  
+  <div class="mt-8 border-t border-gray-800 pt-6">
+    <h2 class="text-lg font-semibold text-white mb-3">Affected Files</h2>
+    <div class="space-y-1" data-affects-list>
+      
+      <div class="text-sm font-mono" data-affects-pattern="core/**">
+        <span class="text-gray-400">core/**</span>
+      </div>
+      
+      <div class="text-sm font-mono" data-affects-pattern="internal/render/**">
+        <span class="text-gray-400">internal/render/**</span>
+      </div>
+      
+    </div>
+  </div>
+  
+</article>
+
+  </main>
+  <script type="application/json" id="fuego-data">{"envelope":{"adr_number":1,"affects":["core/**","internal/render/**"],"approvers":["fabio"],"author":["fabio"],"date_accepted":"2026-05-20","date_proposed":"2026-05-20","status":"accepted","tags":["architecture","core","parsing"],"title":"A universal AST with free-form node types"},"nodes":[{"type":"context","content":"\u003cp\u003eFuego is a meta-engine: users define arbitrary content formats (\u003ccode\u003e.trivia\u003c/code\u003e, \u003ccode\u003e.card\u003c/code\u003e,\n\u003ccode\u003e.pitch\u003c/code\u003e, anything) and map them to HTML. The central question is what data model\nsits between a parser and a template. A fixed AST schema — \u003ccode\u003eheading\u003c/code\u003e, \u003ccode\u003eparagraph\u003c/code\u003e,\n\u003ccode\u003elist\u003c/code\u003e — would be familiar and let the engine render sensible defaults. But it\nwould also bake in a Markdown-shaped worldview and quietly privilege one format,\ndefeating the entire premise.\u003c/p\u003e\n","raw":true},{"type":"decision","content":"\u003cp\u003eAll parsers produce \u003ccode\u003e[]core.Node\u003c/code\u003e where \u003ccode\u003eType\u003c/code\u003e is a \u003cstrong\u003efree-form string\u003c/strong\u003e. The\nengine never interprets node types — templates decide rendering. A trivia parser\nemits \u003ccode\u003equestion\u003c/code\u003e/\u003ccode\u003eanswer\u003c/code\u003e nodes; a flashcard parser emits \u003ccode\u003efront\u003c/code\u003e/\u003ccode\u003eback\u003c/code\u003e. The\ndefault renderer wraps each node as \u003ccode\u003e\u0026lt;div data-type=\u0026quot;{Type}\u0026quot;\u0026gt;\u003c/code\u003e, and production\nsites override per type via \u003ccode\u003etheme/renderers/{type}.html\u003c/code\u003e.\u003c/p\u003e\n\u003cp\u003eA node may set \u003ccode\u003eRaw: true\u003c/code\u003e to pass its \u003ccode\u003eContent\u003c/code\u003e through as raw HTML, unwrapped and\nunescaped — any parser can use it (the Markdown parser emits one raw node rather\nthan modelling every heading as a typed node).\u003c/p\u003e\n","raw":true},{"type":"consequences","content":"\u003cul\u003e\n\u003cli\u003e\u003cstrong\u003e+\u003c/strong\u003e Any content format is expressible; the engine has zero format opinions.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e+\u003c/strong\u003e Rendering is fully owned by templates — the engine never grows\nnode-type-specific branches.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e−\u003c/strong\u003e The default rendering is generic and ugly; real sites must supply renderer\ntemplates. We accept this — out-of-the-box polish is impossible for an engine\nthat doesn't know what your content \u003cem\u003eis\u003c/em\u003e.\u003c/li\u003e\n\u003cli\u003eThis is the invariant the rest of the architecture protects; see\n\u003ca href=\"003-no-built-in-parsers-two-tier-precedence.adr.md\"\u003e003\u003c/a\u003e and\n\u003ca href=\"006-content-discovery-driven-by-parsers.adr.md\"\u003e006\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n","raw":true}],"url":"/decisions/001-universal-ast-free-form-nodes.adr/"}</script>
+  <script src="app.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Golden-file integration testing with enforced determinism — ADR Documentation</title>
+  <base href="/gofuego/fuego/">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen">
+  <nav class="border-b border-gray-800 px-6 py-4">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <a href="." class="text-lg font-bold text-white hover:text-blue-400 transition-colors">ADR Documentation</a>
+      <div class="flex gap-6 text-sm text-gray-400">
+        <a href="." class="hover:text-white transition-colors">Home</a>
+        <a href="timeline" class="hover:text-white transition-colors">Timeline</a>
+        <a href="tags" class="hover:text-white transition-colors">Tags</a>
+        <a href="affects" class="hover:text-white transition-colors">Affected Files</a>
+      </div>
+    </div>
+  </nav>
+  <main class="max-w-4xl mx-auto px-6 py-8">
+    
+<article>
+  
+  <div class="mb-8">
+    <div class="flex items-center gap-3 mb-2">
+      <span class="text-sm font-mono text-gray-500">ADR-9</span>
+      
+      <span class="px-2 py-0.5 rounded text-xs font-semibold
+        bg-green-900 text-green-300
+        ">accepted</span>
+      
+    </div>
+    <h1 class="text-3xl font-bold text-white mb-4">Golden-file integration testing with enforced determinism</h1>
+
+    
+    <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm text-gray-400 border-b border-gray-800 pb-4">
+      
+      <div><span class="text-gray-500">Author:</span> fabio</div>
+      
+      
+      <div><span class="text-gray-500">Proposed:</span> 2026-05-20</div>
+      
+      
+      <div><span class="text-gray-500">Approvers:</span> fabio</div>
+      
+      
+      <div><span class="text-gray-500">Accepted:</span> 2026-05-20</div>
+      
+      
+    </div>
+
+    
+    
+
+    
+    
+    <div class="mt-3 flex gap-2 flex-wrap">
+      
+      <a href="tags/testing" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#testing</a>
+      
+      <a href="tags/determinism" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#determinism</a>
+      
+      <a href="tags/quality" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#quality</a>
+      
+    </div>
+    
+  </div>
+
+  
+  <div class="prose prose-invert prose-sm max-w-none">
+    <div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Context</h2>
+  <div class="text-gray-300 leading-relaxed"><p>An engine that turns arbitrary input into a tree of files needs regression
+protection that's easy to read and hard to fool. Assertion-based tests over
+rendered HTML are brittle and verbose; they also don't catch nondeterministic
+output, which would silently break incremental builds and caching.</p>
+</div>
+</div>
+<div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Decision</h2>
+  <div class="text-gray-300 leading-relaxed"><p>Integration tests use a <strong>golden-file</strong> pattern: each fixture has <code>input/</code> and
+<code>golden/</code> directories, and the build is compared <strong>byte-for-byte</strong> against
+<code>golden/</code> (regenerate with <code>go test -run TestIntegrationFixtures -update</code>).
+Determinism is a hard requirement, enforced by running tests with
+<code>go test -count=3</code> and by routing every map iteration through <code>sortedKeys()</code>
+helpers. Fixtures run in parallel with <code>t.Parallel()</code>.</p>
+</div>
+</div>
+<div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Consequences</h2>
+  <div class="text-gray-300 leading-relaxed"><ul>
+<li><strong>+</strong> Golden files show exactly what the pipeline produces and double as
+documentation; any drift fails the byte comparison.</li>
+<li><strong>+</strong> Enforced determinism is the precondition for incremental builds
+(<a href="012-opt-in-incremental-builds.adr.md">012</a>).</li>
+<li><strong>−</strong> Intentional output changes require regenerating goldens, which must be
+reviewed; a careless <code>-update</code> can bless a regression.</li>
+</ul>
+</div>
+</div>
+
+  </div>
+
+  
+  
+  <div class="mt-8 border-t border-gray-800 pt-6">
+    <h2 class="text-lg font-semibold text-white mb-3">Affected Files</h2>
+    <div class="space-y-1" data-affects-list>
+      
+      <div class="text-sm font-mono" data-affects-pattern="testdata/**">
+        <span class="text-gray-400">testdata/**</span>
+      </div>
+      
+      <div class="text-sm font-mono" data-affects-pattern="internal/**">
+        <span class="text-gray-400">internal/**</span>
+      </div>
+      
+    </div>
+  </div>
+  
+</article>
+
+  </main>
+  <script type="application/json" id="fuego-data">{"envelope":{"adr_number":9,"affects":["testdata/**","internal/**"],"approvers":["fabio"],"author":["fabio"],"date_accepted":"2026-05-20","date_proposed":"2026-05-20","status":"accepted","tags":["testing","determinism","quality"],"title":"Golden-file integration testing with enforced determinism"},"nodes":[{"type":"context","content":"\u003cp\u003eAn engine that turns arbitrary input into a tree of files needs regression\nprotection that's easy to read and hard to fool. Assertion-based tests over\nrendered HTML are brittle and verbose; they also don't catch nondeterministic\noutput, which would silently break incremental builds and caching.\u003c/p\u003e\n","raw":true},{"type":"decision","content":"\u003cp\u003eIntegration tests use a \u003cstrong\u003egolden-file\u003c/strong\u003e pattern: each fixture has \u003ccode\u003einput/\u003c/code\u003e and\n\u003ccode\u003egolden/\u003c/code\u003e directories, and the build is compared \u003cstrong\u003ebyte-for-byte\u003c/strong\u003e against\n\u003ccode\u003egolden/\u003c/code\u003e (regenerate with \u003ccode\u003ego test -run TestIntegrationFixtures -update\u003c/code\u003e).\nDeterminism is a hard requirement, enforced by running tests with\n\u003ccode\u003ego test -count=3\u003c/code\u003e and by routing every map iteration through \u003ccode\u003esortedKeys()\u003c/code\u003e\nhelpers. Fixtures run in parallel with \u003ccode\u003et.Parallel()\u003c/code\u003e.\u003c/p\u003e\n","raw":true},{"type":"consequences","content":"\u003cul\u003e\n\u003cli\u003e\u003cstrong\u003e+\u003c/strong\u003e Golden files show exactly what the pipeline produces and double as\ndocumentation; any drift fails the byte comparison.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e+\u003c/strong\u003e Enforced determinism is the precondition for incremental builds\n(\u003ca href=\"012-opt-in-incremental-builds.adr.md\"\u003e012\u003c/a\u003e).\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e−\u003c/strong\u003e Intentional output changes require regenerating goldens, which must be\nreviewed; a careless \u003ccode\u003e-update\u003c/code\u003e can bless a regression.\u003c/li\u003e\n\u003c/ul\u003e\n","raw":true}],"url":"/decisions/009-golden-file-determinism-testing.adr/"}</script>
+  <script src="app.js"></script>
+</body>
+</html>
+
