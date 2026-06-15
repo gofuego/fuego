@@ -1,12 +1,30 @@
 package cli
 
 import (
+	"runtime/debug"
+
 	"github.com/gofuego/fuego/core"
 	"github.com/spf13/cobra"
 )
 
-// Version is set at build time via -ldflags.
+// Version is set at build time via -ldflags. When unset, resolveVersion falls
+// back to the module version embedded by `go install module@version`.
 var Version = "dev"
+
+// resolveVersion returns the ldflags-injected version if present, otherwise the
+// module version Go records in the build info (so `go install …@v0.4.1` reports
+// v0.4.1, not "dev"). A plain `go build` checkout reports "dev".
+func resolveVersion() string {
+	if Version != "dev" {
+		return Version
+	}
+	if info, ok := debug.ReadBuildInfo(); ok {
+		if v := info.Main.Version; v != "" && v != "(devel)" {
+			return v
+		}
+	}
+	return Version
+}
 
 // Execute runs the Cobra command tree with the given arguments, parser
 // registry, hooks, and registered packs.
@@ -22,7 +40,7 @@ func newRootCmd(parsers map[string]core.Parser, hooks *core.Hooks, packs []core.
 	cmd := &cobra.Command{
 		Use:     "fuego",
 		Short:   "A meta-engine for static site generation",
-		Version: Version,
+		Version: resolveVersion(),
 		SilenceErrors: true,
 		SilenceUsage:  true,
 	}

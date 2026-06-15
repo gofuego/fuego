@@ -60,6 +60,7 @@ fuego serve          # dev server at http://localhost:8080
 - **Non-HTML outputs** — RSS, sitemaps, and search indexes from `theme/outputs/`
 - **Hooks** — `AfterParse`, `Index`, and `BeforeRender` Go functions to enrich, filter, or transform pages
 - **Incremental builds** — opt-in parse cache + render narrowing, byte-identical to a clean build
+- **Broken-link checking** — opt-in (`--check-links` / `--strict-links`) `<base href>`-aware validation of internal links, reported against the source file
 - **Embeddable** — a programmatic API (`engine.Build/Serve/Validate`) for building domain-specific generators on top of Fuego
 - **Dev server** — file watching, live rebuild, optional Vite proxy
 - **Site manifest** — `site-manifest.json` with a page index (each page's source and output paths), taxonomy terms, and collection membership
@@ -88,12 +89,24 @@ This lets you write `.trivia` files and have them parsed into a universal AST th
 ## CLI
 
 ```
-fuego build [--incremental]   Build the static site
-fuego serve                   Dev server with live rebuild
-fuego validate                Check for errors (no output)
-fuego list                    Print all pages as TYPE | SOURCE | URL
-fuego config                  Print the resolved config with per-key provenance
-fuego init <dir> [--pack M]   Scaffold a new project (optionally with a format pack)
+fuego build      Build the static site
+fuego serve      Dev server with live rebuild
+fuego validate   Check for structural errors without rendering (for CI)
+fuego list       Print all pages as TYPE | SOURCE | URL
+fuego config     Print the resolved config with per-key provenance
+fuego init       Scaffold a new project
+fuego --version  Print the version
+```
+
+Key `build` / `serve` flags:
+
+```
+--base-url <path>   override site base_url for one run (deploy subpath, e.g. /owner/repo)
+--incremental       reuse the parse cache for unchanged content (build)
+--check-links       report internal links that don't resolve (run with --base-url)
+--strict-links      fail the build on a broken internal link (implies --check-links)
+--config <path>     config file (default config.yaml)
+fuego init --pack M scaffold wired to a format pack
 ```
 
 ## Documentation
