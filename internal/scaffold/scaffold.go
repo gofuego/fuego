@@ -117,7 +117,7 @@ func WriteFiles(dir string, data Data) error {
 	}
 
 	// Generate go.mod with just the module declaration
-	goMod := fmt.Sprintf("module %s\n\ngo 1.23\n", data.Module)
+	goMod := fmt.Sprintf("module %s\n\ngo 1.25\n", data.Module)
 	if err := os.WriteFile(filepath.Join(dir, "go.mod"), []byte(goMod), 0644); err != nil {
 		return fmt.Errorf("writing go.mod: %w", err)
 	}
