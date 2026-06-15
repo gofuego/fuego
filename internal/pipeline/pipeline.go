@@ -82,8 +82,15 @@ func Build(ctx context.Context, cfg *config.Config, compiledParsers map[string]c
 	// and falls back to a full, clean rebuild.
 	var prevCache *buildcache.Cache
 	var prevParsed map[string]buildcache.ParsedPage
-	header := buildHeader(cfg, packs)
-	incremental := opts.Incremental && header.BinaryID != ""
+	// The cache header hashes the engine binary and theme tree, so it is only
+	// computed when an incremental build is requested — a plain build never
+	// pays for it.
+	var header buildcache.Header
+	incremental := opts.Incremental
+	if incremental {
+		header = buildHeader(cfg, packs)
+		incremental = header.BinaryID != ""
+	}
 	if incremental {
 		if c, ok := buildcache.Load(opts.cachePath()); ok && c.Valid(header) {
 			prevCache = c
@@ -194,7 +201,7 @@ func Build(ctx context.Context, cfg *config.Config, compiledParsers map[string]c
 	}
 
 	// === SAVE CACHE ===
-	if opts.Incremental && header.BinaryID != "" {
+	if incremental {
 		nc := buildcache.New(header)
 		nc.Pages = res.ParsedPages
 		nc.Outputs = newOutputs
