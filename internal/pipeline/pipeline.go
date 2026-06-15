@@ -16,6 +16,7 @@ import (
 	"github.com/gofuego/fuego/internal/config"
 	"github.com/gofuego/fuego/internal/discover"
 	"github.com/gofuego/fuego/internal/index"
+	"github.com/gofuego/fuego/internal/linkcheck"
 	"github.com/gofuego/fuego/internal/manifest"
 	"github.com/gofuego/fuego/internal/parse"
 	"github.com/gofuego/fuego/internal/render"
@@ -31,6 +32,12 @@ type Options struct {
 	Incremental bool
 	// CacheDir holds the build cache. Defaults to ".fuego" when empty.
 	CacheDir string
+	// CheckLinks runs the internal link checker after the output is written.
+	// Broken links are reported as warnings unless StrictLinks is set.
+	CheckLinks bool
+	// StrictLinks promotes broken links to a fatal error that fails the build.
+	// It has no effect unless CheckLinks is set.
+	StrictLinks bool
 }
 
 func (o Options) cachePath() string {
@@ -167,6 +174,22 @@ func Build(ctx context.Context, cfg *config.Config, compiledParsers map[string]c
 	if len(res.AssetFiles) > 0 {
 		if err := render.CopyAssets(res.AssetFiles, cfg.Dirs.Content, cfg.Dirs.Output); err != nil {
 			return fmt.Errorf("copying assets: %w", err)
+		}
+	}
+
+	// === LINK CHECK ===
+	// Runs after the output is fully written so it sees every page and asset.
+	// Broken links are warnings unless --strict-links promotes them to fatal.
+	if opts.CheckLinks {
+		sev := core.Warning
+		if opts.StrictLinks {
+			sev = core.GlobalFatal
+		}
+		for _, e := range linkcheck.Check(renderable, cfg, sev) {
+			res.Errors.Add(e)
+		}
+		if res.Errors.HasGlobalFatal() {
+			return reportErrors(res.Errors)
 		}
 	}
 

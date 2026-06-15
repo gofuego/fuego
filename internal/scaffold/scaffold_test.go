@@ -41,7 +41,7 @@ func TestScaffoldBuilds(t *testing.T) {
 
 	out := cfg.Dirs.Output
 	mustExist := []string{
-		"index/index.html",        // Markdown home page (proves md parser wired)
+		"index.html",              // Markdown home page (proves md parser wired)
 		"cards/index.html",        // paginated collection, page 1
 		"cards/page/2/index.html", // pagination
 		"sitemap.xml",             // theme/outputs/
@@ -55,7 +55,7 @@ func TestScaffoldBuilds(t *testing.T) {
 	}
 
 	// The home page must come from the Markdown parser, not be a copied asset.
-	home, err := os.ReadFile(filepath.Join(out, "index", "index.html"))
+	home, err := os.ReadFile(filepath.Join(out, "index.html"))
 	if err != nil {
 		t.Fatal(err)
 	}

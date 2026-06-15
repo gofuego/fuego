@@ -2,6 +2,16 @@
   "content_root": "testdata/partials-funcs/input/content",
   "pages": [
     {
+      "url": "/",
+      "type": "md",
+      "source_path": "index.md",
+      "output_path": "index.html",
+      "title": "Home",
+      "envelope": {
+        "title": "Home"
+      }
+    },
+    {
       "url": "/guide/",
       "type": "md",
       "layout": "doc",
@@ -12,16 +22,6 @@
         "date": "2026-06-01",
         "layout": "doc",
         "title": "Guide"
-      }
-    },
-    {
-      "url": "/index/",
-      "type": "md",
-      "source_path": "index.md",
-      "output_path": "index/index.html",
-      "title": "Home",
-      "envelope": {
-        "title": "Home"
       }
     }
   ]

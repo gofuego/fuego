@@ -59,7 +59,7 @@ func TestEngineBuildProgrammatic(t *testing.T) {
 	}
 
 	// Page rendered through the pack theme, with the option-set site name.
-	home, err := os.ReadFile(filepath.Join(outputDir, "index", "index.html"))
+	home, err := os.ReadFile(filepath.Join(outputDir, "index.html"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -119,7 +119,7 @@ func TestEngineBuildConfigFileThenOverrides(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	home, _ := os.ReadFile(filepath.Join(dir, "out", "index", "index.html"))
+	home, _ := os.ReadFile(filepath.Join(dir, "out", "index.html"))
 	if !strings.Contains(string(home), "Home | FromOptions") {
 		t.Errorf("option should override file site name:\n%s", home)
 	}

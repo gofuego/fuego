@@ -4,12 +4,12 @@
     <title>Outputs Site</title>
     <link>https://example.com</link>
     <item>
-      <title>About</title>
-      <link>https://example.com/about/</link>
+      <title>Home</title>
+      <link>https://example.com/</link>
     </item>
     <item>
-      <title>Home</title>
-      <link>https://example.com/index/</link>
+      <title>About</title>
+      <link>https://example.com/about/</link>
     </item>
   </channel>
 </rss>

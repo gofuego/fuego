@@ -2,10 +2,10 @@
   "content_root": "testdata/pack-static/input/content",
   "pages": [
     {
-      "url": "/index/",
+      "url": "/",
       "type": "md",
       "source_path": "index.md",
-      "output_path": "index/index.html",
+      "output_path": "index.html",
       "title": "Home",
       "envelope": {
         "title": "Home"

@@ -44,7 +44,14 @@ func resolveURL(page *core.Page, cfg *config.Config) string {
 		return expandPattern(pattern, dir, slug, filename)
 	}
 
-	// Filesystem mirror fallback
+	// Filesystem mirror fallback. An "index" file is the root of its directory:
+	// content/index.md → "/", content/blog/index.md → "/blog/".
+	if slug == "index" {
+		if dir == "" {
+			return "/"
+		}
+		return "/" + dir + "/"
+	}
 	if dir == "" {
 		return "/" + slug + "/"
 	}

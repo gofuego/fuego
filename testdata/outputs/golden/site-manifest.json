@@ -2,6 +2,16 @@
   "content_root": "testdata/outputs/input/content",
   "pages": [
     {
+      "url": "/",
+      "type": "md",
+      "source_path": "index.md",
+      "output_path": "index.html",
+      "title": "Home",
+      "envelope": {
+        "title": "Home"
+      }
+    },
+    {
       "url": "/about/",
       "type": "md",
       "source_path": "about.md",
@@ -9,16 +19,6 @@
       "title": "About",
       "envelope": {
         "title": "About"
-      }
-    },
-    {
-      "url": "/index/",
-      "type": "md",
-      "source_path": "index.md",
-      "output_path": "index/index.html",
-      "title": "Home",
-      "envelope": {
-        "title": "Home"
       }
     }
   ]

@@ -37,6 +37,9 @@ type BuildOptions struct {
 
 	Incremental bool   // reuse cached parses for unchanged content
 	CacheDir    string // build cache directory (default ".fuego")
+
+	CheckLinks  bool // after building, report internal links that don't resolve
+	StrictLinks bool // fail the build on a broken internal link (implies CheckLinks)
 }
 
 // Build runs the full build pipeline with the resolved configuration.
@@ -48,6 +51,8 @@ func (e *Engine) Build(ctx context.Context, opts BuildOptions) error {
 	return pipeline.Build(ctx, cfg, e.parsers, &e.hooks, e.packs, pipeline.Options{
 		Incremental: opts.Incremental,
 		CacheDir:    opts.CacheDir,
+		CheckLinks:  opts.CheckLinks || opts.StrictLinks,
+		StrictLinks: opts.StrictLinks,
 	})
 }
 

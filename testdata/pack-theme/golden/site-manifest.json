@@ -2,6 +2,16 @@
   "content_root": "testdata/pack-theme/input/content",
   "pages": [
     {
+      "url": "/",
+      "type": "md",
+      "source_path": "index.md",
+      "output_path": "index.html",
+      "title": "Home",
+      "envelope": {
+        "title": "Home"
+      }
+    },
+    {
       "url": "/hello/",
       "type": "card",
       "layout": "deck",
@@ -11,16 +21,6 @@
       "envelope": {
         "layout": "deck",
         "title": "Hello Card"
-      }
-    },
-    {
-      "url": "/index/",
-      "type": "md",
-      "source_path": "index.md",
-      "output_path": "index/index.html",
-      "title": "Home",
-      "envelope": {
-        "title": "Home"
       }
     }
   ]

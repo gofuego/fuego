@@ -91,16 +91,23 @@ func TestNoCollisionDifferentPaths(t *testing.T) {
 	}
 }
 
-func TestResolveRootFile(t *testing.T) {
+func TestResolveIndexFile(t *testing.T) {
+	// An index file is the root of its directory: content/index.md → "/",
+	// content/blog/index.md → "/blog/".
 	pages := []*core.Page{
 		{RelPath: "index.md", Ext: "md", Envelope: core.Envelope{}},
+		{RelPath: "blog/index.md", Ext: "md", Envelope: core.Envelope{}},
+		{RelPath: "blog/post.md", Ext: "md", Envelope: core.Envelope{}},
 	}
 
 	cfg := &config.Config{}
 	ResolveAll(pages, cfg)
 
-	if pages[0].URL != "/index/" {
-		t.Errorf("expected /index/, got %q", pages[0].URL)
+	want := []string{"/", "/blog/", "/blog/post/"}
+	for i, w := range want {
+		if pages[i].URL != w {
+			t.Errorf("page %d (%s): expected %q, got %q", i, pages[i].RelPath, w, pages[i].URL)
+		}
 	}
 }
 
