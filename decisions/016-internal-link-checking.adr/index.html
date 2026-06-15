@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Internal link checking resolves against the built output — ADR Documentation</title>
+  <base href="/gofuego/fuego/">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen">
+  <nav class="border-b border-gray-800 px-6 py-4">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <a href="." class="text-lg font-bold text-white hover:text-blue-400 transition-colors">ADR Documentation</a>
+      <div class="flex gap-6 text-sm text-gray-400">
+        <a href="." class="hover:text-white transition-colors">Home</a>
+        <a href="timeline" class="hover:text-white transition-colors">Timeline</a>
+        <a href="tags" class="hover:text-white transition-colors">Tags</a>
+        <a href="affects" class="hover:text-white transition-colors">Affected Files</a>
+      </div>
+    </div>
+  </nav>
+  <main class="max-w-4xl mx-auto px-6 py-8">
+    
+<article>
+  
+  <div class="mb-8">
+    <div class="flex items-center gap-3 mb-2">
+      <span class="text-sm font-mono text-gray-500">ADR-16</span>
+      
+      <span class="px-2 py-0.5 rounded text-xs font-semibold
+        bg-green-900 text-green-300
+        ">accepted</span>
+      
+    </div>
+    <h1 class="text-3xl font-bold text-white mb-4">Internal link checking resolves against the built output</h1>
+
+    
+    <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm text-gray-400 border-b border-gray-800 pb-4">
+      
+      <div><span class="text-gray-500">Author:</span> fabio</div>
+      
+      
+      <div><span class="text-gray-500">Proposed:</span> 2026-06-15</div>
+      
+      
+      <div><span class="text-gray-500">Approvers:</span> fabio</div>
+      
+      
+      <div><span class="text-gray-500">Accepted:</span> 2026-06-15</div>
+      
+      
+    </div>
+
+    
+    
+
+    
+    
+    <div class="mt-3 flex gap-2 flex-wrap">
+      
+      <a href="tags/render" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#render</a>
+      
+      <a href="tags/quality" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#quality</a>
+      
+      <a href="tags/reliability" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#reliability</a>
+      
+    </div>
+    
+  </div>
+
+  
+  <div class="prose prose-invert prose-sm max-w-none">
+    <div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Context</h2>
+  <div class="text-gray-300 leading-relaxed"><p>Fuego does not rewrite links in content — a Markdown <code>[x](/foo/)</code> renders verbatim.
+Under a deployment base URL with <code>&lt;base href&gt;</code>, that means an author can write a
+link that resolves nowhere (dangling) or escapes the deployment base (a
+root-absolute <code>/foo/</code> served under <code>/owner/repo/</code>). These failures are invisible
+until a reader hits a 404, with no hint which file produced the link.</p>
+</div>
+</div>
+<div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Decision</h2>
+  <div class="text-gray-300 leading-relaxed"><p><code>fuego build --check-links</code> runs a checker after the output is written. It resolves
+every <code>&lt;a href&gt;</code> <strong>exactly as a browser would</strong> — honoring each page's <code>&lt;base href&gt;</code>
+and the site base URL — and verifies the result lands on a path that actually
+exists in the output. It validates the final HTML as shipped, so it catches
+dangling <em>and</em> base-escaping links from content or templates alike, without
+modelling the engine's rendering rules. Broken links are reported against the
+source page (its <code>RelPath</code>) with the href and the resolved target. They are
+warnings by default; <code>--strict-links</code> promotes them to a fatal error for CI.
+Anchors and external links are out of scope (network-bound and false-positive
+prone).</p>
+</div>
+</div>
+<div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Consequences</h2>
+  <div class="text-gray-300 leading-relaxed"><ul>
+<li><strong>+</strong> Broken internal links are caught at build time and reported against the
+file to edit — far more traceable than a runtime 404.</li>
+<li><strong>+</strong> Cheap: it's hash lookups over HTML already in memory; the slow, flaky part
+(external links) is excluded by design.</li>
+<li><strong>+</strong> Most valuable when run with the real <code>--base-url</code>, where it catches the
+base-escape class that a root build cannot see.</li>
+<li><strong>−</strong> Template-generated links can only be attributed to the page they appear on,
+not the template line.</li>
+<li><strong>−</strong> Regex href extraction is adequate for generated HTML but not a full HTML
+parser; pathological markup could be missed.</li>
+<li>Pairs with <a href="decisions/015-index-files-route-to-directory-root.adr/">015</a> and reinforces
+the determinism discipline of <a href="decisions/009-golden-file-determinism-testing.adr/">009</a>.</li>
+</ul>
+</div>
+</div>
+
+  </div>
+
+  
+  
+  <div class="mt-8 border-t border-gray-800 pt-6">
+    <h2 class="text-lg font-semibold text-white mb-3">Affected Files</h2>
+    <div class="space-y-1" data-affects-list>
+      
+      <div class="text-sm font-mono" data-affects-pattern="internal/linkcheck/**">
+        <span class="text-gray-400">internal/linkcheck/**</span>
+      </div>
+      
+      <div class="text-sm font-mono" data-affects-pattern="internal/pipeline/**">
+        <span class="text-gray-400">internal/pipeline/**</span>
+      </div>
+      
+    </div>
+  </div>
+  
+</article>
+
+  </main>
+  <script type="application/json" id="fuego-data">{"envelope":{"adr_number":16,"affects":["internal/linkcheck/**","internal/pipeline/**"],"approvers":["fabio"],"author":["fabio"],"date_accepted":"2026-06-15","date_proposed":"2026-06-15","status":"accepted","tags":["render","quality","reliability"],"title":"Internal link checking resolves against the built output"},"nodes":[{"type":"context","content":"\u003cp\u003eFuego does not rewrite links in content — a Markdown \u003ccode\u003e[x](/foo/)\u003c/code\u003e renders verbatim.\nUnder a deployment base URL with \u003ccode\u003e\u0026lt;base href\u0026gt;\u003c/code\u003e, that means an author can write a\nlink that resolves nowhere (dangling) or escapes the deployment base (a\nroot-absolute \u003ccode\u003e/foo/\u003c/code\u003e served under \u003ccode\u003e/owner/repo/\u003c/code\u003e). These failures are invisible\nuntil a reader hits a 404, with no hint which file produced the link.\u003c/p\u003e\n","raw":true},{"type":"decision","content":"\u003cp\u003e\u003ccode\u003efuego build --check-links\u003c/code\u003e runs a checker after the output is written. It resolves\nevery \u003ccode\u003e\u0026lt;a href\u0026gt;\u003c/code\u003e \u003cstrong\u003eexactly as a browser would\u003c/strong\u003e — honoring each page's \u003ccode\u003e\u0026lt;base href\u0026gt;\u003c/code\u003e\nand the site base URL — and verifies the result lands on a path that actually\nexists in the output. It validates the final HTML as shipped, so it catches\ndangling \u003cem\u003eand\u003c/em\u003e base-escaping links from content or templates alike, without\nmodelling the engine's rendering rules. Broken links are reported against the\nsource page (its \u003ccode\u003eRelPath\u003c/code\u003e) with the href and the resolved target. They are\nwarnings by default; \u003ccode\u003e--strict-links\u003c/code\u003e promotes them to a fatal error for CI.\nAnchors and external links are out of scope (network-bound and false-positive\nprone).\u003c/p\u003e\n","raw":true},{"type":"consequences","content":"\u003cul\u003e\n\u003cli\u003e\u003cstrong\u003e+\u003c/strong\u003e Broken internal links are caught at build time and reported against the\nfile to edit — far more traceable than a runtime 404.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e+\u003c/strong\u003e Cheap: it's hash lookups over HTML already in memory; the slow, flaky part\n(external links) is excluded by design.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e+\u003c/strong\u003e Most valuable when run with the real \u003ccode\u003e--base-url\u003c/code\u003e, where it catches the\nbase-escape class that a root build cannot see.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e−\u003c/strong\u003e Template-generated links can only be attributed to the page they appear on,\nnot the template line.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e−\u003c/strong\u003e Regex href extraction is adequate for generated HTML but not a full HTML\nparser; pathological markup could be missed.\u003c/li\u003e\n\u003cli\u003ePairs with \u003ca href=\"decisions/015-index-files-route-to-directory-root.adr/\"\u003e015\u003c/a\u003e and reinforces\nthe determinism discipline of \u003ca href=\"decisions/009-golden-file-determinism-testing.adr/\"\u003e009\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n","raw":true}],"url":"/decisions/016-internal-link-checking.adr/"}</script>
+  <script src="app.js"></script>
+</body>
+</html>
+

@@ -160,6 +160,27 @@
             ],
             "title": "The site manifest is the host-integration contract",
             "url": "/decisions/014-manifest-as-host-integration-contract.adr/"
+          },
+          {
+            "number": 15,
+            "status": "accepted",
+            "tags": [
+              "routing",
+              "pipeline"
+            ],
+            "title": "Index files route to their directory root",
+            "url": "/decisions/015-index-files-route-to-directory-root.adr/"
+          },
+          {
+            "number": 16,
+            "status": "accepted",
+            "tags": [
+              "render",
+              "quality",
+              "reliability"
+            ],
+            "title": "Internal link checking resolves against the built output",
+            "url": "/decisions/016-internal-link-checking.adr/"
           }
         ],
         "inactive_adrs": null,
@@ -290,6 +311,17 @@
           {
             "adrs": [
               {
+                "number": 16,
+                "title": "Internal link checking resolves against the built output",
+                "url": "/decisions/016-internal-link-checking.adr/"
+              }
+            ],
+            "exists": true,
+            "pattern": "internal/linkcheck/**"
+          },
+          {
+            "adrs": [
+              {
                 "number": 14,
                 "title": "The site manifest is the host-integration contract",
                 "url": "/decisions/014-manifest-as-host-integration-contract.adr/"
@@ -340,6 +372,11 @@
                 "number": 12,
                 "title": "Incremental builds are opt-in and provably equivalent",
                 "url": "/decisions/012-opt-in-incremental-builds.adr/"
+              },
+              {
+                "number": 16,
+                "title": "Internal link checking resolves against the built output",
+                "url": "/decisions/016-internal-link-checking.adr/"
               }
             ],
             "exists": true,
@@ -370,6 +407,17 @@
             ],
             "exists": true,
             "pattern": "internal/render/**"
+          },
+          {
+            "adrs": [
+              {
+                "number": 15,
+                "title": "Index files route to their directory root",
+                "url": "/decisions/015-index-files-route-to-directory-root.adr/"
+              }
+            ],
+            "exists": true,
+            "pattern": "internal/route/**"
           },
           {
             "adrs": [
@@ -802,6 +850,60 @@
       }
     },
     {
+      "url": "/decisions/015-index-files-route-to-directory-root.adr/",
+      "type": "adr",
+      "layout": "adr",
+      "title": "Index files route to their directory root",
+      "envelope": {
+        "adr_number": 15,
+        "affects": [
+          "internal/route/**"
+        ],
+        "approvers": [
+          "fabio"
+        ],
+        "author": [
+          "fabio"
+        ],
+        "date_accepted": "2026-06-15",
+        "date_proposed": "2026-06-15",
+        "status": "accepted",
+        "tags": [
+          "routing",
+          "pipeline"
+        ],
+        "title": "Index files route to their directory root"
+      }
+    },
+    {
+      "url": "/decisions/016-internal-link-checking.adr/",
+      "type": "adr",
+      "layout": "adr",
+      "title": "Internal link checking resolves against the built output",
+      "envelope": {
+        "adr_number": 16,
+        "affects": [
+          "internal/linkcheck/**",
+          "internal/pipeline/**"
+        ],
+        "approvers": [
+          "fabio"
+        ],
+        "author": [
+          "fabio"
+        ],
+        "date_accepted": "2026-06-15",
+        "date_proposed": "2026-06-15",
+        "status": "accepted",
+        "tags": [
+          "render",
+          "quality",
+          "reliability"
+        ],
+        "title": "Internal link checking resolves against the built output"
+      }
+    },
+    {
       "url": "/tags/",
       "type": "taxonomy-index",
       "layout": "tag-index",
@@ -1021,6 +1123,17 @@
       }
     },
     {
+      "url": "/tags/render/",
+      "type": "taxonomy-term",
+      "layout": "tag",
+      "title": "Tags: render",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "render",
+        "title": "Tags: render"
+      }
+    },
+    {
       "url": "/tags/routing/",
       "type": "taxonomy-term",
       "layout": "tag",
@@ -1061,6 +1174,22 @@
       "envelope": {
         "timeline_entries": [
           {
+            "date": "2026-06-15",
+            "number": 16,
+            "status": "accepted",
+            "supersedes": null,
+            "title": "Internal link checking resolves against the built output",
+            "url": "/decisions/016-internal-link-checking.adr/"
+          },
+          {
+            "date": "2026-06-15",
+            "number": 15,
+            "status": "accepted",
+            "supersedes": null,
+            "title": "Index files route to their directory root",
+            "url": "/decisions/015-index-files-route-to-directory-root.adr/"
+          },
+          {
             "date": "2026-06-13",
             "number": 11,
             "status": "accepted",
@@ -1094,22 +1223,6 @@
           },
           {
             "date": "2026-06-02",
-            "number": 2,
-            "status": "accepted",
-            "supersedes": null,
-            "title": "Parsers own envelope extraction",
-            "url": "/decisions/002-parser-owned-envelope-extraction.adr/"
-          },
-          {
-            "date": "2026-06-02",
-            "number": 3,
-            "status": "accepted",
-            "supersedes": null,
-            "title": "No built-in parsers; two-tier parser precedence",
-            "url": "/decisions/003-no-built-in-parsers-two-tier-precedence.adr/"
-          },
-          {
-            "date": "2026-06-02",
             "number": 5,
             "status": "accepted",
             "supersedes": null,
@@ -1125,20 +1238,28 @@
             "url": "/decisions/006-content-discovery-driven-by-parsers.adr/"
           },
           {
-            "date": "2026-05-20",
-            "number": 7,
+            "date": "2026-06-02",
+            "number": 3,
             "status": "accepted",
             "supersedes": null,
-            "title": "Hooks are Go functions, not config",
-            "url": "/decisions/007-hooks-are-go-not-config.adr/"
+            "title": "No built-in parsers; two-tier parser precedence",
+            "url": "/decisions/003-no-built-in-parsers-two-tier-precedence.adr/"
+          },
+          {
+            "date": "2026-06-02",
+            "number": 2,
+            "status": "accepted",
+            "supersedes": null,
+            "title": "Parsers own envelope extraction",
+            "url": "/decisions/002-parser-owned-envelope-extraction.adr/"
           },
           {
             "date": "2026-05-20",
-            "number": 10,
+            "number": 8,
             "status": "accepted",
             "supersedes": null,
-            "title": "Taxonomies and collections are virtual pages",
-            "url": "/decisions/010-virtual-pages-for-taxonomies-collections.adr/"
+            "title": "Error accumulation with three severities, not fail-fast",
+            "url": "/decisions/008-error-accumulation-three-severities.adr/"
           },
           {
             "date": "2026-05-20",
@@ -1150,11 +1271,19 @@
           },
           {
             "date": "2026-05-20",
-            "number": 8,
+            "number": 10,
             "status": "accepted",
             "supersedes": null,
-            "title": "Error accumulation with three severities, not fail-fast",
-            "url": "/decisions/008-error-accumulation-three-severities.adr/"
+            "title": "Taxonomies and collections are virtual pages",
+            "url": "/decisions/010-virtual-pages-for-taxonomies-collections.adr/"
+          },
+          {
+            "date": "2026-05-20",
+            "number": 7,
+            "status": "accepted",
+            "supersedes": null,
+            "title": "Hooks are Go functions, not config",
+            "url": "/decisions/007-hooks-are-go-not-config.adr/"
           },
           {
             "date": "2026-05-20",
@@ -1248,17 +1377,24 @@
         ],
         "pipeline": [
           5,
-          11
+          11,
+          16
         ],
         "quality": [
-          10
+          10,
+          17
         ],
         "reliability": [
           9,
-          13
+          13,
+          17
+        ],
+        "render": [
+          17
         ],
         "routing": [
-          6
+          6,
+          16
         ],
         "taxonomies": [
           11
