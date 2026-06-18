@@ -18,7 +18,6 @@
       "url": "/topics/greetings/",
       "type": "taxonomy-term",
       "layout": "deck",
-      "source_path": "_virtual/taxonomy/topic/greetings",
       "output_path": "topics/greetings/index.html",
       "title": "Topic: greetings",
       "envelope": {

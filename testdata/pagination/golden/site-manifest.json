@@ -5,7 +5,6 @@
       "url": "/all-posts/",
       "type": "collection",
       "layout": "listing",
-      "source_path": "_virtual/collection/posts",
       "output_path": "all-posts/index.html",
       "title": "Posts",
       "envelope": {
@@ -17,7 +16,6 @@
       "url": "/all-posts/page/2/",
       "type": "collection",
       "layout": "listing",
-      "source_path": "_virtual/collection/posts/page-2",
       "output_path": "all-posts/page/2/index.html",
       "title": "Posts",
       "envelope": {
@@ -29,7 +27,6 @@
       "url": "/all-posts/page/3/",
       "type": "collection",
       "layout": "listing",
-      "source_path": "_virtual/collection/posts/page-3",
       "output_path": "all-posts/page/3/index.html",
       "title": "Posts",
       "envelope": {
@@ -111,7 +108,6 @@
       "url": "/tags/news/",
       "type": "taxonomy-term",
       "layout": "listing",
-      "source_path": "_virtual/taxonomy/tags/news",
       "output_path": "tags/news/index.html",
       "title": "Tags: news",
       "envelope": {
@@ -124,7 +120,6 @@
       "url": "/tags/news/page/2/",
       "type": "taxonomy-term",
       "layout": "listing",
-      "source_path": "_virtual/taxonomy/tags/news/page-2",
       "output_path": "tags/news/page/2/index.html",
       "title": "Tags: news",
       "envelope": {
@@ -137,7 +132,6 @@
       "url": "/tags/news/page/3/",
       "type": "taxonomy-term",
       "layout": "listing",
-      "source_path": "_virtual/taxonomy/tags/news/page-3",
       "output_path": "tags/news/page/3/index.html",
       "title": "Tags: news",
       "envelope": {

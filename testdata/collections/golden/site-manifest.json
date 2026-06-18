@@ -5,7 +5,6 @@
       "url": "/history-trivia/",
       "type": "collection",
       "layout": "listing",
-      "source_path": "_virtual/collection/history-trivia",
       "output_path": "history-trivia/index.html",
       "title": "History-trivia",
       "envelope": {

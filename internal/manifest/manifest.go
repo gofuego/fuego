@@ -76,11 +76,20 @@ func Generate(pages []*core.Page, cfg *config.Config) *Manifest {
 			env[k] = v
 		}
 
+		// Virtual pages (taxonomy/collection) have no editable source file, so
+		// they carry an empty source_path — the contract a host uses to mark them
+		// non-editable. Their internal "_virtual/..." RelPath stays out of the
+		// manifest. See ADR-014.
+		sourcePath := ""
+		if !isVirtual(p) {
+			sourcePath = filepath.ToSlash(p.RelPath)
+		}
+
 		entries[i] = PageEntry{
 			URL:        p.URL,
 			Type:       p.Type,
 			Layout:     p.Layout,
-			SourcePath: filepath.ToSlash(p.RelPath),
+			SourcePath: sourcePath,
 			OutputPath: outputPath(p.URL),
 			Title:      title,
 			Summary:    summary,
@@ -104,6 +113,13 @@ func Generate(pages []*core.Page, cfg *config.Config) *Manifest {
 	}
 
 	return m
+}
+
+// isVirtual reports whether a page is engine-generated (a taxonomy or collection
+// page) rather than backed by a source file. Virtual pages get an empty
+// source_path in the manifest and are excluded from taxonomy term scanning.
+func isVirtual(p *core.Page) bool {
+	return p.Type == "taxonomy-term" || p.Type == "taxonomy-index" || p.Type == "collection"
 }
 
 // contentRoot returns the content directory relative to the enclosing git
@@ -185,7 +201,7 @@ func buildTaxonomySections(pages []*core.Page, urlIndex map[string]int, taxonomi
 
 		for _, page := range pages {
 			// Skip virtual pages — only index real content pages
-			if page.Type == "taxonomy-term" || page.Type == "taxonomy-index" || page.Type == "collection" {
+			if isVirtual(page) {
 				continue
 			}
 

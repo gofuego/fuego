@@ -43,8 +43,9 @@ func TestGenerate_SourceAndOutputPath(t *testing.T) {
 	pages := []*core.Page{
 		// real, file-backed page
 		{URL: "/blog/post/", Type: "md", RelPath: "blog/post.md", Envelope: core.Envelope{"title": "Post"}},
-		// virtual page (no source file)
-		{URL: "/tags/go/", Type: "taxonomy-term", Envelope: core.Envelope{"title": "go"}},
+		// virtual page — the index phase gives it an internal "_virtual/..."
+		// RelPath, which must NOT leak into the manifest as a source_path.
+		{URL: "/tags/go/", Type: "taxonomy-term", RelPath: "_virtual/taxonomy/tags/go", Envelope: core.Envelope{"title": "go"}},
 		// root page
 		{URL: "/", Type: "md", RelPath: "index.md", Envelope: core.Envelope{"title": "Home"}},
 	}

@@ -35,7 +35,6 @@
       "url": "/history-quiz/",
       "type": "collection",
       "layout": "listing",
-      "source_path": "_virtual/collection/history-quiz",
       "output_path": "history-quiz/index.html",
       "title": "History-quiz",
       "envelope": {
@@ -77,7 +76,6 @@
       "url": "/tags/",
       "type": "taxonomy-index",
       "layout": "tag-index",
-      "source_path": "_virtual/taxonomy/tags/_index",
       "output_path": "tags/index.html",
       "title": "All Tags",
       "envelope": {
@@ -89,7 +87,6 @@
       "url": "/tags/europe/",
       "type": "taxonomy-term",
       "layout": "tag",
-      "source_path": "_virtual/taxonomy/tags/europe",
       "output_path": "tags/europe/index.html",
       "title": "Tags: europe",
       "envelope": {
@@ -102,7 +99,6 @@
       "url": "/tags/history/",
       "type": "taxonomy-term",
       "layout": "tag",
-      "source_path": "_virtual/taxonomy/tags/history",
       "output_path": "tags/history/index.html",
       "title": "Tags: history",
       "envelope": {
@@ -115,7 +111,6 @@
       "url": "/tags/meta/",
       "type": "taxonomy-term",
       "layout": "tag",
-      "source_path": "_virtual/taxonomy/tags/meta",
       "output_path": "tags/meta/index.html",
       "title": "Tags: meta",
       "envelope": {
@@ -128,7 +123,6 @@
       "url": "/tags/programming/",
       "type": "taxonomy-term",
       "layout": "tag",
-      "source_path": "_virtual/taxonomy/tags/programming",
       "output_path": "tags/programming/index.html",
       "title": "Tags: programming",
       "envelope": {
