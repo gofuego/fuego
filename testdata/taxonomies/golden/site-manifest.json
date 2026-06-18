@@ -33,7 +33,6 @@
       "url": "/tags/",
       "type": "taxonomy-index",
       "layout": "tag-index",
-      "source_path": "_virtual/taxonomy/tags/_index",
       "output_path": "tags/index.html",
       "title": "All Tags",
       "envelope": {
@@ -45,7 +44,6 @@
       "url": "/tags/go/",
       "type": "taxonomy-term",
       "layout": "tag",
-      "source_path": "_virtual/taxonomy/tags/go",
       "output_path": "tags/go/index.html",
       "title": "Tags: go",
       "envelope": {
@@ -58,7 +56,6 @@
       "url": "/tags/programming/",
       "type": "taxonomy-term",
       "layout": "tag",
-      "source_path": "_virtual/taxonomy/tags/programming",
       "output_path": "tags/programming/index.html",
       "title": "Tags: programming",
       "envelope": {
@@ -71,7 +68,6 @@
       "url": "/tags/web/",
       "type": "taxonomy-term",
       "layout": "tag",
-      "source_path": "_virtual/taxonomy/tags/web",
       "output_path": "tags/web/index.html",
       "title": "Tags: web",
       "envelope": {
