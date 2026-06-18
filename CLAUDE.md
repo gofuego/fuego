@@ -8,6 +8,14 @@ The core value proposition: **you define the format, Fuego handles the infrastru
 
 ## Architecture Decisions
 
+> These AD-N entries summarize the canonical Architecture Decision Records in
+> [`adrs/`](adrs/); the ADR file is authoritative where they differ. The AD numbering
+> is historical and no longer 1:1 with the ADR files — use this map:
+> AD-1→ADR-001, AD-2→ADR-002, AD-3→ADR-003, AD-4→ADR-004, AD-4b→ADR-005,
+> AD-4c→ADR-006, AD-5→ADR-007, AD-6→ADR-008, AD-7→ADR-009, AD-8→ADR-010,
+> AD-9→ADR-011, AD-10→ADR-012, AD-11→ADR-013, AD-12→ADR-014, AD-13→ADR-015,
+> AD-14→ADR-016.
+
 ### AD-1: Universal AST with free-form node types
 
 **Decision:** All content parsers produce `[]core.Node` where `Type` is a free-form string. The engine never interprets node types — templates decide rendering.
@@ -88,6 +96,24 @@ Nodes can be marked `Raw: true` to pass their content through the default render
 
 **Why:** Tools built on Fuego (and pack-based wrappers) shouldn't have to synthesize a temp config file and shell into the CLI. The programmatic API is the supported way to embed Fuego; the serve loop lives in `internal/serve.Run` so the CLI and `engine.Serve` share it. See `docs/` "Embedding Fuego".
 
+### AD-12: The site manifest is the host-integration contract (ADR-014)
+
+**Decision:** `internal/manifest` writes `site-manifest.json` as the stable contract a host (e.g. fuego-studio) reads. The engine exposes **build facts only** — per page `url`, `type`, `layout`, `title`, `summary`, `output_path`, `source_path`, and the flattened `envelope`, plus a top-level `content_root` (the content dir relative to the enclosing git root). A host maps a page back to its repo source as `content_root` + `source_path`; editing policy (who may edit, which branch) lives in the host.
+
+**Why:** Cleanly splits build facts (engine) from workflow policy (host), keeping the engine editing-agnostic. The manifest is a public contract — changing a field is a breaking change for hosts that read it.
+
+### AD-13: Index files route to their directory root (ADR-015)
+
+**Decision:** In the filesystem-mirror tier a file named `index` is the root of its directory — `content/index.md` → `/`, `content/blog/index.md` → `/blog/` — matching the universal SSG convention. The explicit `slug` and config-route tiers are unchanged, and the old `public/index.html` → `/index/` redirect hack is removed from the scaffold and theme packs.
+
+**Why:** Home pages live at `/` with no redirect, one fewer file for every site to carry, and no base-URL breakage. Note: an existing `public/index.html` redirect is now *harmful* — copied during STATIC it would clobber the rendered root `index.html` — and must be removed.
+
+### AD-14: Internal link checking resolves against the built output (ADR-016)
+
+**Decision:** `fuego build --check-links` runs after output is written and resolves every `<a href>` exactly as a browser would — honoring each page's `<base href>` and the site base URL — then verifies the target exists in the output. It validates the shipped HTML, so it catches both dangling and base-escaping links from content or templates. Broken links are reported against the source page; warnings by default, `--strict-links` promotes them to a fatal error for CI. Anchors and external links are out of scope.
+
+**Why:** Catches broken internal links at build time, attributed to the file to edit — far more traceable than a runtime 404. Cheap (hash lookups over in-memory HTML); most valuable run with the real `--base-url`, which surfaces the base-escape class a root build can't see.
+
 ## Project Structure
 
 ```
@@ -148,7 +174,7 @@ STATIC         →  Copy pack static/, then public/, then colocated binary asset
 ### Concurrency
 - PARSE and RENDER phases use `errgroup` with `SetLimit(runtime.NumCPU())`
 - Errors are collected in pre-allocated slices by index, not via channels
-- The `core.ErrorAccumulator` is mutex-protected
+- The `core.ErrorAccumulator` carries no lock — concurrent phases collect into index-keyed slices and the accumulator is filled serially after the errgroup completes, so it is lock-free by construction
 
 ### Determinism
 - All map iterations use `sortedKeys()` helpers for deterministic output

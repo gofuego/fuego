@@ -20,8 +20,7 @@ output and must stop the build.
 
 ## Decision
 
-The pipeline accumulates errors in a mutex-protected `core.ErrorAccumulator` with
-three severities:
+The pipeline accumulates errors in `core.ErrorAccumulator` with three severities:
 
 - **Warning** — logged; build continues.
 - **LocalFatal** — the offending page is skipped; build continues with partial
