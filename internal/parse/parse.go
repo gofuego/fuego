@@ -221,7 +221,7 @@ func buildPage(file discover.FileEntry, parsers map[string]core.Parser, raw []by
 		content := strings.TrimSpace(string(payload))
 		if content != "" {
 			page.Nodes = []core.Node{
-				{Type: "raw", Content: content},
+				{Type: "raw", Content: content, Raw: true},
 			}
 		}
 	}

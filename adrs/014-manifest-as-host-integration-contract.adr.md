@@ -22,8 +22,9 @@ which branch). The question is what the engine exposes, and where the line betwe
 
 `internal/manifest` writes `site-manifest.json` with, per page, `url`, `type`,
 `layout`, `title`, `summary`, `output_path` (`<url>/index.html`), `source_path`
-(the content-dir-relative `RelPath`, empty for virtual pages so they're
-non-editable), and the flattened `envelope`. The top-level `content_root` is the
+(a real page's content-dir-relative `RelPath`; **omitted** for virtual pages,
+whose internal `_virtual/...` `RelPath` is not a real file — so a host treats
+them as non-editable), and the flattened `envelope`. The top-level `content_root` is the
 content dir relative to the enclosing git root, so a host maps a page's repo source
 as `content_root` + `source_path`. The `build`/`serve` `--base-url` flag overrides
 `site.base_url` for one run, so a deploy can target a subpath. The engine exposes
@@ -33,7 +34,7 @@ as `content_root` + `source_path`. The `build`/`serve` `--base-url` flag overrid
 
 - **+** A host can fetch and commit any page's source unambiguously, including for
   sites built from a subdirectory.
-- **+** Virtual pages are marked non-editable by an empty `source_path`.
+- **+** Virtual pages are marked non-editable by an omitted `source_path`.
 - **+** `--base-url` lets one repo serve different mount paths (e.g. GitHub Pages and
   a studio mount) without a separate config file.
 - **−** The manifest is a public contract — changing a field is a breaking change for
