@@ -57,16 +57,30 @@ func Walk(cfg *config.Config, registeredTypes map[string]bool, filenamePatterns 
 		if err != nil {
 			return err
 		}
-		if d.IsDir() {
-			return nil
-		}
 
 		relPath, err := filepath.Rel(contentDir, path)
 		if err != nil {
 			return err
 		}
 
+		// Ignored directories are pruned (and never descended into), so a
+		// pattern like ".git" or "node_modules" skips the whole subtree.
+		if d.IsDir() {
+			if relPath != "." && ShouldIgnore(relPath, cfg.Ignore) {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+
 		if ShouldIgnore(relPath, cfg.Ignore) {
+			return nil
+		}
+
+		// Symlinks are reported by WalkDir as non-directory entries even when
+		// they point at a directory, which would misclassify a symlinked dir as
+		// a file asset and fail the copy. Skip symlinks: a shared artifact
+		// reached through a symlink still renders at its canonical location.
+		if d.Type()&os.ModeSymlink != 0 {
 			return nil
 		}
 
