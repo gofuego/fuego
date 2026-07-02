@@ -93,8 +93,10 @@ func TestEngineValidateProgrammatic(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Validate: %v", err)
 	}
-	if n != 2 {
-		t.Errorf("validated %d pages, want 2", n)
+	// 2 content pages + the pack taxonomy's index page (generated even with
+	// no tagged pages, because the pack configures index_path).
+	if n != 3 {
+		t.Errorf("validated %d pages, want 3", n)
 	}
 }
 

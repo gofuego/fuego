@@ -24,9 +24,6 @@ func BuildTaxonomies(pages []*core.Page, taxonomies map[string]config.TaxonomyCo
 
 		// Build inverted index: term → list of pages
 		termIndex := buildTermIndex(pages, fieldName)
-		if len(termIndex) == 0 {
-			continue
-		}
 
 		// Generate term pages, split by page_size when configured
 		terms := sortedKeys(termIndex)
@@ -36,7 +33,9 @@ func BuildTaxonomies(pages []*core.Page, taxonomies map[string]config.TaxonomyCo
 			virtual = append(virtual, paginate(termPage, taxCfg.PageSize)...)
 		}
 
-		// Generate index page (listing all terms)
+		// Generate index page (listing all terms). A configured index_path is
+		// a promise the URL exists, so the index page is generated even when
+		// no page carries the field yet — themes may link to it statically.
 		if taxCfg.IndexPath != "" {
 			indexPage := buildTaxonomyIndexPage(fieldName, terms, termIndex, taxCfg)
 			virtual = append(virtual, indexPage)
