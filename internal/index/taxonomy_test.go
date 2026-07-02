@@ -127,13 +127,33 @@ func TestBuildTaxonomies_NoMatchingField(t *testing.T) {
 		}},
 	}
 
+	// With index_path: the index page is still generated (empty), so themes
+	// can link to it unconditionally.
 	taxCfg := map[string]config.TaxonomyConfig{
-		"tags": {Path: "/tags/{term}", IndexPath: "/tags"},
+		"tags": {Path: "/tags/{term}", IndexPath: "/tags", IndexLayout: "tag-index"},
 	}
 
 	virtual := BuildTaxonomies(pages, taxCfg)
-	if len(virtual) != 0 {
-		t.Errorf("expected 0 virtual pages when no pages have the field, got %d", len(virtual))
+	if len(virtual) != 1 {
+		t.Fatalf("expected 1 virtual page (empty index) when no pages have the field, got %d", len(virtual))
+	}
+	indexPage := virtual[0]
+	if indexPage.URL != "/tags/" {
+		t.Errorf("expected /tags/, got %q", indexPage.URL)
+	}
+	if indexPage.Type != "taxonomy-index" {
+		t.Errorf("expected type 'taxonomy-index', got %q", indexPage.Type)
+	}
+	if len(indexPage.Nodes) != 0 {
+		t.Errorf("expected 0 term-ref nodes on empty index, got %d", len(indexPage.Nodes))
+	}
+
+	// Without index_path: nothing is generated.
+	taxCfg = map[string]config.TaxonomyConfig{
+		"tags": {Path: "/tags/{term}"},
+	}
+	if virtual := BuildTaxonomies(pages, taxCfg); len(virtual) != 0 {
+		t.Errorf("expected 0 virtual pages without index_path, got %d", len(virtual))
 	}
 }
 
