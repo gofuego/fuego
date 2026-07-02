@@ -205,8 +205,12 @@ func Build(ctx context.Context, cfg *config.Config, compiledParsers map[string]c
 		nc := buildcache.New(header)
 		nc.Pages = res.ParsedPages
 		nc.Outputs = newOutputs
-		if err := buildcache.Save(opts.cachePath(), nc); err != nil {
+		dropped, err := buildcache.Save(opts.cachePath(), nc)
+		if err != nil {
 			fmt.Fprintf(os.Stderr, "fuego: warning: could not write build cache: %v\n", err)
+		} else if len(dropped) > 0 {
+			fmt.Fprintf(os.Stderr, "fuego: warning: %d page(s) not cacheable (envelope holds non-JSON-shaped values): %s\n",
+				len(dropped), strings.Join(dropped, ", "))
 		}
 	}
 

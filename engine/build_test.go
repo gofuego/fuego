@@ -129,3 +129,59 @@ func TestEngineBuildConfigFileThenOverrides(t *testing.T) {
 		t.Errorf("file base_url should survive when not overridden:\n%s", home)
 	}
 }
+
+// TestIncrementalCacheIsHookIsolated locks in the cache's post-PARSE contract:
+// hooks mutate live pages in place, and neither their output leaking into the
+// cache nor stale hook output leaking back out on a hit may change the built
+// site. The AfterParse hook here appends a marker each run — if the cache
+// shared state with live pages, the cached second build would render 2.
+func TestIncrementalCacheIsHookIsolated(t *testing.T) {
+	dir := t.TempDir()
+	contentDir := filepath.Join(dir, "c")
+	writeFile(t, filepath.Join(contentDir, "a.md"), "---\ntitle: A\n---\nx\n")
+
+	marksPack := core.Pack{
+		Name: "marks",
+		Theme: fstest.MapFS{
+			"base.html": &fstest.MapFile{Data: []byte(
+				`<body>marks={{len .Page.Envelope.marks}}</body>`)},
+		},
+	}
+
+	build := func() string {
+		eng := New()
+		eng.Register(markdown.Parser())
+		eng.Use(marksPack)
+		eng.AfterParse(func(pages []*core.Page) ([]*core.Page, error) {
+			for _, p := range pages {
+				marks, _ := p.Envelope["marks"].([]string)
+				p.Envelope["marks"] = append(marks, "m")
+			}
+			return pages, nil
+		})
+		out := filepath.Join(dir, "o")
+		err := eng.Build(context.Background(), BuildOptions{
+			ContentDir:  contentDir,
+			OutputDir:   out,
+			CacheDir:    filepath.Join(dir, "cache"),
+			Incremental: true,
+		})
+		if err != nil {
+			t.Fatalf("build: %v", err)
+		}
+		b, err := os.ReadFile(filepath.Join(out, "a", "index.html"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		return string(b)
+	}
+
+	first := build()
+	second := build() // served from cache — must be byte-identical
+	if !strings.Contains(first, "marks=1") {
+		t.Fatalf("first build should render one hook marker, got: %s", first)
+	}
+	if first != second {
+		t.Errorf("cached rebuild differs (hook state leaked through the cache):\n first: %s\nsecond: %s", first, second)
+	}
+}

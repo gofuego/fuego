@@ -72,14 +72,16 @@ func ParseAllCached(ctx context.Context, files []discover.FileEntry, parsers map
 				return nil
 			}
 			pages[idx] = page
-			cached[idx] = buildcache.ParsedPage{
+			// Snapshot by deep copy: hooks mutate live pages in place after
+			// PARSE, and the cache must store post-PARSE state only.
+			cached[idx] = buildcache.ClonePage(buildcache.ParsedPage{
 				ContentHash: hash,
 				Envelope:    page.Envelope,
 				Nodes:       page.Nodes,
 				Type:        page.Type,
 				Layout:      page.Layout,
 				IsRaw:       page.IsRaw,
-			}
+			})
 			return nil
 		})
 	}
@@ -113,8 +115,11 @@ func ParseAllCached(ctx context.Context, files []discover.FileEntry, parsers map
 }
 
 // pageFromCache reconstructs a post-PARSE page from a cache entry, taking the
-// filesystem paths from the freshly discovered file.
+// filesystem paths from the freshly discovered file. The restored page gets a
+// deep copy of the cached envelope/nodes so hooks mutating it cannot corrupt
+// the cache entry (which is re-persisted at the end of the build).
 func pageFromCache(file discover.FileEntry, cp buildcache.ParsedPage) *core.Page {
+	cp = buildcache.ClonePage(cp)
 	return &core.Page{
 		SourcePath: file.Path,
 		RelPath:    file.RelPath,
