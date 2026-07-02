@@ -21,7 +21,7 @@ func TestSaveLoadRoundTrip(t *testing.T) {
 	}
 	c.Outputs = []string{"a/index.html"}
 
-	if err := Save(path, c); err != nil {
+	if _, err := Save(path, c); err != nil {
 		t.Fatal(err)
 	}
 	got, ok := Load(path)

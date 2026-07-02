@@ -6,10 +6,12 @@
 package buildcache
 
 import (
+	"bytes"
 	"crypto/sha256"
 	"encoding/gob"
 	"encoding/hex"
 	"fmt"
+	"io"
 	"io/fs"
 	"os"
 	"path"
@@ -26,10 +28,21 @@ import (
 const cacheVersion = 1
 
 func init() {
-	// Envelope values are arbitrary YAML scalars/containers held in any.
+	// Envelope values are held in `any`, so gob needs their concrete types
+	// registered. YAML frontmatter produces only the first two; the rest are
+	// the JSON-shaped composites compiled parsers commonly build by hand.
+	// This set is the "cacheable envelope" contract: a parser storing any
+	// other concrete type gets a per-page cache miss (see Save).
 	gob.Register(map[string]any{})
 	gob.Register([]any{})
 	gob.Register(time.Time{})
+	gob.Register([]map[string]any{})
+	gob.Register(map[string]string{})
+	gob.Register([]map[string]string{})
+	gob.Register([]string{})
+	gob.Register([]int{})
+	gob.Register([]float64{})
+	gob.Register([]bool{})
 }
 
 // Header identifies the build environment the cache was produced under. If any
@@ -85,20 +98,39 @@ func Load(path string) (*Cache, bool) {
 	return &c, true
 }
 
-// Save writes the cache to path, creating parent directories.
-func Save(path string, c *Cache) error {
+// Save writes the cache to path, creating parent directories. Pages whose
+// envelope or nodes hold types gob cannot encode (outside the registered
+// JSON-shaped set) are dropped — a permanent cache miss for those pages —
+// rather than failing the write for every other page. The dropped RelPaths
+// are returned, sorted, for the caller to warn about.
+func Save(path string, c *Cache) (dropped []string, err error) {
+	var buf bytes.Buffer
+	if err := gob.NewEncoder(&buf).Encode(c); err != nil {
+		// Some page holds an unencodable value. Trial-encode each page and
+		// keep only the encodable ones.
+		keep := make(map[string]ParsedPage, len(c.Pages))
+		for rel, pp := range c.Pages {
+			if gob.NewEncoder(io.Discard).Encode(pp) != nil {
+				dropped = append(dropped, rel)
+				continue
+			}
+			keep[rel] = pp
+		}
+		sort.Strings(dropped)
+		pruned := *c
+		pruned.Pages = keep
+		buf.Reset()
+		if err := gob.NewEncoder(&buf).Encode(&pruned); err != nil {
+			return dropped, fmt.Errorf("encoding cache: %w", err)
+		}
+	}
 	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
-		return fmt.Errorf("creating cache dir: %w", err)
+		return dropped, fmt.Errorf("creating cache dir: %w", err)
 	}
-	f, err := os.Create(path)
-	if err != nil {
-		return fmt.Errorf("creating cache file: %w", err)
+	if err := os.WriteFile(path, buf.Bytes(), 0644); err != nil {
+		return dropped, fmt.Errorf("writing cache file: %w", err)
 	}
-	defer f.Close()
-	if err := gob.NewEncoder(f).Encode(c); err != nil {
-		return fmt.Errorf("encoding cache: %w", err)
-	}
-	return nil
+	return dropped, nil
 }
 
 // Valid reports whether the cache was produced by the same engine binary,
