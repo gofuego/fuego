@@ -1,8 +1,10 @@
 ---
 title: The build cache stores JSON-shaped deep copies, degrading per page
-status: proposed
+status: accepted
 date_proposed: 2026-07-02
+date_accepted: 2026-07-02
 author: fabio
+approvers: [fabio]
 tags: [incremental, cache, packs]
 affects:
   - internal/buildcache/**
