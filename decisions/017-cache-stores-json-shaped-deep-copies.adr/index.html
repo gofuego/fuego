@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The build cache stores JSON-shaped deep copies, degrading per page — ADR Documentation</title>
+  <base href="/gofuego/fuego/">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen">
+  <nav class="border-b border-gray-800 px-6 py-4">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <a href="." class="text-lg font-bold text-white hover:text-blue-400 transition-colors">ADR Documentation</a>
+      <div class="flex gap-6 text-sm text-gray-400">
+        <a href="." class="hover:text-white transition-colors">Home</a>
+        <a href="timeline" class="hover:text-white transition-colors">Timeline</a>
+        <a href="tags" class="hover:text-white transition-colors">Tags</a>
+        <a href="affects" class="hover:text-white transition-colors">Affected Files</a>
+      </div>
+    </div>
+  </nav>
+  <main class="max-w-4xl mx-auto px-6 py-8">
+    
+<article>
+  
+  <div class="mb-8">
+    <div class="flex items-center gap-3 mb-2">
+      <span class="text-sm font-mono text-gray-500">ADR-17</span>
+      
+      <span class="px-2 py-0.5 rounded text-xs font-semibold
+        bg-green-900 text-green-300
+        ">accepted</span>
+      
+    </div>
+    <h1 class="text-3xl font-bold text-white mb-4">The build cache stores JSON-shaped deep copies, degrading per page</h1>
+
+    
+    <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm text-gray-400 border-b border-gray-800 pb-4">
+      
+      <div><span class="text-gray-500">Author:</span> fabio</div>
+      
+      
+      <div><span class="text-gray-500">Proposed:</span> 2026-07-02</div>
+      
+      
+      <div><span class="text-gray-500">Approvers:</span> fabio</div>
+      
+      
+      <div><span class="text-gray-500">Accepted:</span> 2026-07-02</div>
+      
+      
+    </div>
+
+    
+    
+
+    
+    
+    <div class="mt-3 flex gap-2 flex-wrap">
+      
+      <a href="tags/incremental" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#incremental</a>
+      
+      <a href="tags/cache" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#cache</a>
+      
+      <a href="tags/packs" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#packs</a>
+      
+    </div>
+    
+  </div>
+
+  
+  <div class="prose prose-invert prose-sm max-w-none">
+    <div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Context</h2>
+  <div class="text-gray-300 leading-relaxed"><p>The cache's <code>ParsedPage</code> used to hold the <em>same</em> envelope and node references as
+the live <code>core.Page</code>, and the cache is saved at the end of the build — after
+every hook has mutated those pages in place. So the cache actually serialized
+post-hook state: hook-built values (<code>[]map[string]any</code> catalogs, backlink
+lists) reached the gob encoder unregistered and failed the whole cache write,
+and on a hit, restored pages carried the <em>previous</em> build's hook products, with
+output correctness resting on hooks happening to be idempotent. Separately,
+envelopes are <code>map[string]any</code> — parsers may store any Go type in them, but gob
+can only encode dynamic types that were registered, and a pack's private type
+can never be registered by the engine.</p>
+</div>
+</div>
+<div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Decision</h2>
+  <div class="text-gray-300 leading-relaxed"><p>The cache stores <strong>post-PARSE state only, by deep copy</strong>: both cache boundaries
+(snapshot after parsing, restore on a hit) copy the envelope and node tree, so
+hook mutation never reaches the cache and stale hook output never leaves it.</p>
+<p>Cacheable envelope values are <strong>JSON-shaped</strong>: the registered set is
+<code>map[string]any</code>, <code>[]any</code>, <code>[]map[string]any</code>, <code>map[string]string</code>,
+<code>[]map[string]string</code>, <code>[]string</code>, <code>[]int</code>, <code>[]float64</code>, <code>[]bool</code>, scalars, and
+<code>time.Time</code>. A page whose envelope holds any other concrete type is <strong>dropped
+from the cache individually</strong> — a permanent per-page miss, reported as a
+warning naming the page — never a build error, and never a failure of the whole
+cache write.</p>
+</div>
+</div>
+<div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Consequences</h2>
+  <div class="text-gray-300 leading-relaxed"><ul>
+<li><strong>+</strong> The cache honors its post-PARSE contract structurally; non-idempotent
+hooks are safe (locked in by <code>TestIncrementalCacheIsHookIsolated</code>).</li>
+<li><strong>+</strong> One exotic page costs itself cache reuse, not the whole site's.</li>
+<li><strong>−</strong> Parsers that store custom structs or pointers in envelopes silently
+lose caching for their pages; conforming (as fuego-dotclaude did) means
+shaping display data as JSON-shaped maps rather than named types.</li>
+<li><strong>−</strong> Snapshot and restore pay a deep-copy per page; envelope/node values
+outside the JSON-shaped set are shared by reference, so mutating <em>those</em> in a
+hook is still unsafe — the contract, not the copy, is the guarantee.</li>
+<li>Extends the miss-never-error posture of
+<a href="decisions/012-opt-in-incremental-builds.adr/">012</a> from whole-cache to per-page.</li>
+</ul>
+</div>
+</div>
+
+  </div>
+
+  
+  
+  <div class="mt-8 border-t border-gray-800 pt-6">
+    <h2 class="text-lg font-semibold text-white mb-3">Affected Files</h2>
+    <div class="space-y-1" data-affects-list>
+      
+      <div class="text-sm font-mono" data-affects-pattern="internal/buildcache/**">
+        <span class="text-gray-400">internal/buildcache/**</span>
+      </div>
+      
+      <div class="text-sm font-mono" data-affects-pattern="internal/parse/**">
+        <span class="text-gray-400">internal/parse/**</span>
+      </div>
+      
+    </div>
+  </div>
+  
+</article>
+
+  </main>
+  <script type="application/json" id="fuego-data">{"envelope":{"adr_number":17,"affects":["internal/buildcache/**","internal/parse/**"],"approvers":["fabio"],"author":["fabio"],"date_accepted":"2026-07-02","date_proposed":"2026-07-02","status":"accepted","tags":["incremental","cache","packs"],"title":"The build cache stores JSON-shaped deep copies, degrading per page"},"nodes":[{"type":"context","content":"\u003cp\u003eThe cache's \u003ccode\u003eParsedPage\u003c/code\u003e used to hold the \u003cem\u003esame\u003c/em\u003e envelope and node references as\nthe live \u003ccode\u003ecore.Page\u003c/code\u003e, and the cache is saved at the end of the build — after\nevery hook has mutated those pages in place. So the cache actually serialized\npost-hook state: hook-built values (\u003ccode\u003e[]map[string]any\u003c/code\u003e catalogs, backlink\nlists) reached the gob encoder unregistered and failed the whole cache write,\nand on a hit, restored pages carried the \u003cem\u003eprevious\u003c/em\u003e build's hook products, with\noutput correctness resting on hooks happening to be idempotent. Separately,\nenvelopes are \u003ccode\u003emap[string]any\u003c/code\u003e — parsers may store any Go type in them, but gob\ncan only encode dynamic types that were registered, and a pack's private type\ncan never be registered by the engine.\u003c/p\u003e\n","raw":true},{"type":"decision","content":"\u003cp\u003eThe cache stores \u003cstrong\u003epost-PARSE state only, by deep copy\u003c/strong\u003e: both cache boundaries\n(snapshot after parsing, restore on a hit) copy the envelope and node tree, so\nhook mutation never reaches the cache and stale hook output never leaves it.\u003c/p\u003e\n\u003cp\u003eCacheable envelope values are \u003cstrong\u003eJSON-shaped\u003c/strong\u003e: the registered set is\n\u003ccode\u003emap[string]any\u003c/code\u003e, \u003ccode\u003e[]any\u003c/code\u003e, \u003ccode\u003e[]map[string]any\u003c/code\u003e, \u003ccode\u003emap[string]string\u003c/code\u003e,\n\u003ccode\u003e[]map[string]string\u003c/code\u003e, \u003ccode\u003e[]string\u003c/code\u003e, \u003ccode\u003e[]int\u003c/code\u003e, \u003ccode\u003e[]float64\u003c/code\u003e, \u003ccode\u003e[]bool\u003c/code\u003e, scalars, and\n\u003ccode\u003etime.Time\u003c/code\u003e. A page whose envelope holds any other concrete type is \u003cstrong\u003edropped\nfrom the cache individually\u003c/strong\u003e — a permanent per-page miss, reported as a\nwarning naming the page — never a build error, and never a failure of the whole\ncache write.\u003c/p\u003e\n","raw":true},{"type":"consequences","content":"\u003cul\u003e\n\u003cli\u003e\u003cstrong\u003e+\u003c/strong\u003e The cache honors its post-PARSE contract structurally; non-idempotent\nhooks are safe (locked in by \u003ccode\u003eTestIncrementalCacheIsHookIsolated\u003c/code\u003e).\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e+\u003c/strong\u003e One exotic page costs itself cache reuse, not the whole site's.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e−\u003c/strong\u003e Parsers that store custom structs or pointers in envelopes silently\nlose caching for their pages; conforming (as fuego-dotclaude did) means\nshaping display data as JSON-shaped maps rather than named types.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e−\u003c/strong\u003e Snapshot and restore pay a deep-copy per page; envelope/node values\noutside the JSON-shaped set are shared by reference, so mutating \u003cem\u003ethose\u003c/em\u003e in a\nhook is still unsafe — the contract, not the copy, is the guarantee.\u003c/li\u003e\n\u003cli\u003eExtends the miss-never-error posture of\n\u003ca href=\"decisions/012-opt-in-incremental-builds.adr/\"\u003e012\u003c/a\u003e from whole-cache to per-page.\u003c/li\u003e\n\u003c/ul\u003e\n","raw":true}],"url":"/decisions/017-cache-stores-json-shaped-deep-copies.adr/"}</script>
+  <script src="app.js"></script>
+</body>
+</html>
+

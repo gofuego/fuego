@@ -181,6 +181,17 @@
             ],
             "title": "Internal link checking resolves against the built output",
             "url": "/decisions/016-internal-link-checking.adr/"
+          },
+          {
+            "number": 17,
+            "status": "accepted",
+            "tags": [
+              "incremental",
+              "cache",
+              "packs"
+            ],
+            "title": "The build cache stores JSON-shaped deep copies, degrading per page",
+            "url": "/decisions/017-cache-stores-json-shaped-deep-copies.adr/"
           }
         ],
         "inactive_adrs": null,
@@ -265,6 +276,11 @@
                 "number": 12,
                 "title": "Incremental builds are opt-in and provably equivalent",
                 "url": "/decisions/012-opt-in-incremental-builds.adr/"
+              },
+              {
+                "number": 17,
+                "title": "The build cache stores JSON-shaped deep copies, degrading per page",
+                "url": "/decisions/017-cache-stores-json-shaped-deep-copies.adr/"
               }
             ],
             "exists": true,
@@ -346,6 +362,11 @@
                 "number": 5,
                 "title": "Parser dispatch by extension or filename, not frontmatter type",
                 "url": "/decisions/005-extension-filename-parser-dispatch.adr/"
+              },
+              {
+                "number": 17,
+                "title": "The build cache stores JSON-shaped deep copies, degrading per page",
+                "url": "/decisions/017-cache-stores-json-shaped-deep-copies.adr/"
               }
             ],
             "exists": true,
@@ -904,6 +925,34 @@
       }
     },
     {
+      "url": "/decisions/017-cache-stores-json-shaped-deep-copies.adr/",
+      "type": "adr",
+      "layout": "adr",
+      "title": "The build cache stores JSON-shaped deep copies, degrading per page",
+      "envelope": {
+        "adr_number": 17,
+        "affects": [
+          "internal/buildcache/**",
+          "internal/parse/**"
+        ],
+        "approvers": [
+          "fabio"
+        ],
+        "author": [
+          "fabio"
+        ],
+        "date_accepted": "2026-07-02",
+        "date_proposed": "2026-07-02",
+        "status": "accepted",
+        "tags": [
+          "incremental",
+          "cache",
+          "packs"
+        ],
+        "title": "The build cache stores JSON-shaped deep copies, degrading per page"
+      }
+    },
+    {
       "url": "/tags/",
       "type": "taxonomy-index",
       "layout": "tag-index",
@@ -933,6 +982,17 @@
         "taxonomy": "tags",
         "term": "architecture",
         "title": "Tags: architecture"
+      }
+    },
+    {
+      "url": "/tags/cache/",
+      "type": "taxonomy-term",
+      "layout": "tag",
+      "title": "Tags: cache",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "cache",
+        "title": "Tags: cache"
       }
     },
     {
@@ -1174,6 +1234,14 @@
       "envelope": {
         "timeline_entries": [
           {
+            "date": "2026-07-02",
+            "number": 17,
+            "status": "accepted",
+            "supersedes": null,
+            "title": "The build cache stores JSON-shaped deep copies, degrading per page",
+            "url": "/decisions/017-cache-stores-json-shaped-deep-copies.adr/"
+          },
+          {
             "date": "2026-06-15",
             "number": 16,
             "status": "accepted",
@@ -1255,14 +1323,6 @@
           },
           {
             "date": "2026-05-20",
-            "number": 8,
-            "status": "accepted",
-            "supersedes": null,
-            "title": "Error accumulation with three severities, not fail-fast",
-            "url": "/decisions/008-error-accumulation-three-severities.adr/"
-          },
-          {
-            "date": "2026-05-20",
             "number": 9,
             "status": "accepted",
             "supersedes": null,
@@ -1276,6 +1336,14 @@
             "supersedes": null,
             "title": "Taxonomies and collections are virtual pages",
             "url": "/decisions/010-virtual-pages-for-taxonomies-collections.adr/"
+          },
+          {
+            "date": "2026-05-20",
+            "number": 8,
+            "status": "accepted",
+            "supersedes": null,
+            "title": "Error accumulation with three severities, not fail-fast",
+            "url": "/decisions/008-error-accumulation-three-severities.adr/"
           },
           {
             "date": "2026-05-20",
@@ -1326,6 +1394,9 @@
           14,
           15
         ],
+        "cache": [
+          18
+        ],
         "collections": [
           11
         ],
@@ -1354,7 +1425,8 @@
           8
         ],
         "incremental": [
-          13
+          13,
+          18
         ],
         "integration": [
           15
@@ -1363,7 +1435,8 @@
           15
         ],
         "packs": [
-          12
+          12,
+          18
         ],
         "parsing": [
           2,
