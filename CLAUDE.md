@@ -14,7 +14,7 @@ The core value proposition: **you define the format, Fuego handles the infrastru
 > AD-1→ADR-001, AD-2→ADR-002, AD-3→ADR-003, AD-4→ADR-004, AD-4b→ADR-005,
 > AD-4c→ADR-006, AD-5→ADR-007, AD-6→ADR-008, AD-7→ADR-009, AD-8→ADR-010,
 > AD-9→ADR-011, AD-10→ADR-012, AD-11→ADR-013, AD-12→ADR-014, AD-13→ADR-015,
-> AD-14→ADR-016.
+> AD-14→ADR-016, AD-15→ADR-017.
 
 ### AD-1: Universal AST with free-form node types
 
@@ -113,6 +113,12 @@ Nodes can be marked `Raw: true` to pass their content through the default render
 **Decision:** `fuego build --check-links` runs after output is written and resolves every `<a href>` exactly as a browser would — honoring each page's `<base href>` and the site base URL — then verifies the target exists in the output. It validates the shipped HTML, so it catches both dangling and base-escaping links from content or templates. Broken links are reported against the source page; warnings by default, `--strict-links` promotes them to a fatal error for CI. Anchors and external links are out of scope.
 
 **Why:** Catches broken internal links at build time, attributed to the file to edit — far more traceable than a runtime 404. Cheap (hash lookups over in-memory HTML); most valuable run with the real `--base-url`, which surfaces the base-escape class a root build can't see.
+
+### AD-15: The build cache stores JSON-shaped deep copies, degrading per page (ADR-017)
+
+**Decision:** Both cache boundaries deep-copy envelopes and node trees, so the cache holds post-PARSE state only — hook mutation never reaches it, stale hook output never leaves it. Cacheable envelope values are JSON-shaped (the gob-registered composite set in `internal/buildcache`); a page holding any other concrete type is dropped from the cache individually, warned by name — never a build error.
+
+**Why:** `ParsedPage` used to share references with live pages while the cache saved after hooks ran: hook-built values failed the whole gob encode, and cache hits restored the previous build's hook products, with correctness resting on hook idempotence. Deep copies make the contract structural; per-page degradation means one exotic envelope (a pack's private struct) costs that page its reuse, not the whole site's. Parsers wanting caching keep display data JSON-shaped.
 
 ## Project Structure
 
