@@ -34,6 +34,11 @@ func fixtureParserRegistry(fixtureName string) map[string]core.Parser {
 		parsers["env"] = &envParser{}
 	case "filename-parser":
 		parsers["dockerfile"] = &dockerfileParser{}
+	case "dispatch-specificity":
+		// A compiled "md" parser and a compiled parser claiming *.adr.md
+		// coexist: *.adr.md files must route to the adr parser (longest
+		// pattern beats the bare "md" extension), plain .md to markdown.
+		parsers["adr"] = &adrLiteParser{}
 	case "raw-node":
 		parsers["raw"] = &rawPassthroughParser{}
 	}
@@ -438,6 +443,31 @@ func (p *dockerfileParser) Parse(raw []byte) (core.Envelope, []core.Node, error)
 	}
 
 	return env, nodes, nil
+}
+
+// --- adrLiteParser: a filename-pattern parser claiming *.adr.md ---
+//
+// Stands in for the fuego-adr parser in the dispatch-specificity fixture: it
+// claims the compound suffix *.adr.md, which must beat the bare "md" extension
+// parser so ADR files never render as plain markdown.
+
+type adrLiteParser struct{}
+
+func (p *adrLiteParser) Type() string        { return "adr" }
+func (p *adrLiteParser) Filenames() []string { return []string{"*.adr.md"} }
+
+func (p *adrLiteParser) Parse(raw []byte) (core.Envelope, []core.Node, error) {
+	env, payload, err := core.SplitFrontmatter(raw)
+	if err != nil {
+		return nil, nil, err
+	}
+	if env == nil {
+		env = make(core.Envelope)
+	}
+	content := strings.TrimSpace(string(payload))
+	return env, []core.Node{
+		{Type: "decision", Content: content},
+	}, nil
 }
 
 // --- rawPassthroughParser: emits Raw nodes with a custom type ---

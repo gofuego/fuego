@@ -155,7 +155,7 @@ func TestParseAllWithParser(t *testing.T) {
 	absPath := writeTestFile(t, dir, "q1.trivia", "---\ntitle: Nash\ntype: trivia\n---\nQuestion text")
 
 	files := []discover.FileEntry{
-		{Path: absPath, RelPath: "q1.trivia", Ext: "trivia"},
+		{Path: absPath, RelPath: "q1.trivia", Ext: "trivia", MatchedParser: "trivia"},
 	}
 
 	parsers := map[string]core.Parser{
@@ -187,7 +187,7 @@ func TestParseAllDispatchByExtension(t *testing.T) {
 	absPath := writeTestFile(t, dir, "q1.card", "---\ntitle: Test\n---\nPayload")
 
 	files := []discover.FileEntry{
-		{Path: absPath, RelPath: "q1.card", Ext: "card"},
+		{Path: absPath, RelPath: "q1.card", Ext: "card", MatchedParser: "card"},
 	}
 
 	parsers := map[string]core.Parser{

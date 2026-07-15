@@ -1,0 +1,6 @@
+site:
+  name: Dispatch Specificity Test
+dirs:
+  content: content
+  theme: theme
+  output: build

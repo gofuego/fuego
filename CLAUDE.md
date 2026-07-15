@@ -14,7 +14,7 @@ The core value proposition: **you define the format, Fuego handles the infrastru
 > AD-1→ADR-001, AD-2→ADR-002, AD-3→ADR-003, AD-4→ADR-004, AD-4b→ADR-005,
 > AD-4c→ADR-006, AD-5→ADR-007, AD-6→ADR-008, AD-7→ADR-009, AD-8→ADR-010,
 > AD-9→ADR-011, AD-10→ADR-012, AD-11→ADR-013, AD-12→ADR-014, AD-13→ADR-015,
-> AD-14→ADR-016, AD-15→ADR-017.
+> AD-14→ADR-016, AD-15→ADR-017, AD-16→ADR-018.
 
 ### AD-1: Universal AST with free-form node types
 
@@ -119,6 +119,12 @@ Nodes can be marked `Raw: true` to pass their content through the default render
 **Decision:** Both cache boundaries deep-copy envelopes and node trees, so the cache holds post-PARSE state only — hook mutation never reaches it, stale hook output never leaves it. Cacheable envelope values are JSON-shaped (the gob-registered composite set in `internal/buildcache`); a page holding any other concrete type is dropped from the cache individually, warned by name — never a build error.
 
 **Why:** `ParsedPage` used to share references with live pages while the cache saved after hooks ran: hook-built values failed the whole gob encode, and cache hits restored the previous build's hook products, with correctness resting on hook idempotence. Deep copies make the contract structural; per-page degradation means one exotic envelope (a pack's private struct) costs that page its reuse, not the whole site's. Parsers wanting caching keep display data JSON-shaped.
+
+### AD-16: Specificity-ordered parser dispatch across a shared resolver (ADR-018)
+
+**Decision:** Filename-pattern claims are checked before bare-extension claims, in both discovery classification and parse dispatch; among multiple matching patterns the longest pattern string wins, ties resolving by existing parser precedence (user > later pack > earlier pack, declarative lowest). The claim logic lives in one resolver (`internal/dispatch`) consumed by both phases. `page.Type` remains the matched parser's `Type()`.
+
+**Why:** With reusable format parsers, claims overlap: a markdown parser claims `md` while an ADR parser claims `*.adr.md`. Extension-first dispatch silently routed `guide.adr.md` to markdown — the more specific claim never got a look. Longest-pattern-wins is deterministic where registration order is not, and a single resolver keeps "is this content?" and "who parses it?" from drifting apart. Behavior is unchanged for sites without overlapping claims. This amends AD-4b/AD-4c (ADR-005/006 lineage).
 
 ## Project Structure
 

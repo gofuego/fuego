@@ -27,7 +27,7 @@ func TestParseErrorLineReachesEngineError(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	file := discover.FileEntry{Path: path, RelPath: "broken.pos", Ext: "pos"}
+	file := discover.FileEntry{Path: path, RelPath: "broken.pos", Ext: "pos", MatchedParser: "pos"}
 	parsers := map[string]core.Parser{"pos": &lineReportingParser{}}
 
 	_, engErr := parseFile(file, parsers)

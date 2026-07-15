@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"gopkg.in/yaml.v3"
@@ -15,6 +16,7 @@ import (
 	"github.com/gofuego/fuego/internal/buildcache"
 	"github.com/gofuego/fuego/internal/config"
 	"github.com/gofuego/fuego/internal/discover"
+	"github.com/gofuego/fuego/internal/dispatch"
 	"github.com/gofuego/fuego/internal/index"
 	"github.com/gofuego/fuego/internal/linkcheck"
 	"github.com/gofuego/fuego/internal/manifest"
@@ -302,6 +304,27 @@ func hasSkipped(pages []*core.Page) bool {
 	return false
 }
 
+// parsersInPrecedenceOrder returns the resolved parsers ordered lowest
+// precedence first, so the dispatch resolver breaks equal-length pattern ties
+// the way the engine's merge does: declarative parsers (config-defined) rank
+// below compiled/pack parsers. Same-Type conflicts are already collapsed into
+// the parsers map upstream (user > later pack > earlier pack > declarative), so
+// only distinct parser types remain; within each tier they are ordered by Type
+// name for a deterministic, reproducible tie-break.
+func parsersInPrecedenceOrder(parsers map[string]core.Parser) []core.Parser {
+	var declarative, compiled []core.Parser
+	for _, p := range parsers {
+		if _, isDeclarative := p.(*parse.DeclarativeParser); isDeclarative {
+			declarative = append(declarative, p)
+		} else {
+			compiled = append(compiled, p)
+		}
+	}
+	sort.Slice(declarative, func(i, j int) bool { return declarative[i].Type() < declarative[j].Type() })
+	sort.Slice(compiled, func(i, j int) bool { return compiled[i].Type() < compiled[j].Type() })
+	return append(declarative, compiled...)
+}
+
 // RunUntil executes pipeline phases up to and including the given phase.
 // It does NOT clean the output directory — callers that render must do that themselves.
 func RunUntil(ctx context.Context, cfg *config.Config, compiledParsers map[string]core.Parser, hooks *core.Hooks, packs []core.Pack, prevParsed map[string]buildcache.ParsedPage, until Phase) (*Result, error) {
@@ -329,26 +352,16 @@ func RunUntil(ctx context.Context, cfg *config.Config, compiledParsers map[strin
 		return nil, err
 	}
 
-	registeredTypes := make(map[string]bool)
-	for name := range parsers {
-		registeredTypes[name] = true
-	}
-
-	// Collect filename patterns from parsers implementing FilenameParser
-	var filenamePatterns []discover.FilenamePattern
-	for _, p := range parsers {
-		if fp, ok := p.(core.FilenameParser); ok {
-			for _, pattern := range fp.Filenames() {
-				filenamePatterns = append(filenamePatterns, discover.FilenamePattern{
-					Pattern:    pattern,
-					ParserType: p.Type(),
-				})
-			}
-		}
-	}
+	// The dispatch resolver is the single claim rule DISCOVER and PARSE share.
+	// Build it from the parsers in ascending precedence order so equal-length
+	// pattern ties resolve as the engine's merge does (user > later pack >
+	// earlier pack > declarative). The compiled/pack precedence is already
+	// collapsed into `parsers` (one parser per Type), so we order the entries
+	// by Type name for a deterministic, reproducible tie-break.
+	resolver := dispatch.NewResolver(parsersInPrecedenceOrder(parsers))
 
 	// === DISCOVER ===
-	allFiles, err := discover.Walk(cfg, registeredTypes, filenamePatterns)
+	allFiles, err := discover.Walk(cfg, resolver)
 	if err != nil {
 		return nil, fmt.Errorf("discovering content: %w", err)
 	}

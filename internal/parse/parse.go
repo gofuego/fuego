@@ -163,11 +163,16 @@ func buildPage(file discover.FileEntry, parsers map[string]core.Parser, raw []by
 		Ext:        file.Ext,
 	}
 
-	// Parser dispatch: by extension, then by filename match
+	// Parser dispatch: use the parser the dispatch resolver assigned at
+	// DISCOVER (patterns before extension, longest pattern wins, ties by
+	// precedence). Type is the matched parser's Type(); Ext stays the literal
+	// extension. A raw asset that slipped into contentFiles has no matched
+	// parser, so Type falls back to the extension and it takes the raw path.
 	page.Type = file.Ext
 
-	parser, found := parsers[file.Ext]
-	if !found && file.MatchedParser != "" {
+	var parser core.Parser
+	var found bool
+	if file.MatchedParser != "" {
 		parser, found = parsers[file.MatchedParser]
 		if found {
 			page.Type = file.MatchedParser
