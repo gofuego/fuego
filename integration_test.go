@@ -41,6 +41,12 @@ func fixtureParserRegistry(fixtureName string) map[string]core.Parser {
 		parsers["adr"] = &adrLiteParser{}
 	case "raw-node":
 		parsers["raw"] = &rawPassthroughParser{}
+	case "tree-parser":
+		parsers["toytree"] = &toyTreeParser{}
+	case "tree-collision-sibling":
+		parsers["toytree"] = &collidingSiblingTreeParser{}
+	case "tree-collision-page":
+		parsers["toytree"] = &collidingPageTreeParser{}
 	}
 
 	return parsers
@@ -492,5 +498,163 @@ func (p *rawPassthroughParser) Parse(raw []byte) (core.Envelope, []core.Node, er
 
 	return env, []core.Node{
 		{Type: "prerendered", Content: content, Raw: true},
+	}, nil
+}
+
+// --- toyTreeParser: a TreeParser for .toytree files ---
+//
+// A .toytree file is YAML frontmatter (the root page's envelope) followed by
+// one node declaration per line:
+//
+//	<kind> <slug/path> | <Title> [| tags=a,b,c]
+//
+// kind is "group" or "leaf" (both just become a node Type). Each declaration is
+// inserted into a genuinely nested PageTree by its slug-path segments, so the
+// tree is multi-level (root → group → leaf) and children carry their own
+// envelopes — including tags, so a child appears on a taxonomy term page.
+type toyTreeParser struct{}
+
+func (p *toyTreeParser) Type() string { return "toytree" }
+
+// Parse satisfies core.Parser; the engine calls ParseTree instead once it
+// detects the TreeParser interface, so this is only a safety fallback.
+func (p *toyTreeParser) Parse(raw []byte) (core.Envelope, []core.Node, error) {
+	tree, err := p.ParseTree(raw)
+	if err != nil {
+		return nil, nil, err
+	}
+	return tree.Envelope, tree.Nodes, nil
+}
+
+func (p *toyTreeParser) ParseTree(raw []byte) (*core.PageTree, error) {
+	env, payload, err := core.SplitFrontmatter(raw)
+	if err != nil {
+		return nil, err
+	}
+	if env == nil {
+		env = make(core.Envelope)
+	}
+
+	root := &core.PageTree{
+		Envelope: env,
+		Nodes:    []core.Node{{Type: "toytree-root", Content: "index"}},
+		Children: map[string]*core.PageTree{},
+	}
+
+	for _, line := range strings.Split(strings.TrimSpace(string(payload)), "\n") {
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+		fields := strings.SplitN(line, " ", 2)
+		if len(fields) != 2 {
+			return nil, fmt.Errorf("bad toytree line: %q", line)
+		}
+		kind := fields[0]
+		parts := strings.Split(fields[1], "|")
+		slugPath := strings.TrimSpace(parts[0])
+		title := ""
+		if len(parts) > 1 {
+			title = strings.TrimSpace(parts[1])
+		}
+		childEnv := core.Envelope{"title": title}
+		if len(parts) > 2 {
+			if tagSpec := strings.TrimSpace(parts[2]); strings.HasPrefix(tagSpec, "tags=") {
+				var tags []any
+				for _, t := range strings.Split(strings.TrimPrefix(tagSpec, "tags="), ",") {
+					if t = strings.TrimSpace(t); t != "" {
+						tags = append(tags, t)
+					}
+				}
+				childEnv["tags"] = tags
+			}
+		}
+		node := insertTreeNode(root, slugPath)
+		node.Envelope = childEnv
+		node.Nodes = []core.Node{{Type: kind, Content: title}}
+	}
+
+	return root, nil
+}
+
+// insertTreeNode walks (creating as needed) the nested PageTree for a slug
+// path, returning the node at the leaf so the caller can fill its envelope.
+func insertTreeNode(root *core.PageTree, slugPath string) *core.PageTree {
+	cur := root
+	for _, seg := range strings.Split(slugPath, "/") {
+		if cur.Children == nil {
+			cur.Children = map[string]*core.PageTree{}
+		}
+		next, ok := cur.Children[seg]
+		if !ok {
+			next = &core.PageTree{}
+			cur.Children[seg] = next
+		}
+		cur = next
+	}
+	return cur
+}
+
+// collidingSiblingTreeParser returns a tree whose two children compose to the
+// same URL — a full-path key "a/b" alongside a nested "a" → "b" — so the
+// duplicate sibling slug surfaces through the engine's ROUTE collision check.
+type collidingSiblingTreeParser struct{}
+
+func (p *collidingSiblingTreeParser) Type() string { return "toytree" }
+func (p *collidingSiblingTreeParser) Parse(raw []byte) (core.Envelope, []core.Node, error) {
+	t, err := p.ParseTree(raw)
+	if err != nil {
+		return nil, nil, err
+	}
+	return t.Envelope, t.Nodes, nil
+}
+func (p *collidingSiblingTreeParser) ParseTree(raw []byte) (*core.PageTree, error) {
+	env, _, err := core.SplitFrontmatter(raw)
+	if err != nil {
+		return nil, err
+	}
+	if env == nil {
+		env = core.Envelope{}
+	}
+	return &core.PageTree{
+		Envelope: env,
+		Children: map[string]*core.PageTree{
+			"a/b": {Envelope: core.Envelope{"title": "Direct A/B"}},
+			"a": {Children: map[string]*core.PageTree{
+				"b": {Envelope: core.Envelope{"title": "Nested A then B"}},
+			}},
+		},
+	}, nil
+}
+
+// collidingPageTreeParser returns a tree with a child whose composed URL equals
+// an ordinary content page's URL, so the child-vs-page collision surfaces
+// through the engine's ROUTE collision check.
+type collidingPageTreeParser struct{}
+
+func (p *collidingPageTreeParser) Type() string { return "toytree" }
+func (p *collidingPageTreeParser) Parse(raw []byte) (core.Envelope, []core.Node, error) {
+	t, err := p.ParseTree(raw)
+	if err != nil {
+		return nil, nil, err
+	}
+	return t.Envelope, t.Nodes, nil
+}
+func (p *collidingPageTreeParser) ParseTree(raw []byte) (*core.PageTree, error) {
+	env, _, err := core.SplitFrontmatter(raw)
+	if err != nil {
+		return nil, err
+	}
+	if env == nil {
+		env = core.Envelope{}
+	}
+	// The spec artifact routes to /spec/ (filesystem mirror); this child then
+	// routes to /spec/clash/, which the fixture's content/spec/clash.md also
+	// claims.
+	return &core.PageTree{
+		Envelope: env,
+		Children: map[string]*core.PageTree{
+			"clash": {Envelope: core.Envelope{"title": "Tree Clash"}},
+		},
 	}, nil
 }

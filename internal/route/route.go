@@ -14,12 +14,48 @@ import (
 //  2. Config route pattern for the page's type
 //  3. Filesystem mirror (default)
 //
-// After resolution, it checks for URL collisions.
+// Pages expanded from a TreeParser (TreeSlugPath set) are resolved in a second
+// pass: their URL is the tree root's resolved URL joined with the child's
+// slug-path segments, so the root's three-tier routing — including the
+// index-file convention — is composed first and the whole tree hangs beneath
+// it. After resolution, it checks for URL collisions.
 func ResolveAll(pages []*core.Page, cfg *config.Config) []core.EngineError {
+	// Pass 1: resolve every ordinary page (including tree roots) so a root's
+	// URL exists before its children compose under it.
+	rootURLByRel := make(map[string]string)
 	for _, page := range pages {
+		if page.TreeSlugPath != "" {
+			continue
+		}
 		page.URL = resolveURL(page, cfg)
+		rootURLByRel[page.RelPath] = page.URL
 	}
+
+	// Pass 2: compose tree-child URLs under their root's resolved URL.
+	for _, page := range pages {
+		if page.TreeSlugPath == "" {
+			continue
+		}
+		page.URL = composeChildURL(rootURLByRel[page.TreeRootRel], page.TreeSlugPath)
+	}
+
 	return DetectCollisions(pages)
+}
+
+// composeChildURL joins a tree child's slug path under the root's resolved URL,
+// producing a normalized, trailing-slashed URL. An empty rootURL (no root page
+// resolved, which should not happen for a well-formed tree) falls back to a
+// root-relative path so the child still routes and any collision is visible.
+func composeChildURL(rootURL, slugPath string) string {
+	base := strings.TrimSuffix(rootURL, "/")
+	url := base + "/" + strings.Trim(slugPath, "/") + "/"
+	if !strings.HasPrefix(url, "/") {
+		url = "/" + url
+	}
+	for strings.Contains(url, "//") {
+		url = strings.ReplaceAll(url, "//", "/")
+	}
+	return url
 }
 
 func resolveURL(page *core.Page, cfg *config.Config) string {

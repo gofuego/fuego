@@ -1,0 +1,9 @@
+---
+title: Billing API
+tags: [api]
+---
+group tags/billing | Billing | tags=api,billing
+leaf tags/billing/get-invoice | Get Invoice | tags=api,invoice
+leaf tags/billing/list-invoices | List Invoices | tags=api
+group tags/payments | Payments | tags=api,payments
+leaf tags/payments/charge | Charge | tags=api,payments

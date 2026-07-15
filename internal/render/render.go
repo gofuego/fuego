@@ -139,6 +139,12 @@ func affected(p *core.Page, tc *TemplateCache, changed map[string]bool) bool {
 	if changed[p.RelPath] {
 		return true // content changed
 	}
+	// A tree child's content lives in its root artifact; when that artifact is
+	// reparsed (tree files are always reparsed in this slice), re-render the
+	// whole tree so an edited spec's pages update.
+	if p.TreeRootRel != "" && changed[p.TreeRootRel] {
+		return true
+	}
 	return tc.UsesSitePages(tc.GetLayout(p.Layout)) // depends on the site page list
 }
 

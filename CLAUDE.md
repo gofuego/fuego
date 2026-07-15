@@ -14,7 +14,7 @@ The core value proposition: **you define the format, Fuego handles the infrastru
 > AD-1→ADR-001, AD-2→ADR-002, AD-3→ADR-003, AD-4→ADR-004, AD-4b→ADR-005,
 > AD-4c→ADR-006, AD-5→ADR-007, AD-6→ADR-008, AD-7→ADR-009, AD-8→ADR-010,
 > AD-9→ADR-011, AD-10→ADR-012, AD-11→ADR-013, AD-12→ADR-014, AD-13→ADR-015,
-> AD-14→ADR-016, AD-15→ADR-017, AD-16→ADR-018.
+> AD-14→ADR-016, AD-15→ADR-017, AD-16→ADR-018, AD-17→ADR-019.
 
 ### AD-1: Universal AST with free-form node types
 
@@ -126,11 +126,40 @@ Nodes can be marked `Raw: true` to pass their content through the default render
 
 **Why:** With reusable format parsers, claims overlap: a markdown parser claims `md` while an ADR parser claims `*.adr.md`. Extension-first dispatch silently routed `guide.adr.md` to markdown — the more specific claim never got a look. Longest-pattern-wins is deterministic where registration order is not, and a single resolver keeps "is this content?" and "who parses it?" from drifting apart. Behavior is unchanged for sites without overlapping claims. This amends AD-4b/AD-4c (ADR-005/006 lineage).
 
+### AD-17: TreeParser expands one artifact into a tree of real pages (ADR-019)
+
+**Decision:** A new optional interface alongside `Parser`, `core.TreeParser`,
+returns a `core.PageTree` — a root (envelope + nodes) plus `Children` keyed by
+relative slug path, nested arbitrarily. The engine detects it by interface
+assertion at PARSE (no registration change; plain `Parser`s are untouched) and
+expands each tree node into a **real `core.Page`**: child `RelPath` =
+source file's `RelPath` + "/" + slug path (child `SourcePath` is the artifact);
+child `URL` = the root's routed URL + slug-path segments, composed in a second
+ROUTE pass **after** the root goes through the normal three-tier routing (so the
+index-file convention AD-13 on the root is honored). Children carry their own
+envelopes, so taxonomies/collections/pagination see them natively through INDEX.
+Sibling-slug collisions inside a tree and child-vs-page collisions surface
+through the existing ROUTE/INDEX collision detection (GlobalFatal). This retires
+"one file = one page" as a parse-contract invariant (amends AD-4/ADR-004).
+
+**Why:** A rich artifact (an OpenAPI spec, a DBML schema) deserves to be a whole
+*section* — an index plus a routed, taxonomy-visible, stably-URL'd page per
+operation/table/suite. The prior virtual-page workaround produced pages
+taxonomies couldn't see and incremental builds re-rendered constantly. **Scope
+of this slice:** the manifest still lists each child with its own `RelPath`-based
+`source_path` (multi-entry mapping to the shared artifact is deferred, amending
+AD-12/ADR-014), and tree-parsed files are **excluded from the build cache** —
+reparsed every build, warned per file — because a multi-page file has no
+single-entry cache representation yet (amending AD-15/ADR-017); both are the
+next slice's work, and clean/incremental byte-equivalence stays green in the
+interim. Envelope convention for library tree parsers: JSON-shaped values only;
+a missing per-child layout falls back to the base template silently.
+
 ## Project Structure
 
 ```
 fuego/
-  core/                    Shared types (Page, Node, Parser, Pack, Hooks, Errors, Paginator, ParseError, SplitFrontmatter, Wrappers)
+  core/                    Shared types (Page, Node, Parser, Pack, Hooks, Errors, Paginator, ParseError, SplitFrontmatter, Wrappers, PageTree, TreeParser)
   engine/                  Public API: CLI (Run) + programmatic build (Build/Serve/Validate, BuildOptions); Register, Use, AfterParse, Index, BeforeRender
   parsers/markdown/        First-party Markdown parser (opt-in, not built-in)
   cmd/fuego/               CLI binary entry point

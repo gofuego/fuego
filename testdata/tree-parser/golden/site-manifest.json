@@ -1,0 +1,186 @@
+{
+  "content_root": "testdata/tree-parser/input/content",
+  "pages": [
+    {
+      "url": "/",
+      "type": "md",
+      "source_path": "index.md",
+      "output_path": "index.html",
+      "title": "Home",
+      "envelope": {
+        "title": "Home"
+      }
+    },
+    {
+      "url": "/api/",
+      "type": "toytree",
+      "source_path": "api.toytree",
+      "output_path": "api/index.html",
+      "title": "Billing API",
+      "envelope": {
+        "tags": [
+          "api"
+        ],
+        "title": "Billing API"
+      }
+    },
+    {
+      "url": "/api/tags/",
+      "type": "toytree",
+      "source_path": "api.toytree/tags",
+      "output_path": "api/tags/index.html"
+    },
+    {
+      "url": "/api/tags/billing/",
+      "type": "toytree",
+      "source_path": "api.toytree/tags/billing",
+      "output_path": "api/tags/billing/index.html",
+      "title": "Billing",
+      "envelope": {
+        "tags": [
+          "api",
+          "billing"
+        ],
+        "title": "Billing"
+      }
+    },
+    {
+      "url": "/api/tags/billing/get-invoice/",
+      "type": "toytree",
+      "source_path": "api.toytree/tags/billing/get-invoice",
+      "output_path": "api/tags/billing/get-invoice/index.html",
+      "title": "Get Invoice",
+      "envelope": {
+        "tags": [
+          "api",
+          "invoice"
+        ],
+        "title": "Get Invoice"
+      }
+    },
+    {
+      "url": "/api/tags/billing/list-invoices/",
+      "type": "toytree",
+      "source_path": "api.toytree/tags/billing/list-invoices",
+      "output_path": "api/tags/billing/list-invoices/index.html",
+      "title": "List Invoices",
+      "envelope": {
+        "tags": [
+          "api"
+        ],
+        "title": "List Invoices"
+      }
+    },
+    {
+      "url": "/api/tags/payments/",
+      "type": "toytree",
+      "source_path": "api.toytree/tags/payments",
+      "output_path": "api/tags/payments/index.html",
+      "title": "Payments",
+      "envelope": {
+        "tags": [
+          "api",
+          "payments"
+        ],
+        "title": "Payments"
+      }
+    },
+    {
+      "url": "/api/tags/payments/charge/",
+      "type": "toytree",
+      "source_path": "api.toytree/tags/payments/charge",
+      "output_path": "api/tags/payments/charge/index.html",
+      "title": "Charge",
+      "envelope": {
+        "tags": [
+          "api",
+          "payments"
+        ],
+        "title": "Charge"
+      }
+    },
+    {
+      "url": "/tags/",
+      "type": "taxonomy-index",
+      "layout": "tag-index",
+      "output_path": "tags/index.html",
+      "title": "All Tags",
+      "envelope": {
+        "taxonomy": "tags",
+        "title": "All Tags"
+      }
+    },
+    {
+      "url": "/tags/api/",
+      "type": "taxonomy-term",
+      "layout": "tag",
+      "output_path": "tags/api/index.html",
+      "title": "Tags: api",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "api",
+        "title": "Tags: api"
+      }
+    },
+    {
+      "url": "/tags/billing/",
+      "type": "taxonomy-term",
+      "layout": "tag",
+      "output_path": "tags/billing/index.html",
+      "title": "Tags: billing",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "billing",
+        "title": "Tags: billing"
+      }
+    },
+    {
+      "url": "/tags/invoice/",
+      "type": "taxonomy-term",
+      "layout": "tag",
+      "output_path": "tags/invoice/index.html",
+      "title": "Tags: invoice",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "invoice",
+        "title": "Tags: invoice"
+      }
+    },
+    {
+      "url": "/tags/payments/",
+      "type": "taxonomy-term",
+      "layout": "tag",
+      "output_path": "tags/payments/index.html",
+      "title": "Tags: payments",
+      "envelope": {
+        "taxonomy": "tags",
+        "term": "payments",
+        "title": "Tags: payments"
+      }
+    }
+  ],
+  "taxonomies": {
+    "tags": {
+      "terms": {
+        "api": [
+          1,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "billing": [
+          3
+        ],
+        "invoice": [
+          4
+        ],
+        "payments": [
+          6,
+          7
+        ]
+      }
+    }
+  }
+}

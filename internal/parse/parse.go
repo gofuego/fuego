@@ -5,7 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path"
 	"runtime"
+	"sort"
 	"strings"
 
 	"github.com/gofuego/fuego/core"
@@ -34,11 +36,18 @@ func ParseAll(ctx context.Context, files []discover.FileEntry, parsers map[strin
 // the compacted pages and errors, the fresh page map to persist (covering
 // exactly the current files), and reuse statistics. prev may be nil.
 func ParseAllCached(ctx context.Context, files []discover.FileEntry, parsers map[string]core.Parser, prev map[string]buildcache.ParsedPage) ([]*core.Page, []core.EngineError, map[string]buildcache.ParsedPage, CacheStats) {
-	pages := make([]*core.Page, len(files))
+	// pages[idx] holds every page produced from file idx: one entry for an
+	// ordinary file, a root-plus-children slice for a TreeParser file.
+	pages := make([][]*core.Page, len(files))
 	errs := make([]core.EngineError, len(files))
 	hasErr := make([]bool, len(files))
 	cached := make([]buildcache.ParsedPage, len(files))
 	reused := make([]bool, len(files))
+	// isTree[idx] marks files expanded by a TreeParser. Their multi-page output
+	// has no single-entry cache representation yet (issue 04), so they are
+	// excluded from the cache — a per-page degradation, warned — keeping
+	// clean/incremental byte-equivalence green.
+	isTree := make([]bool, len(files))
 
 	g, ctx := errgroup.WithContext(ctx)
 	g.SetLimit(runtime.NumCPU())
@@ -58,29 +67,36 @@ func ParseAllCached(ctx context.Context, files []discover.FileEntry, parsers map
 
 			if prev != nil {
 				if cp, ok := prev[file.RelPath]; ok && cp.ContentHash == hash {
-					pages[idx] = pageFromCache(file, cp)
+					pages[idx] = []*core.Page{pageFromCache(file, cp)}
 					cached[idx] = cp
 					reused[idx] = true
 					return nil
 				}
 			}
 
-			page, engErr := buildPage(file, parsers, raw)
+			built, tree, engErr := buildPages(file, parsers, raw)
 			if engErr != nil {
 				errs[idx] = *engErr
 				hasErr[idx] = true
 				return nil
 			}
-			pages[idx] = page
+			pages[idx] = built
+			isTree[idx] = tree
+			if tree {
+				// Not cacheable in this slice; leave cached[idx] zero and skip
+				// storing it in newMap below.
+				return nil
+			}
+			root := built[0]
 			// Snapshot by deep copy: hooks mutate live pages in place after
 			// PARSE, and the cache must store post-PARSE state only.
 			cached[idx] = buildcache.ClonePage(buildcache.ParsedPage{
 				ContentHash: hash,
-				Envelope:    page.Envelope,
-				Nodes:       page.Nodes,
-				Type:        page.Type,
-				Layout:      page.Layout,
-				IsRaw:       page.IsRaw,
+				Envelope:    root.Envelope,
+				Nodes:       root.Nodes,
+				Type:        root.Type,
+				Layout:      root.Layout,
+				IsRaw:       root.IsRaw,
 			})
 			return nil
 		})
@@ -90,6 +106,7 @@ func ParseAllCached(ctx context.Context, files []discover.FileEntry, parsers map
 
 	var validPages []*core.Page
 	var validErrs []core.EngineError
+	var treeUncached []string
 	newMap := make(map[string]buildcache.ParsedPage, len(files))
 	stats := CacheStats{Changed: map[string]bool{}}
 
@@ -98,17 +115,29 @@ func ParseAllCached(ctx context.Context, files []discover.FileEntry, parsers map
 			validErrs = append(validErrs, errs[i])
 			continue
 		}
-		if pages[i] == nil {
+		if len(pages[i]) == 0 {
 			continue
 		}
-		validPages = append(validPages, pages[i])
-		newMap[files[i].RelPath] = cached[i]
+		validPages = append(validPages, pages[i]...)
 		if reused[i] {
 			stats.Reused++
-		} else {
-			stats.Parsed++
-			stats.Changed[files[i].RelPath] = true
+			newMap[files[i].RelPath] = cached[i]
+			continue
 		}
+		stats.Parsed++
+		stats.Changed[files[i].RelPath] = true
+		if isTree[i] {
+			// Excluded from the cache; every build reparses it (see isTree).
+			treeUncached = append(treeUncached, files[i].RelPath)
+			continue
+		}
+		newMap[files[i].RelPath] = cached[i]
+	}
+
+	if len(treeUncached) > 0 {
+		sort.Strings(treeUncached)
+		fmt.Fprintf(os.Stderr, "fuego: warning: %d tree-parsed file(s) excluded from the build cache (reparsed every build): %s\n",
+			len(treeUncached), strings.Join(treeUncached, ", "))
 	}
 
 	return validPages, validErrs, newMap, stats
@@ -152,11 +181,18 @@ func parseFile(file discover.FileEntry, parsers map[string]core.Parser) (*core.P
 			Err:      fmt.Errorf("reading file: %w", err),
 		}
 	}
-	return buildPage(file, parsers, raw)
+	built, _, engErr := buildPages(file, parsers, raw)
+	if engErr != nil {
+		return nil, engErr
+	}
+	return built[0], nil
 }
 
-// buildPage parses already-read file bytes into a post-PARSE page.
-func buildPage(file discover.FileEntry, parsers map[string]core.Parser, raw []byte) (*core.Page, *core.EngineError) {
+// buildPages parses already-read file bytes into post-PARSE pages. Ordinary
+// parsers yield a single page; a parser also implementing core.TreeParser
+// yields the routed root page plus one real page per tree node, and reports
+// isTree=true so the cache can exclude the multi-page file (issue 04).
+func buildPages(file discover.FileEntry, parsers map[string]core.Parser, raw []byte) (built []*core.Page, isTree bool, _ *core.EngineError) {
 	page := &core.Page{
 		SourcePath: file.Path,
 		RelPath:    file.RelPath,
@@ -180,9 +216,20 @@ func buildPage(file discover.FileEntry, parsers map[string]core.Parser, raw []by
 	}
 
 	if found {
+		// TreeParser detection is a plain interface assertion at PARSE: a parser
+		// implementing it expands one artifact into a tree of real pages. Plain
+		// Parsers are untouched (no registration change).
+		if tp, ok := parser.(core.TreeParser); ok {
+			pages, engErr := buildTreePages(file, tp, raw, page.Type)
+			if engErr != nil {
+				return nil, false, engErr
+			}
+			return pages, true, nil
+		}
+
 		envelope, nodes, err := parser.Parse(raw)
 		if err != nil {
-			return nil, &core.EngineError{
+			return nil, false, &core.EngineError{
 				Phase:    "PARSE",
 				File:     file.RelPath,
 				Line:     parseErrorLine(err),
@@ -209,7 +256,7 @@ func buildPage(file discover.FileEntry, parsers map[string]core.Parser, raw []by
 		// Raw passthrough: split frontmatter for metadata, use payload as content
 		envelope, payload, fmErr := core.SplitFrontmatter(raw)
 		if fmErr != nil {
-			return nil, &core.EngineError{
+			return nil, false, &core.EngineError{
 				Phase:    "PARSE",
 				File:     file.RelPath,
 				Line:     parseErrorLine(fmErr),
@@ -236,5 +283,104 @@ func buildPage(file discover.FileEntry, parsers map[string]core.Parser, raw []by
 		}
 	}
 
-	return page, nil
+	return []*core.Page{page}, false, nil
+}
+
+// buildTreePages calls a TreeParser and flattens the returned PageTree into
+// the routed root page plus one real core.Page per tree node. The root carries
+// the tree's own Envelope/Nodes; each child's RelPath is the source file's
+// RelPath joined with its slug path, and its TreeRootRel/TreeSlugPath are set
+// so ROUTE can compose its URL under the root's resolved URL. Children flow
+// through the pipeline as ordinary pages from here on.
+func buildTreePages(file discover.FileEntry, tp core.TreeParser, raw []byte, pageType string) ([]*core.Page, *core.EngineError) {
+	tree, err := tp.ParseTree(raw)
+	if err != nil {
+		return nil, &core.EngineError{
+			Phase:    "PARSE",
+			File:     file.RelPath,
+			Line:     parseErrorLine(err),
+			Severity: core.LocalFatal,
+			Err:      fmt.Errorf("parser %q: %w", pageType, err),
+		}
+	}
+	if tree == nil {
+		return nil, &core.EngineError{
+			Phase:    "PARSE",
+			File:     file.RelPath,
+			Severity: core.LocalFatal,
+			Err:      fmt.Errorf("parser %q: ParseTree returned a nil tree", pageType),
+		}
+	}
+
+	root := &core.Page{
+		SourcePath: file.Path,
+		RelPath:    file.RelPath,
+		Ext:        file.Ext,
+		Type:       pageType,
+	}
+	applyTreeNode(root, tree.Envelope, tree.Nodes)
+
+	pages := []*core.Page{root}
+	// Walk children depth-first in sorted slug-path order for determinism.
+	pages = appendTreeChildren(pages, file, tree.Children, "", pageType)
+	return pages, nil
+}
+
+// appendTreeChildren expands one level of a PageTree's children (each keyed by
+// a relative slug path) into real pages, recursing into nested trees. prefix is
+// the slug path accumulated from ancestor keys.
+func appendTreeChildren(pages []*core.Page, file discover.FileEntry, children map[string]*core.PageTree, prefix, pageType string) []*core.Page {
+	for _, key := range sortedTreeKeys(children) {
+		child := children[key]
+		if child == nil {
+			continue
+		}
+		slugPath := path.Join(prefix, key)
+		p := &core.Page{
+			// Child identity: source file's RelPath + "/" + slug path. Its
+			// source is the artifact itself (manifest multi-entry mapping is
+			// issue 04), so SourcePath is the artifact's path.
+			SourcePath:   file.Path,
+			RelPath:      path.Join(filepathToSlash(file.RelPath), slugPath),
+			Ext:          file.Ext,
+			Type:         pageType,
+			TreeRootRel:  file.RelPath,
+			TreeSlugPath: slugPath,
+		}
+		applyTreeNode(p, child.Envelope, child.Nodes)
+		pages = append(pages, p)
+		pages = appendTreeChildren(pages, file, child.Children, slugPath, pageType)
+	}
+	return pages
+}
+
+// applyTreeNode copies a tree node's envelope and nodes onto a page and applies
+// the same envelope conventions PARSE uses for ordinary pages (layout, type).
+func applyTreeNode(p *core.Page, envelope core.Envelope, nodes []core.Node) {
+	if envelope == nil {
+		envelope = make(core.Envelope)
+	}
+	p.Envelope = envelope
+	p.Nodes = nodes
+	if l, ok := envelope["layout"].(string); ok && l != "" {
+		p.Layout = l
+	}
+	if t, ok := envelope["type"].(string); ok && t != "" {
+		p.Type = t
+	}
+}
+
+func sortedTreeKeys(m map[string]*core.PageTree) []string {
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	return keys
+}
+
+// filepathToSlash converts an OS path to forward slashes so tree RelPaths are
+// composed consistently regardless of platform.
+func filepathToSlash(p string) string {
+	return strings.ReplaceAll(p, "\\", "/")
 }
