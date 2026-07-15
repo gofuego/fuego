@@ -37,6 +37,36 @@ func TestSaveLoadRoundTrip(t *testing.T) {
 	}
 }
 
+func TestSaveLoadTreeRoundTrip(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "cache.bin")
+
+	c := New(Header{BinaryID: "bin", ConfigHash: "cfg", ThemeHash: "thm"})
+	// A whole tree stored under the root file's single content-hash entry: root
+	// fields plus one TreeNode per child.
+	c.Pages["api.tree"] = ParsedPage{
+		ContentHash: "h1",
+		Envelope:    core.Envelope{"title": "Root"},
+		Nodes:       []core.Node{{Type: "tree", Content: "root"}},
+		Type:        "tree",
+		Tree: []TreeNode{
+			{TreeSlugPath: "a", Envelope: core.Envelope{"title": "A"}, Nodes: []core.Node{{Type: "tree", Content: "a"}}, Type: "tree"},
+			{TreeSlugPath: "b/c", Envelope: core.Envelope{"title": "C"}, Type: "tree"},
+		},
+	}
+
+	if _, err := Save(path, c); err != nil {
+		t.Fatal(err)
+	}
+	got, ok := Load(path)
+	if !ok {
+		t.Fatal("expected cache to load")
+	}
+	if !reflect.DeepEqual(got.Pages["api.tree"], c.Pages["api.tree"]) {
+		t.Errorf("tree round-trip mismatch:\n got %#v\nwant %#v", got.Pages["api.tree"], c.Pages["api.tree"])
+	}
+}
+
 func TestValidHeader(t *testing.T) {
 	h := Header{BinaryID: "bin", ConfigHash: "cfg", ThemeHash: "thm"}
 	c := New(h)

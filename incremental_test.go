@@ -50,6 +50,31 @@ func TestIncrementalEquivalence(t *testing.T) {
 		{"touch-config", func(t *testing.T, in string) {
 			write(t, filepath.Join(in, "config.yaml"), controlledConfig("Renamed Site"))
 		}},
+		// --- TreeParser mutation classes (issue 04) ---
+		{"edit-artifact", func(t *testing.T, in string) {
+			// Change the artifact: add a child and retitle the root. The whole
+			// tree must re-parse and re-render; output must match a clean build.
+			write(t, filepath.Join(in, "content/api.toytree"),
+				"---\ntitle: API v2\ntags: [api]\n---\n"+
+					"group tags/billing | Billing | tags=api,billing\n"+
+					"leaf tags/billing/get | Get Invoice | tags=api,invoice\n"+
+					"leaf tags/payments/charge | Charge | tags=api,payments\n")
+		}},
+		{"unrelated-edit-tree-skipped", func(t *testing.T, in string) {
+			// Editing an unrelated markdown page must leave the artifact's tree
+			// untouched (byte-identical); the narrowing itself is asserted in
+			// TestIncrementalNarrowsTree.
+			appendFile(t, filepath.Join(in, "content/posts/alpha.md"), "\n\nUnrelated.\n")
+		}},
+		{"rename-artifact", func(t *testing.T, in string) {
+			// A rename is a delete + add: the old tree's outputs must be removed
+			// and the new artifact's tree written under its new route.
+			os.Rename(filepath.Join(in, "content/api.toytree"),
+				filepath.Join(in, "content/service.toytree"))
+		}},
+		{"delete-artifact", func(t *testing.T, in string) {
+			os.Remove(filepath.Join(in, "content/service.toytree"))
+		}},
 	}
 
 	for _, m := range mutations {
@@ -115,6 +140,78 @@ taxonomies:
 	}
 	if !rewritten("tags/go/index.html") {
 		t.Error("virtual taxonomy page was not re-rendered (must always re-render)")
+	}
+}
+
+// TestIncrementalNarrowsTree proves the tree-aware narrowing: after editing an
+// UNRELATED page, an unchanged artifact's whole tree must be skipped (restored
+// from cache, not re-rendered); after editing the artifact, exactly its tree
+// (root + children) is re-rendered. Detected via mtimes reset to a known epoch.
+func TestIncrementalNarrowsTree(t *testing.T) {
+	input := t.TempDir()
+	// A site-blind theme so ordinary pages don't depend on the site page list;
+	// only content/artifact changes drive re-rendering.
+	write(t, filepath.Join(input, "config.yaml"), "site:\n  name: Blind\n")
+	write(t, filepath.Join(input, "theme/base.html"),
+		"<html><body>{{block \"content\" .}}{{.Page.Content}}{{end}}</body></html>")
+	write(t, filepath.Join(input, "content/page.md"), "---\ntitle: Page\n---\nBody.\n")
+	write(t, filepath.Join(input, "content/api.toytree"),
+		"---\ntitle: API\n---\n"+
+			"group ops | Ops\n"+
+			"leaf ops/get | Get\n")
+
+	out, cache := t.TempDir(), t.TempDir()
+	buildSite(t, input, out, cache, true) // cold
+
+	epoch := time.Unix(1000000, 0)
+	resetMtimes := func() {
+		filepath.WalkDir(out, func(p string, d os.DirEntry, err error) error {
+			if err == nil && !d.IsDir() {
+				os.Chtimes(p, epoch, epoch)
+			}
+			return nil
+		})
+	}
+	rewritten := func(rel string) bool {
+		info, err := os.Stat(filepath.Join(out, rel))
+		if err != nil {
+			t.Fatalf("stat %s: %v", rel, err)
+		}
+		return info.ModTime().After(epoch)
+	}
+
+	treeOutputs := []string{
+		"api/index.html", "api/ops/index.html", "api/ops/get/index.html",
+	}
+
+	// 1) Edit only the unrelated markdown page: the artifact's whole tree must
+	//    be skipped (restored from cache, not re-rendered).
+	resetMtimes()
+	appendFile(t, filepath.Join(input, "content/page.md"), "\nmore.\n")
+	buildSite(t, input, out, cache, true)
+	if !rewritten("page/index.html") {
+		t.Error("edited unrelated page was not re-rendered")
+	}
+	for _, rel := range treeOutputs {
+		if rewritten(rel) {
+			t.Errorf("unchanged artifact's tree page %s was re-rendered; narrowing should have skipped the whole tree", rel)
+		}
+	}
+
+	// 2) Edit the artifact: exactly its tree (root + children) must re-render.
+	resetMtimes()
+	appendFile(t, filepath.Join(input, "content/api.toytree"), "leaf ops/list | List\n")
+	buildSite(t, input, out, cache, true)
+	for _, rel := range treeOutputs {
+		if !rewritten(rel) {
+			t.Errorf("edited artifact's tree page %s was not re-rendered", rel)
+		}
+	}
+	if !rewritten("api/ops/list/index.html") {
+		t.Error("newly added tree child was not rendered")
+	}
+	if rewritten("page/index.html") {
+		t.Error("unrelated page was re-rendered when only the artifact changed")
 	}
 }
 
@@ -221,7 +318,10 @@ func buildSite(t *testing.T, inputDir, outputDir, cacheDir string, incremental b
 	cfg.Dirs.Static = filepath.Join(inputDir, cfg.Dirs.Static)
 	cfg.Dirs.Output = outputDir
 
-	parsers := map[string]core.Parser{"md": markdown.Parser()}
+	parsers := map[string]core.Parser{
+		"md":      markdown.Parser(),
+		"toytree": &toyTreeParser{}, // a TreeParser (see integration_test.go)
+	}
 	err = pipeline.Build(context.Background(), cfg, parsers, nil, nil, pipeline.Options{
 		Incremental: incremental,
 		CacheDir:    cacheDir,
@@ -292,6 +392,17 @@ collections:
 `
 }
 
+// controlledArtifact is the .toytree body the controlled site starts with. Its
+// frontmatter is the root page's envelope; each line is a tree child (see the
+// toyTreeParser doc in integration_test.go).
+func controlledArtifact() string {
+	return "---\ntitle: API\ntags: [api]\n---\n" +
+		"group tags/billing | Billing | tags=api,billing\n" +
+		"leaf tags/billing/get | Get Invoice | tags=api,invoice\n" +
+		"leaf tags/billing/list | List Invoices | tags=api\n" +
+		"group tags/payments | Payments | tags=api,payments\n"
+}
+
 func writeControlledSite(t *testing.T, dir string) {
 	t.Helper()
 	write(t, filepath.Join(dir, "config.yaml"), controlledConfig("Controlled Site"))
@@ -313,6 +424,12 @@ func writeControlledSite(t *testing.T, dir string) {
 	write(t, filepath.Join(dir, "content/index.md"), "---\ntitle: Home\n---\n\nWelcome.\n")
 	write(t, filepath.Join(dir, "content/posts/alpha.md"), "---\ntitle: Alpha\ntags: [go, web]\n---\n\nAlpha body.\n")
 	write(t, filepath.Join(dir, "content/posts/beta.md"), "---\ntitle: Beta\ntags: [go]\n---\n\nBeta body.\n")
+
+	// A TreeParser artifact: one file expands into a routed section (root + a
+	// tree of real pages), so the incremental suite exercises the multi-page
+	// cache/manifest path under every mutation class. Children carry tags, so
+	// they also flow through the site's taxonomies.
+	write(t, filepath.Join(dir, "content/api.toytree"), controlledArtifact())
 	for i, n := range []string{"one", "two", "three"} {
 		write(t, filepath.Join(dir, "content/notes/"+n+".note"),
 			"---\ntitle: Note "+n+"\norder: "+string(rune('1'+i))+"\n---\n! step "+n+"\n")

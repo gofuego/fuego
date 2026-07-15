@@ -74,27 +74,32 @@ envelope values are JSON-shaped so tree pages stay cache-eligible under
 layout falls back to the base template silently; parsers never emit slugs or
 routes.
 
-**Scope of this slice, and its forward amendments.** Two consumers of the parse
-contract are only partly updated here; the full design is stated now and lands
-in the next slice:
+**Host-facing surfaces, and the decisions they amend.** Two consumers of the
+parse contract are extended to the multi-page shape:
 
-- **Manifest ([014](014-manifest-as-host-integration-contract.adr.md)).** The
-  end state is that every page of a tree lists the **shared source file** as its
+- **Manifest ([014](014-manifest-as-host-integration-contract.adr.md)).** Every
+  page of a tree lists the **shared root artifact's `RelPath`** as its
   `source_path` — a deliberate, versioned move to *multiple manifest entries per
-  source*, after which fuego-studio's editability guard treats each child as
-  editable-as-the-artifact. This slice does **not** implement that: a child's
-  `source_path` is still derived from its own composite `RelPath`. Amending
-  ADR-014 to the multi-entry contract is the next slice's work.
+  source*, after which fuego-studio's `SourcePath != ""` editability guard treats
+  each child as editable-as-the-artifact (clicking edit on an operation page opens
+  the spec that defines it). Root and children stay distinguishable by their
+  differing `url`/`output_path`; sorted-by-URL determinism is unchanged. This
+  amends ADR-014's single-entry-per-source assumption.
 - **Build cache ([017](017-cache-stores-json-shaped-deep-copies.adr.md)).** The
-  end state is that the cache stores *all* pages of a file under that file's
-  content-hash entry, so an unchanged artifact skips its whole tree and a changed
-  one reparses exactly its tree. This slice does **not** implement multi-page
-  cache storage; a multi-page file has no single-entry representation yet, so
-  **tree-parsed files are excluded from the cache** — reparsed every build, warned
-  per file — which is the safe intermediate that keeps clean/incremental
-  byte-equivalence green ([012](012-opt-in-incremental-builds.adr.md)). RENDER
-  narrowing re-renders a whole tree when its artifact is reparsed. This exclusion
-  is **superseded by the next slice's cache amendment**.
+  cache stores *all* pages of a file under that file's content-hash entry
+  (`ParsedPage.Tree`), so an unchanged artifact restores its whole tree from cache
+  and a changed one reparses and re-renders exactly its tree; RENDER narrowing
+  re-renders a whole tree when (and only when) its artifact is reparsed, so an
+  edit to an unrelated file leaves the tree untouched. Deep-copy isolation holds
+  at both boundaries for every page of the tree. Degradation is per ENTRY: an
+  ordinary file degrades per page as ADR-017 specifies, but a tree with any
+  non-JSON-shaped child envelope drops the whole file's entry — a missing child on
+  a hit would silently change the output, so per-page degradation is structurally
+  impossible for a tree — a warning, never an error. The cache header version is
+  bumped, so an older cache is a miss, never a decode error. Clean/incremental
+  byte-equivalence stays green ([012](012-opt-in-incremental-builds.adr.md)).
+  This amends ADR-017's per-page-only degradation and single-page-per-entry
+  storage.
 
 ## Consequences
 
@@ -107,11 +112,15 @@ in the next slice:
   or a child shadowing a real page fails the build the same way any URL clash
   does.
 - **−** PARSE is no longer one-page-per-file; code that assumed that invariant
-  (and the cache/manifest contracts it fed) must be revisited — done here for
-  ROUTE/RENDER, deferred (and documented above) for cache/manifest.
-- **−** Until the next slice, tree-parsed files pay a full reparse every build and
-  their children's manifest `source_path` does not yet point at the artifact.
-- Amends [004](004-page-as-mutable-pipeline-spine.adr.md) (parse contract) and,
-  forward, [014](014-manifest-as-host-integration-contract.adr.md) and
-  [017](017-cache-stores-json-shaped-deep-copies.adr.md); builds on the parser
-  contract of [002](002-parser-owned-envelope-extraction.adr.md).
+  (and the cache/manifest contracts it fed) had to be revisited — done here for
+  ROUTE/RENDER, the build cache, and the manifest.
+- **−** A tree is cached and restored as a unit under one content hash, so one
+  child whose envelope holds a non-JSON-shaped value costs the whole artifact its
+  cache reuse (not just that child) — the price of storing a multi-page file
+  under a single entry.
+- Amends [004](004-page-as-mutable-pipeline-spine.adr.md) (parse contract),
+  [014](014-manifest-as-host-integration-contract.adr.md) (multiple manifest
+  entries per source), and
+  [017](017-cache-stores-json-shaped-deep-copies.adr.md) (multi-page cache
+  entries, per-entry degradation for trees); builds on the parser contract of
+  [002](002-parser-owned-envelope-extraction.adr.md).

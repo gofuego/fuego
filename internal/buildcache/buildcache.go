@@ -24,8 +24,10 @@ import (
 )
 
 // cacheVersion is bumped when the on-disk format changes; a mismatch is
-// treated as a cache miss (full rebuild).
-const cacheVersion = 1
+// treated as a cache miss (full rebuild). Bumped to 2 when tree-parsed files
+// gained a multi-page cache representation (ParsedPage.Tree), so a v1 cache is
+// a miss, never a decode error.
+const cacheVersion = 2
 
 func init() {
 	// Envelope values are held in `any`, so gob needs their concrete types
@@ -54,7 +56,22 @@ type Header struct {
 	ThemeHash  string
 }
 
-// ParsedPage is the post-PARSE state of a page, restored on a cache hit.
+// ParsedPage is the post-PARSE state of a page (or a whole tree of pages),
+// restored on a cache hit. The map is keyed by the source file's content
+// RelPath and every entry stores that ONE file's content hash.
+//
+// For an ordinary parser the entry is a single page: Envelope/Nodes/Type/
+// Layout/IsRaw are the root's, and Tree is nil.
+//
+// For a TreeParser the same entry stores the whole tree under the root file's
+// content-hash: the root's own page fields plus Tree, one TreeNode per child
+// in the deterministic slug-path order PARSE emits them. An unchanged file
+// restores its whole tree from this single entry; a changed file re-parses and
+// re-renders exactly its tree. Because the tree is stored and restored as a
+// unit under one content hash, a child that cannot be gob-encoded drops the
+// WHOLE file from the cache (not just that child): a missing child on a hit
+// would silently change the output, so per-page degradation is structurally
+// impossible for a tree. Ordinary pages keep their per-page degradation.
 type ParsedPage struct {
 	ContentHash string
 	Envelope    core.Envelope
@@ -62,6 +79,22 @@ type ParsedPage struct {
 	Type        string
 	Layout      string
 	IsRaw       bool
+	// Tree holds this file's tree children (nil for ordinary files). Each entry
+	// is one child page; the root's own state stays in the fields above.
+	Tree []TreeNode `json:",omitempty"`
+}
+
+// TreeNode is one child page of a tree-parsed file, cached under the root
+// file's content-hash entry. TreeSlugPath is the child's slug path relative to
+// the root (e.g. "tags/billing/get-invoice") — the render/route composition
+// key — so a restored child reconstructs its RelPath (root + "/" + slug path)
+// and its TreeRootRel/TreeSlugPath exactly as PARSE built them.
+type TreeNode struct {
+	TreeSlugPath string
+	Envelope     core.Envelope
+	Nodes        []core.Node
+	Type         string
+	Layout       string
 }
 
 // Cache is the on-disk build cache.
@@ -98,11 +131,15 @@ func Load(path string) (*Cache, bool) {
 	return &c, true
 }
 
-// Save writes the cache to path, creating parent directories. Pages whose
+// Save writes the cache to path, creating parent directories. Entries whose
 // envelope or nodes hold types gob cannot encode (outside the registered
-// JSON-shaped set) are dropped — a permanent cache miss for those pages —
-// rather than failing the write for every other page. The dropped RelPaths
-// are returned, sorted, for the caller to warn about.
+// JSON-shaped set) are dropped — a permanent cache miss — rather than failing
+// the write for every other entry. Degradation is per ENTRY (one map key): for
+// an ordinary file that is one page; for a tree-parsed file it is the whole
+// tree, because the tree is stored and restored as a unit under the root file's
+// content hash, so one exotic child envelope drops that file's whole entry (a
+// missing child on a hit would silently change the output). The dropped
+// RelPaths are returned, sorted, for the caller to warn about.
 func Save(path string, c *Cache) (dropped []string, err error) {
 	var buf bytes.Buffer
 	if err := gob.NewEncoder(&buf).Encode(c); err != nil {

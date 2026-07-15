@@ -142,18 +142,25 @@ Sibling-slug collisions inside a tree and child-vs-page collisions surface
 through the existing ROUTE/INDEX collision detection (GlobalFatal). This retires
 "one file = one page" as a parse-contract invariant (amends AD-4/ADR-004).
 
+**Cache (amends AD-15/ADR-017):** all pages of a tree are stored under that one
+artifact's content-hash entry (`ParsedPage.Tree`), so an unchanged file restores
+its whole tree from cache (skipped) and a changed file re-parses and re-renders
+exactly its tree. Deep-copy isolation holds at both boundaries for every page.
+Degradation is per ENTRY: an ordinary file degrades per page as before, but a
+tree with any non-JSON-shaped child envelope drops the whole file's entry (a
+missing child on a hit would silently change the output) — a warning, never an
+error. **Manifest (amends AD-12/ADR-014):** every page of a tree lists the
+shared root artifact's `RelPath` as its `source_path` — a deliberate
+multiple-entries-per-source contract, so fuego-studio's `SourcePath != ""` guard
+treats each child as editable-as-the-artifact; root and children stay
+distinguishable by url/output_path.
+
 **Why:** A rich artifact (an OpenAPI spec, a DBML schema) deserves to be a whole
 *section* — an index plus a routed, taxonomy-visible, stably-URL'd page per
 operation/table/suite. The prior virtual-page workaround produced pages
-taxonomies couldn't see and incremental builds re-rendered constantly. **Scope
-of this slice:** the manifest still lists each child with its own `RelPath`-based
-`source_path` (multi-entry mapping to the shared artifact is deferred, amending
-AD-12/ADR-014), and tree-parsed files are **excluded from the build cache** —
-reparsed every build, warned per file — because a multi-page file has no
-single-entry cache representation yet (amending AD-15/ADR-017); both are the
-next slice's work, and clean/incremental byte-equivalence stays green in the
-interim. Envelope convention for library tree parsers: JSON-shaped values only;
-a missing per-child layout falls back to the base template silently.
+taxonomies couldn't see and incremental builds re-rendered constantly. Envelope
+convention for library tree parsers: JSON-shaped values only; a missing
+per-child layout falls back to the base template silently.
 
 ## Project Structure
 
@@ -223,7 +230,7 @@ STATIC         →  Copy pack static/, then public/, then colocated binary asset
 - Integration tests verify determinism with `go test -count=3`
 
 ### Site manifest
-- `internal/manifest` writes `site-manifest.json`. Each page entry carries `url`, `type`, `layout`, `title`, `summary`, `output_path` (`<url>/index.html`), `source_path` (the page's `RelPath` — content-dir-relative, forward slashes; empty for virtual pages so they're non-editable), and the flattened `envelope`
+- `internal/manifest` writes `site-manifest.json`. Each page entry carries `url`, `type`, `layout`, `title`, `summary`, `output_path` (`<url>/index.html`), `source_path` (content-dir-relative, forward slashes; the page's `RelPath`, or — for a tree-parsed file's pages — the shared root artifact's `RelPath`, so multiple entries map to one source; empty for virtual pages so they're non-editable), and the flattened `envelope`
 - The top-level `content_root` is the content dir relative to the enclosing git root (empty outside a git repo). A host maps a page's repo-relative source to `content_root` + `source_path` — this is what fuego-studio uses to fetch/commit a page's source
 - The `build`/`serve` `--base-url` flag overrides `site.base_url` for a single run (override only when the flag is set), so a deploy can target a subpath without a separate config file
 

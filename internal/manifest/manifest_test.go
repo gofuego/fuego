@@ -70,6 +70,40 @@ func TestGenerate_SourceAndOutputPath(t *testing.T) {
 	}
 }
 
+// TestGenerate_TreeChildrenShareSourcePath locks in the multi-entry-per-source
+// contract (ADR-019/ADR-014): every page of a tree — the root and each child —
+// lists the ROOT artifact's RelPath as its source_path, while staying
+// distinguishable by url/output_path. A host maps them all back to one editable
+// file.
+func TestGenerate_TreeChildrenShareSourcePath(t *testing.T) {
+	t.Parallel()
+
+	pages := []*core.Page{
+		// tree root
+		{URL: "/api/", Type: "toytree", RelPath: "api.toytree", Envelope: core.Envelope{"title": "API"}},
+		// tree children: composite RelPath, but TreeRootRel points at the artifact
+		{URL: "/api/ops/", Type: "toytree", RelPath: "api.toytree/ops", TreeRootRel: "api.toytree", TreeSlugPath: "ops", Envelope: core.Envelope{"title": "Ops"}},
+		{URL: "/api/ops/get/", Type: "toytree", RelPath: "api.toytree/ops/get", TreeRootRel: "api.toytree", TreeSlugPath: "ops/get", Envelope: core.Envelope{"title": "Get"}},
+	}
+
+	m := Generate(pages, &config.Config{})
+
+	byURL := map[string]PageEntry{}
+	for _, e := range m.Pages {
+		byURL[e.URL] = e
+	}
+
+	for _, url := range []string{"/api/", "/api/ops/", "/api/ops/get/"} {
+		if got := byURL[url].SourcePath; got != "api.toytree" {
+			t.Errorf("%s: source_path=%q, want the shared artifact %q", url, got, "api.toytree")
+		}
+	}
+	// Root and children are distinguishable by output_path.
+	if byURL["/api/"].OutputPath == byURL["/api/ops/"].OutputPath {
+		t.Error("root and child share an output_path; they must stay distinguishable")
+	}
+}
+
 func TestGenerate_WithSummary(t *testing.T) {
 	t.Parallel()
 

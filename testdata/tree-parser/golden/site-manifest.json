@@ -27,13 +27,13 @@
     {
       "url": "/api/tags/",
       "type": "toytree",
-      "source_path": "api.toytree/tags",
+      "source_path": "api.toytree",
       "output_path": "api/tags/index.html"
     },
     {
       "url": "/api/tags/billing/",
       "type": "toytree",
-      "source_path": "api.toytree/tags/billing",
+      "source_path": "api.toytree",
       "output_path": "api/tags/billing/index.html",
       "title": "Billing",
       "envelope": {
@@ -47,7 +47,7 @@
     {
       "url": "/api/tags/billing/get-invoice/",
       "type": "toytree",
-      "source_path": "api.toytree/tags/billing/get-invoice",
+      "source_path": "api.toytree",
       "output_path": "api/tags/billing/get-invoice/index.html",
       "title": "Get Invoice",
       "envelope": {
@@ -61,7 +61,7 @@
     {
       "url": "/api/tags/billing/list-invoices/",
       "type": "toytree",
-      "source_path": "api.toytree/tags/billing/list-invoices",
+      "source_path": "api.toytree",
       "output_path": "api/tags/billing/list-invoices/index.html",
       "title": "List Invoices",
       "envelope": {
@@ -74,7 +74,7 @@
     {
       "url": "/api/tags/payments/",
       "type": "toytree",
-      "source_path": "api.toytree/tags/payments",
+      "source_path": "api.toytree",
       "output_path": "api/tags/payments/index.html",
       "title": "Payments",
       "envelope": {
@@ -88,7 +88,7 @@
     {
       "url": "/api/tags/payments/charge/",
       "type": "toytree",
-      "source_path": "api.toytree/tags/payments/charge",
+      "source_path": "api.toytree",
       "output_path": "api/tags/payments/charge/index.html",
       "title": "Charge",
       "envelope": {
