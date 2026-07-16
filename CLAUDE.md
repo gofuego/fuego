@@ -171,7 +171,8 @@ fuego/
   parsers/markdown/        First-party Markdown parser (opt-in, not built-in)
   cmd/fuego/               CLI binary entry point
   internal/
-    cli/                   Cobra commands (build, serve, validate, list, config, init [--pack])
+    cli/                   Cobra commands (build, serve, validate, list, config, init [--pack|--formats], formats add/sync)
+    formats/               Format-module resolver, generated formats.go, docs materializer
     config/                YAML config loading, validation, layer merge + provenance (Resolve/ResolveLayers)
     discover/              File discovery, ignore patterns, content/asset classification
     parse/                 Parse orchestration, declarative parser, cache-aware ParseAllCached
