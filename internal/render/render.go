@@ -139,6 +139,14 @@ func affected(p *core.Page, tc *TemplateCache, changed map[string]bool) bool {
 	if changed[p.RelPath] {
 		return true // content changed
 	}
+	// A tree child's content lives in its root artifact. The child's own RelPath
+	// is composite (root + slug path) and never appears in `changed`, so gate on
+	// the artifact: when the root file is reparsed (changed[TreeRootRel]),
+	// re-render the whole tree; when an unrelated file is edited the artifact is
+	// unchanged, restored from cache, and its tree is skipped.
+	if p.TreeRootRel != "" && changed[p.TreeRootRel] {
+		return true
+	}
 	return tc.UsesSitePages(tc.GetLayout(p.Layout)) // depends on the site page list
 }
 

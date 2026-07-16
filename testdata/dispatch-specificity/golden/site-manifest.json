@@ -1,0 +1,25 @@
+{
+  "content_root": "testdata/dispatch-specificity/input/content",
+  "pages": [
+    {
+      "url": "/0001-use-fuego.adr/",
+      "type": "adr",
+      "source_path": "0001-use-fuego.adr.md",
+      "output_path": "0001-use-fuego.adr/index.html",
+      "title": "Use Fuego",
+      "envelope": {
+        "title": "Use Fuego"
+      }
+    },
+    {
+      "url": "/guide/",
+      "type": "md",
+      "source_path": "guide.md",
+      "output_path": "guide/index.html",
+      "title": "Plain Guide",
+      "envelope": {
+        "title": "Plain Guide"
+      }
+    }
+  ]
+}

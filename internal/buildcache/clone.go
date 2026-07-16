@@ -10,6 +10,17 @@ import "github.com/gofuego/fuego/core"
 func ClonePage(pp ParsedPage) ParsedPage {
 	pp.Envelope = CloneEnvelope(pp.Envelope)
 	pp.Nodes = CloneNodes(pp.Nodes)
+	if pp.Tree != nil {
+		// Deep-copy every child so the isolation contract holds for every page
+		// of a tree, not just the root.
+		tree := make([]TreeNode, len(pp.Tree))
+		for i, tn := range pp.Tree {
+			tn.Envelope = CloneEnvelope(tn.Envelope)
+			tn.Nodes = CloneNodes(tn.Nodes)
+			tree[i] = tn
+		}
+		pp.Tree = tree
+	}
 	return pp
 }
 

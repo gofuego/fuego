@@ -5,8 +5,27 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/gofuego/fuego/core"
 	"github.com/gofuego/fuego/internal/config"
+	"github.com/gofuego/fuego/internal/dispatch"
 )
+
+// stubParser claims a bare extension (its Type) and optionally filename
+// patterns, standing in for a registered parser during discovery tests.
+type stubParser struct {
+	typ      string
+	patterns []string
+}
+
+func (p stubParser) Type() string                                     { return p.typ }
+func (p stubParser) Parse([]byte) (core.Envelope, []core.Node, error) { return nil, nil, nil }
+func (p stubParser) Filenames() []string                              { return p.patterns }
+
+// resolverFor builds a dispatch resolver from stub parsers, so discovery tests
+// exercise the same claim rule the pipeline wires in production.
+func resolverFor(parsers ...core.Parser) *dispatch.Resolver {
+	return dispatch.NewResolver(parsers)
+}
 
 func setupContentDir(t *testing.T, files map[string]string) string {
 	t.Helper()
@@ -25,9 +44,8 @@ func TestWalkSingleFile(t *testing.T) {
 		"hello.md": "# Hello",
 	})
 
-	registered := map[string]bool{"md": true}
 	cfg := &config.Config{Dirs: config.DirsConfig{Content: contentDir}}
-	entries, err := Walk(cfg, registered, nil)
+	entries, err := Walk(cfg, resolverFor(stubParser{typ: "md"}))
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -51,7 +69,7 @@ func TestWalkNoParserRegistered(t *testing.T) {
 	})
 
 	cfg := &config.Config{Dirs: config.DirsConfig{Content: contentDir}}
-	entries, err := Walk(cfg, nil, nil)
+	entries, err := Walk(cfg, resolverFor())
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -70,9 +88,8 @@ func TestWalkNestedDirectories(t *testing.T) {
 		"chess/p1.md":          "# P1",
 	})
 
-	registered := map[string]bool{"md": true}
 	cfg := &config.Config{Dirs: config.DirsConfig{Content: contentDir}}
-	entries, err := Walk(cfg, registered, nil)
+	entries, err := Walk(cfg, resolverFor(stubParser{typ: "md"}))
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -88,9 +105,8 @@ func TestWalkAssetsVsContent(t *testing.T) {
 		"data.json":     "{}",
 	})
 
-	registered := map[string]bool{"md": true}
 	cfg := &config.Config{Dirs: config.DirsConfig{Content: contentDir}}
-	entries, err := Walk(cfg, registered, nil)
+	entries, err := Walk(cfg, resolverFor(stubParser{typ: "md"}))
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -119,9 +135,8 @@ func TestWalkWithRegisteredTypes(t *testing.T) {
 		"photo.png": "fake png",
 	})
 
-	registered := map[string]bool{"trivia": true, "chess": true}
 	cfg := &config.Config{Dirs: config.DirsConfig{Content: contentDir}}
-	entries, err := Walk(cfg, registered, nil)
+	entries, err := Walk(cfg, resolverFor(stubParser{typ: "trivia"}, stubParser{typ: "chess"}))
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -146,7 +161,7 @@ func TestWalkEmptyDir(t *testing.T) {
 	os.MkdirAll(contentDir, 0755)
 
 	cfg := &config.Config{Dirs: config.DirsConfig{Content: contentDir}}
-	entries, err := Walk(cfg, nil, nil)
+	entries, err := Walk(cfg, resolverFor())
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -162,11 +177,8 @@ func TestWalkFilenamePattern(t *testing.T) {
 		"readme.md":      "# Readme",
 	})
 
-	patterns := []FilenamePattern{
-		{Pattern: "Dockerfile", ParserType: "dockerfile"},
-	}
 	cfg := &config.Config{Dirs: config.DirsConfig{Content: contentDir}}
-	entries, err := Walk(cfg, nil, patterns)
+	entries, err := Walk(cfg, resolverFor(stubParser{typ: "dockerfile", patterns: []string{"Dockerfile"}}))
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -192,11 +204,8 @@ func TestWalkFilenamePatternWildcard(t *testing.T) {
 		"Makefile":         "all:",
 	})
 
-	patterns := []FilenamePattern{
-		{Pattern: "Dockerfile*", ParserType: "dockerfile"},
-	}
 	cfg := &config.Config{Dirs: config.DirsConfig{Content: contentDir}}
-	entries, err := Walk(cfg, nil, patterns)
+	entries, err := Walk(cfg, resolverFor(stubParser{typ: "dockerfile", patterns: []string{"Dockerfile*"}}))
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -214,7 +223,7 @@ func TestWalkFilenamePatternWildcard(t *testing.T) {
 
 func TestWalkMissingDir(t *testing.T) {
 	cfg := &config.Config{Dirs: config.DirsConfig{Content: "/nonexistent/content"}}
-	_, err := Walk(cfg, nil, nil)
+	_, err := Walk(cfg, resolverFor())
 	if err == nil {
 		t.Fatal("expected error for missing directory")
 	}

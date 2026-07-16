@@ -14,7 +14,7 @@ The core value proposition: **you define the format, Fuego handles the infrastru
 > AD-1→ADR-001, AD-2→ADR-002, AD-3→ADR-003, AD-4→ADR-004, AD-4b→ADR-005,
 > AD-4c→ADR-006, AD-5→ADR-007, AD-6→ADR-008, AD-7→ADR-009, AD-8→ADR-010,
 > AD-9→ADR-011, AD-10→ADR-012, AD-11→ADR-013, AD-12→ADR-014, AD-13→ADR-015,
-> AD-14→ADR-016, AD-15→ADR-017.
+> AD-14→ADR-016, AD-15→ADR-017, AD-16→ADR-018, AD-17→ADR-019.
 
 ### AD-1: Universal AST with free-form node types
 
@@ -120,11 +120,53 @@ Nodes can be marked `Raw: true` to pass their content through the default render
 
 **Why:** `ParsedPage` used to share references with live pages while the cache saved after hooks ran: hook-built values failed the whole gob encode, and cache hits restored the previous build's hook products, with correctness resting on hook idempotence. Deep copies make the contract structural; per-page degradation means one exotic envelope (a pack's private struct) costs that page its reuse, not the whole site's. Parsers wanting caching keep display data JSON-shaped.
 
+### AD-16: Specificity-ordered parser dispatch across a shared resolver (ADR-018)
+
+**Decision:** Filename-pattern claims are checked before bare-extension claims, in both discovery classification and parse dispatch; among multiple matching patterns the longest pattern string wins, ties resolving by existing parser precedence (user > later pack > earlier pack, declarative lowest). A parser claims by exactly one kind: declared patterns are the parser's **complete** claim set (its `Type()` is not implicitly claimed as an extension); a parser without patterns claims `Type()` as a bare extension. The claim logic lives in one resolver (`internal/dispatch`) consumed by both phases. `page.Type` remains the matched parser's `Type()`.
+
+**Why:** With reusable format parsers, claims overlap: a markdown parser claims `md` while an ADR parser claims `*.adr.md`. Extension-first dispatch silently routed `guide.adr.md` to markdown — the more specific claim never got a look. Longest-pattern-wins is deterministic where registration order is not, and a single resolver keeps "is this content?" and "who parses it?" from drifting apart. Behavior is unchanged for sites without overlapping claims. This amends AD-4b/AD-4c (ADR-005/006 lineage).
+
+### AD-17: TreeParser expands one artifact into a tree of real pages (ADR-019)
+
+**Decision:** A new optional interface alongside `Parser`, `core.TreeParser`,
+returns a `core.PageTree` — a root (envelope + nodes) plus `Children` keyed by
+relative slug path, nested arbitrarily. The engine detects it by interface
+assertion at PARSE (no registration change; plain `Parser`s are untouched) and
+expands each tree node into a **real `core.Page`**: child `RelPath` =
+source file's `RelPath` + "/" + slug path (child `SourcePath` is the artifact);
+child `URL` = the root's routed URL + slug-path segments, composed in a second
+ROUTE pass **after** the root goes through the normal three-tier routing (so the
+index-file convention AD-13 on the root is honored). Children carry their own
+envelopes, so taxonomies/collections/pagination see them natively through INDEX.
+Sibling-slug collisions inside a tree and child-vs-page collisions surface
+through the existing ROUTE/INDEX collision detection (GlobalFatal). This retires
+"one file = one page" as a parse-contract invariant (amends AD-4/ADR-004).
+
+**Cache (amends AD-15/ADR-017):** all pages of a tree are stored under that one
+artifact's content-hash entry (`ParsedPage.Tree`), so an unchanged file restores
+its whole tree from cache (skipped) and a changed file re-parses and re-renders
+exactly its tree. Deep-copy isolation holds at both boundaries for every page.
+Degradation is per ENTRY: an ordinary file degrades per page as before, but a
+tree with any non-JSON-shaped child envelope drops the whole file's entry (a
+missing child on a hit would silently change the output) — a warning, never an
+error. **Manifest (amends AD-12/ADR-014):** every page of a tree lists the
+shared root artifact's `RelPath` as its `source_path` — a deliberate
+multiple-entries-per-source contract, so fuego-studio's `SourcePath != ""` guard
+treats each child as editable-as-the-artifact; root and children stay
+distinguishable by url/output_path.
+
+**Why:** A rich artifact (an OpenAPI spec, a DBML schema) deserves to be a whole
+*section* — an index plus a routed, taxonomy-visible, stably-URL'd page per
+operation/table/suite. The prior virtual-page workaround produced pages
+taxonomies couldn't see and incremental builds re-rendered constantly. Envelope
+convention for library tree parsers: JSON-shaped values only; a missing
+per-child layout falls back to the base template silently.
+
 ## Project Structure
 
 ```
 fuego/
-  core/                    Shared types (Page, Node, Parser, Pack, Hooks, Errors, Paginator, ParseError, SplitFrontmatter, Wrappers)
+  core/                    Shared types (Page, Node, Parser, Pack, Hooks, Errors, Paginator, ParseError, SplitFrontmatter, Wrappers, PageTree, TreeParser)
   engine/                  Public API: CLI (Run) + programmatic build (Build/Serve/Validate, BuildOptions); Register, Use, AfterParse, Index, BeforeRender
   parsers/markdown/        First-party Markdown parser (opt-in, not built-in)
   cmd/fuego/               CLI binary entry point
@@ -188,7 +230,7 @@ STATIC         →  Copy pack static/, then public/, then colocated binary asset
 - Integration tests verify determinism with `go test -count=3`
 
 ### Site manifest
-- `internal/manifest` writes `site-manifest.json`. Each page entry carries `url`, `type`, `layout`, `title`, `summary`, `output_path` (`<url>/index.html`), `source_path` (the page's `RelPath` — content-dir-relative, forward slashes; empty for virtual pages so they're non-editable), and the flattened `envelope`
+- `internal/manifest` writes `site-manifest.json`. Each page entry carries `url`, `type`, `layout`, `title`, `summary`, `output_path` (`<url>/index.html`), `source_path` (content-dir-relative, forward slashes; the page's `RelPath`, or — for a tree-parsed file's pages — the shared root artifact's `RelPath`, so multiple entries map to one source; empty for virtual pages so they're non-editable), and the flattened `envelope`
 - The top-level `content_root` is the content dir relative to the enclosing git root (empty outside a git repo). A host maps a page's repo-relative source to `content_root` + `source_path` — this is what fuego-studio uses to fetch/commit a page's source
 - The `build`/`serve` `--base-url` flag overrides `site.base_url` for a single run (override only when the flag is set), so a deploy can target a subpath without a separate config file
 

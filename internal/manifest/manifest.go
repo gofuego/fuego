@@ -80,9 +80,19 @@ func Generate(pages []*core.Page, cfg *config.Config) *Manifest {
 		// they carry an empty source_path — the contract a host uses to mark them
 		// non-editable. Their internal "_virtual/..." RelPath stays out of the
 		// manifest. See ADR-014.
+		//
+		// Tree children (TreeRootRel != "") share their artifact's source: every
+		// page of a tree lists the ROOT file's content-dir-relative RelPath as its
+		// source_path — a deliberate multi-entry-per-source contract, so a host
+		// (fuego-studio) opens the artifact that defines an operation page. Root
+		// and children stay distinguishable by their differing url/output_path.
 		sourcePath := ""
 		if !isVirtual(p) {
-			sourcePath = filepath.ToSlash(p.RelPath)
+			rel := p.RelPath
+			if p.TreeRootRel != "" {
+				rel = p.TreeRootRel
+			}
+			sourcePath = filepath.ToSlash(rel)
 		}
 
 		entries[i] = PageEntry{

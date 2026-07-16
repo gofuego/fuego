@@ -1,0 +1,17 @@
+{
+  "envelope": {
+    "layout": "article",
+    "tags": [
+      "docs",
+      "example"
+    ],
+    "title": "Fixture Page"
+  },
+  "nodes": [
+    {
+      "type": "html",
+      "content": "\u003ch1\u003eHeading\u003c/h1\u003e\n\u003cp\u003eA paragraph with \u003cdel\u003estrikethrough\u003c/del\u003e and an autolink: \u003ca href=\"https://example.com\"\u003ehttps://example.com\u003c/a\u003e\u003c/p\u003e\n\u003ctable\u003e\n\u003cthead\u003e\n\u003ctr\u003e\n\u003cth\u003eFeature\u003c/th\u003e\n\u003cth\u003eSupported\u003c/th\u003e\n\u003c/tr\u003e\n\u003c/thead\u003e\n\u003ctbody\u003e\n\u003ctr\u003e\n\u003ctd\u003eTables\u003c/td\u003e\n\u003ctd\u003eyes\u003c/td\u003e\n\u003c/tr\u003e\n\u003c/tbody\u003e\n\u003c/table\u003e\n\u003cul\u003e\n\u003cli\u003e\u003cinput checked=\"\" disabled=\"\" type=\"checkbox\"\u003e task list item\u003c/li\u003e\n\u003cli\u003e\u003cinput disabled=\"\" type=\"checkbox\"\u003e open item\u003c/li\u003e\n\u003c/ul\u003e\n",
+      "raw": true
+    }
+  ]
+}
