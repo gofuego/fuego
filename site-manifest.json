@@ -192,6 +192,29 @@
             ],
             "title": "The build cache stores JSON-shaped deep copies, degrading per page",
             "url": "/decisions/017-cache-stores-json-shaped-deep-copies.adr/"
+          },
+          {
+            "number": 18,
+            "status": "accepted",
+            "tags": [
+              "parsing",
+              "routing",
+              "architecture"
+            ],
+            "title": "Specificity-ordered parser dispatch across a shared resolver",
+            "url": "/decisions/018-specificity-ordered-parser-dispatch.adr/"
+          },
+          {
+            "number": 19,
+            "status": "accepted",
+            "tags": [
+              "parsing",
+              "routing",
+              "core",
+              "architecture"
+            ],
+            "title": "TreeParser expands one artifact into a tree of real pages",
+            "url": "/decisions/019-treeparser-page-tree-expansion.adr/"
           }
         ],
         "inactive_adrs": null,
@@ -238,6 +261,11 @@
                 "number": 11,
                 "title": "Format packs bundle a content format as one installable unit",
                 "url": "/decisions/011-format-packs-as-ecosystem-unit.adr/"
+              },
+              {
+                "number": 19,
+                "title": "TreeParser expands one artifact into a tree of real pages",
+                "url": "/decisions/019-treeparser-page-tree-expansion.adr/"
               }
             ],
             "exists": true,
@@ -308,10 +336,26 @@
                 "number": 6,
                 "title": "Content discovery is driven by registered parsers",
                 "url": "/decisions/006-content-discovery-driven-by-parsers.adr/"
+              },
+              {
+                "number": 18,
+                "title": "Specificity-ordered parser dispatch across a shared resolver",
+                "url": "/decisions/018-specificity-ordered-parser-dispatch.adr/"
               }
             ],
             "exists": true,
             "pattern": "internal/discover/**"
+          },
+          {
+            "adrs": [
+              {
+                "number": 18,
+                "title": "Specificity-ordered parser dispatch across a shared resolver",
+                "url": "/decisions/018-specificity-ordered-parser-dispatch.adr/"
+              }
+            ],
+            "exists": true,
+            "pattern": "internal/dispatch/**"
           },
           {
             "adrs": [
@@ -367,6 +411,16 @@
                 "number": 17,
                 "title": "The build cache stores JSON-shaped deep copies, degrading per page",
                 "url": "/decisions/017-cache-stores-json-shaped-deep-copies.adr/"
+              },
+              {
+                "number": 18,
+                "title": "Specificity-ordered parser dispatch across a shared resolver",
+                "url": "/decisions/018-specificity-ordered-parser-dispatch.adr/"
+              },
+              {
+                "number": 19,
+                "title": "TreeParser expands one artifact into a tree of real pages",
+                "url": "/decisions/019-treeparser-page-tree-expansion.adr/"
               }
             ],
             "exists": true,
@@ -424,6 +478,11 @@
                 "number": 12,
                 "title": "Incremental builds are opt-in and provably equivalent",
                 "url": "/decisions/012-opt-in-incremental-builds.adr/"
+              },
+              {
+                "number": 19,
+                "title": "TreeParser expands one artifact into a tree of real pages",
+                "url": "/decisions/019-treeparser-page-tree-expansion.adr/"
               }
             ],
             "exists": true,
@@ -435,6 +494,11 @@
                 "number": 15,
                 "title": "Index files route to their directory root",
                 "url": "/decisions/015-index-files-route-to-directory-root.adr/"
+              },
+              {
+                "number": 19,
+                "title": "TreeParser expands one artifact into a tree of real pages",
+                "url": "/decisions/019-treeparser-page-tree-expansion.adr/"
               }
             ],
             "exists": true,
@@ -953,6 +1017,66 @@
       }
     },
     {
+      "url": "/decisions/018-specificity-ordered-parser-dispatch.adr/",
+      "type": "adr",
+      "layout": "adr",
+      "title": "Specificity-ordered parser dispatch across a shared resolver",
+      "envelope": {
+        "adr_number": 18,
+        "affects": [
+          "internal/dispatch/**",
+          "internal/discover/**",
+          "internal/parse/**"
+        ],
+        "approvers": [
+          "fabio"
+        ],
+        "author": [
+          "fabio"
+        ],
+        "date_accepted": "2026-07-15",
+        "date_proposed": "2026-07-15",
+        "status": "accepted",
+        "tags": [
+          "parsing",
+          "routing",
+          "architecture"
+        ],
+        "title": "Specificity-ordered parser dispatch across a shared resolver"
+      }
+    },
+    {
+      "url": "/decisions/019-treeparser-page-tree-expansion.adr/",
+      "type": "adr",
+      "layout": "adr",
+      "title": "TreeParser expands one artifact into a tree of real pages",
+      "envelope": {
+        "adr_number": 19,
+        "affects": [
+          "core/**",
+          "internal/parse/**",
+          "internal/route/**",
+          "internal/render/**"
+        ],
+        "approvers": [
+          "fabio"
+        ],
+        "author": [
+          "fabio"
+        ],
+        "date_accepted": "2026-07-15",
+        "date_proposed": "2026-07-15",
+        "status": "accepted",
+        "tags": [
+          "parsing",
+          "routing",
+          "core",
+          "architecture"
+        ],
+        "title": "TreeParser expands one artifact into a tree of real pages"
+      }
+    },
+    {
       "url": "/tags/",
       "type": "taxonomy-index",
       "layout": "tag-index",
@@ -1234,6 +1358,22 @@
       "envelope": {
         "timeline_entries": [
           {
+            "date": "2026-07-15",
+            "number": 19,
+            "status": "accepted",
+            "supersedes": null,
+            "title": "TreeParser expands one artifact into a tree of real pages",
+            "url": "/decisions/019-treeparser-page-tree-expansion.adr/"
+          },
+          {
+            "date": "2026-07-15",
+            "number": 18,
+            "status": "accepted",
+            "supersedes": null,
+            "title": "Specificity-ordered parser dispatch across a shared resolver",
+            "url": "/decisions/018-specificity-ordered-parser-dispatch.adr/"
+          },
+          {
             "date": "2026-07-02",
             "number": 17,
             "status": "accepted",
@@ -1323,19 +1463,19 @@
           },
           {
             "date": "2026-05-20",
-            "number": 9,
-            "status": "accepted",
-            "supersedes": null,
-            "title": "Golden-file integration testing with enforced determinism",
-            "url": "/decisions/009-golden-file-determinism-testing.adr/"
-          },
-          {
-            "date": "2026-05-20",
             "number": 10,
             "status": "accepted",
             "supersedes": null,
             "title": "Taxonomies and collections are virtual pages",
             "url": "/decisions/010-virtual-pages-for-taxonomies-collections.adr/"
+          },
+          {
+            "date": "2026-05-20",
+            "number": 9,
+            "status": "accepted",
+            "supersedes": null,
+            "title": "Golden-file integration testing with enforced determinism",
+            "url": "/decisions/009-golden-file-determinism-testing.adr/"
           },
           {
             "date": "2026-05-20",
@@ -1392,7 +1532,9 @@
           11,
           12,
           14,
-          15
+          15,
+          19,
+          20
         ],
         "cache": [
           18
@@ -1403,7 +1545,8 @@
         "core": [
           2,
           3,
-          5
+          5,
+          20
         ],
         "determinism": [
           10
@@ -1443,7 +1586,9 @@
           3,
           4,
           6,
-          7
+          7,
+          19,
+          20
         ],
         "performance": [
           13
@@ -1467,7 +1612,9 @@
         ],
         "routing": [
           6,
-          16
+          16,
+          19,
+          20
         ],
         "taxonomies": [
           11

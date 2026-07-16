@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TreeParser expands one artifact into a tree of real pages — ADR Documentation</title>
+  <base href="/gofuego/fuego/">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen">
+  <nav class="border-b border-gray-800 px-6 py-4">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <a href="." class="text-lg font-bold text-white hover:text-blue-400 transition-colors">ADR Documentation</a>
+      <div class="flex gap-6 text-sm text-gray-400">
+        <a href="." class="hover:text-white transition-colors">Home</a>
+        <a href="timeline" class="hover:text-white transition-colors">Timeline</a>
+        <a href="tags" class="hover:text-white transition-colors">Tags</a>
+        <a href="affects" class="hover:text-white transition-colors">Affected Files</a>
+      </div>
+    </div>
+  </nav>
+  <main class="max-w-4xl mx-auto px-6 py-8">
+    
+<article>
+  
+  <div class="mb-8">
+    <div class="flex items-center gap-3 mb-2">
+      <span class="text-sm font-mono text-gray-500">ADR-19</span>
+      
+      <span class="px-2 py-0.5 rounded text-xs font-semibold
+        bg-green-900 text-green-300
+        ">accepted</span>
+      
+    </div>
+    <h1 class="text-3xl font-bold text-white mb-4">TreeParser expands one artifact into a tree of real pages</h1>
+
+    
+    <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm text-gray-400 border-b border-gray-800 pb-4">
+      
+      <div><span class="text-gray-500">Author:</span> fabio</div>
+      
+      
+      <div><span class="text-gray-500">Proposed:</span> 2026-07-15</div>
+      
+      
+      <div><span class="text-gray-500">Approvers:</span> fabio</div>
+      
+      
+      <div><span class="text-gray-500">Accepted:</span> 2026-07-15</div>
+      
+      
+    </div>
+
+    
+    
+
+    
+    
+    <div class="mt-3 flex gap-2 flex-wrap">
+      
+      <a href="tags/parsing" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#parsing</a>
+      
+      <a href="tags/routing" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#routing</a>
+      
+      <a href="tags/core" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#core</a>
+      
+      <a href="tags/architecture" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#architecture</a>
+      
+    </div>
+    
+  </div>
+
+  
+  <div class="prose prose-invert prose-sm max-w-none">
+    <div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Context</h2>
+  <div class="text-gray-300 leading-relaxed"><p>Fuego's parse contract is <strong>one file → one page</strong>: a <code>core.Parser</code> returns a
+single <code>(Envelope, []Node)</code>, and <a href="decisions/002-parser-owned-envelope-extraction.adr/">002</a>
+plus <a href="decisions/004-page-as-mutable-pipeline-spine.adr/">004</a> build the whole pipeline on
+that shape — one page per discovered file, enriched in place through ROUTE and
+INDEX. But a single rich artifact often <em>is</em> a whole section. An OpenAPI spec
+deserves an index plus a page per operation, tag, and schema; a DBML schema, a
+page per table; a Playwright suite, a page per test. Today the only way to make
+those extra pages is the virtual-page workaround (append <code>*core.Page</code>s in an
+INDEX hook, <a href="decisions/010-virtual-pages-for-taxonomies-collections.adr/">010</a>), and
+those pages have three defects: taxonomies and collections can't see them (they
+run over the real page set, and are re-scanned before the hook), incremental
+builds re-render them constantly (they aggregate, so they're always &quot;affected&quot;),
+and a host like fuego-studio can't map them back to an editable source. The
+format packs that own this parsing logic (fuego-devops, fuego-adr) are also
+locked to their own themes, so the parsing can't be reused without adopting a
+site shape. The engine needs a first-class way for one artifact to become a
+routed, taxonomy-visible, stably-URL'd tree of pages.</p>
+</div>
+</div>
+<div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Decision</h2>
+  <div class="text-gray-300 leading-relaxed"><p>A new <strong>optional</strong> interface alongside <code>Parser</code>, <code>core.TreeParser</code>, returns a
+<code>core.PageTree</code>: a root (<code>Envelope</code> + <code>Nodes</code>) plus <code>Children</code> keyed by relative
+slug path, nested arbitrarily. The engine detects it by a plain <strong>interface
+assertion at PARSE</strong> — there is no registration change, and a parser that does
+not implement it is completely untouched. When a parser implements <code>TreeParser</code>,
+the engine calls <code>ParseTree</code> (not <code>Parse</code>) and expands the returned tree into
+<strong>real <code>core.Page</code>s</strong>:</p>
+<ul>
+<li><strong>Root</strong> — the tree's own <code>Envelope</code>/<code>Nodes</code> become the source file's routed
+page, exactly as an ordinary parser's output would.</li>
+<li><strong>Child identity</strong> — a child's <code>RelPath</code> is the source file's <code>RelPath</code> joined
+with its slug path (e.g. <code>api.openapi.yaml</code> + <code>tags/billing/get-invoice</code>), so a
+child never collides with a plain page unless intended. The child's
+<code>SourcePath</code> is the artifact itself.</li>
+<li><strong>Child URL</strong> — composed in a <strong>second ROUTE pass</strong>: the root is resolved by
+the normal three-tier routing first (frontmatter slug → route pattern →
+filesystem mirror, honoring the index-file convention of
+<a href="decisions/015-index-files-route-to-directory-root.adr/">015</a>), then each child's URL is
+the root's resolved URL joined with its slug-path segments. The whole tree
+therefore hangs beneath wherever the root routes.</li>
+<li><strong>Envelopes</strong> — each child carries its own envelope and nodes, so children flow
+through INDEX as ordinary pages and are seen <strong>natively</strong> by taxonomies,
+collections, and pagination.</li>
+</ul>
+<p>Sibling-slug collisions inside one tree (two children whose slug paths compose to
+the same URL) and collisions between a tree page and any other page surface
+through the <strong>existing</strong> ROUTE/INDEX collision detection as a <code>GlobalFatal</code>
+(<a href="decisions/008-error-accumulation-three-severities.adr/">008</a>) — there is no
+tree-local collision check.</p>
+<p>This <strong>retires &quot;one file = one page&quot; as a parse-contract invariant</strong>, amending
+<a href="decisions/004-page-as-mutable-pipeline-spine.adr/">004</a>: PARSE may now emit several
+pages for one file, and the mutable-spine model extends to each of them.</p>
+<p><strong>Envelope convention for library tree parsers</strong> (the engine stays agnostic):
+envelope values are JSON-shaped so tree pages stay cache-eligible under
+<a href="decisions/017-cache-stores-json-shaped-deep-copies.adr/">017</a>; a missing per-child
+layout falls back to the base template silently; parsers never emit slugs or
+routes.</p>
+<p><strong>Host-facing surfaces, and the decisions they amend.</strong> Two consumers of the
+parse contract are extended to the multi-page shape:</p>
+<ul>
+<li><strong>Manifest (<a href="decisions/014-manifest-as-host-integration-contract.adr/">014</a>).</strong> Every
+page of a tree lists the <strong>shared root artifact's <code>RelPath</code></strong> as its
+<code>source_path</code> — a deliberate, versioned move to <em>multiple manifest entries per
+source</em>, after which fuego-studio's <code>SourcePath != &quot;&quot;</code> editability guard treats
+each child as editable-as-the-artifact (clicking edit on an operation page opens
+the spec that defines it). Root and children stay distinguishable by their
+differing <code>url</code>/<code>output_path</code>; sorted-by-URL determinism is unchanged. This
+amends ADR-014's single-entry-per-source assumption.</li>
+<li><strong>Build cache (<a href="decisions/017-cache-stores-json-shaped-deep-copies.adr/">017</a>).</strong> The
+cache stores <em>all</em> pages of a file under that file's content-hash entry
+(<code>ParsedPage.Tree</code>), so an unchanged artifact restores its whole tree from cache
+and a changed one reparses and re-renders exactly its tree; RENDER narrowing
+re-renders a whole tree when (and only when) its artifact is reparsed, so an
+edit to an unrelated file leaves the tree untouched. Deep-copy isolation holds
+at both boundaries for every page of the tree. Degradation is per ENTRY: an
+ordinary file degrades per page as ADR-017 specifies, but a tree with any
+non-JSON-shaped child envelope drops the whole file's entry — a missing child on
+a hit would silently change the output, so per-page degradation is structurally
+impossible for a tree — a warning, never an error. The cache header version is
+bumped, so an older cache is a miss, never a decode error. Clean/incremental
+byte-equivalence stays green (<a href="decisions/012-opt-in-incremental-builds.adr/">012</a>).
+This amends ADR-017's per-page-only degradation and single-page-per-entry
+storage.</li>
+</ul>
+</div>
+</div>
+<div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Consequences</h2>
+  <div class="text-gray-300 leading-relaxed"><ul>
+<li><strong>+</strong> One artifact becomes a routed section: an index plus a tree of real pages
+with stable URLs, visible to taxonomies/collections/pagination like any
+hand-written page.</li>
+<li><strong>+</strong> Purely additive: <code>TreeParser</code> is optional, detected by interface
+assertion; existing parsers, fixtures, and the registration API are unchanged.</li>
+<li><strong>+</strong> Collisions reuse the one existing detector, so a duplicate operation slug
+or a child shadowing a real page fails the build the same way any URL clash
+does.</li>
+<li><strong>−</strong> PARSE is no longer one-page-per-file; code that assumed that invariant
+(and the cache/manifest contracts it fed) had to be revisited — done here for
+ROUTE/RENDER, the build cache, and the manifest.</li>
+<li><strong>−</strong> A tree is cached and restored as a unit under one content hash, so one
+child whose envelope holds a non-JSON-shaped value costs the whole artifact its
+cache reuse (not just that child) — the price of storing a multi-page file
+under a single entry.</li>
+<li>Amends <a href="decisions/004-page-as-mutable-pipeline-spine.adr/">004</a> (parse contract),
+<a href="decisions/014-manifest-as-host-integration-contract.adr/">014</a> (multiple manifest
+entries per source), and
+<a href="decisions/017-cache-stores-json-shaped-deep-copies.adr/">017</a> (multi-page cache
+entries, per-entry degradation for trees); builds on the parser contract of
+<a href="decisions/002-parser-owned-envelope-extraction.adr/">002</a>.</li>
+</ul>
+</div>
+</div>
+
+  </div>
+
+  
+  
+  <div class="mt-8 border-t border-gray-800 pt-6">
+    <h2 class="text-lg font-semibold text-white mb-3">Affected Files</h2>
+    <div class="space-y-1" data-affects-list>
+      
+      <div class="text-sm font-mono" data-affects-pattern="core/**">
+        <span class="text-gray-400">core/**</span>
+      </div>
+      
+      <div class="text-sm font-mono" data-affects-pattern="internal/parse/**">
+        <span class="text-gray-400">internal/parse/**</span>
+      </div>
+      
+      <div class="text-sm font-mono" data-affects-pattern="internal/route/**">
+        <span class="text-gray-400">internal/route/**</span>
+      </div>
+      
+      <div class="text-sm font-mono" data-affects-pattern="internal/render/**">
+        <span class="text-gray-400">internal/render/**</span>
+      </div>
+      
+    </div>
+  </div>
+  
+</article>
+
+  </main>
+  <script type="application/json" id="fuego-data">{"envelope":{"adr_number":19,"affects":["core/**","internal/parse/**","internal/route/**","internal/render/**"],"approvers":["fabio"],"author":["fabio"],"date_accepted":"2026-07-15","date_proposed":"2026-07-15","status":"accepted","tags":["parsing","routing","core","architecture"],"title":"TreeParser expands one artifact into a tree of real pages"},"nodes":[{"type":"context","content":"\u003cp\u003eFuego's parse contract is \u003cstrong\u003eone file → one page\u003c/strong\u003e: a \u003ccode\u003ecore.Parser\u003c/code\u003e returns a\nsingle \u003ccode\u003e(Envelope, []Node)\u003c/code\u003e, and \u003ca href=\"decisions/002-parser-owned-envelope-extraction.adr/\"\u003e002\u003c/a\u003e\nplus \u003ca href=\"decisions/004-page-as-mutable-pipeline-spine.adr/\"\u003e004\u003c/a\u003e build the whole pipeline on\nthat shape — one page per discovered file, enriched in place through ROUTE and\nINDEX. But a single rich artifact often \u003cem\u003eis\u003c/em\u003e a whole section. An OpenAPI spec\ndeserves an index plus a page per operation, tag, and schema; a DBML schema, a\npage per table; a Playwright suite, a page per test. Today the only way to make\nthose extra pages is the virtual-page workaround (append \u003ccode\u003e*core.Page\u003c/code\u003es in an\nINDEX hook, \u003ca href=\"decisions/010-virtual-pages-for-taxonomies-collections.adr/\"\u003e010\u003c/a\u003e), and\nthose pages have three defects: taxonomies and collections can't see them (they\nrun over the real page set, and are re-scanned before the hook), incremental\nbuilds re-render them constantly (they aggregate, so they're always \u0026quot;affected\u0026quot;),\nand a host like fuego-studio can't map them back to an editable source. The\nformat packs that own this parsing logic (fuego-devops, fuego-adr) are also\nlocked to their own themes, so the parsing can't be reused without adopting a\nsite shape. The engine needs a first-class way for one artifact to become a\nrouted, taxonomy-visible, stably-URL'd tree of pages.\u003c/p\u003e\n","raw":true},{"type":"decision","content":"\u003cp\u003eA new \u003cstrong\u003eoptional\u003c/strong\u003e interface alongside \u003ccode\u003eParser\u003c/code\u003e, \u003ccode\u003ecore.TreeParser\u003c/code\u003e, returns a\n\u003ccode\u003ecore.PageTree\u003c/code\u003e: a root (\u003ccode\u003eEnvelope\u003c/code\u003e + \u003ccode\u003eNodes\u003c/code\u003e) plus \u003ccode\u003eChildren\u003c/code\u003e keyed by relative\nslug path, nested arbitrarily. The engine detects it by a plain \u003cstrong\u003einterface\nassertion at PARSE\u003c/strong\u003e — there is no registration change, and a parser that does\nnot implement it is completely untouched. When a parser implements \u003ccode\u003eTreeParser\u003c/code\u003e,\nthe engine calls \u003ccode\u003eParseTree\u003c/code\u003e (not \u003ccode\u003eParse\u003c/code\u003e) and expands the returned tree into\n\u003cstrong\u003ereal \u003ccode\u003ecore.Page\u003c/code\u003es\u003c/strong\u003e:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003e\u003cstrong\u003eRoot\u003c/strong\u003e — the tree's own \u003ccode\u003eEnvelope\u003c/code\u003e/\u003ccode\u003eNodes\u003c/code\u003e become the source file's routed\npage, exactly as an ordinary parser's output would.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003eChild identity\u003c/strong\u003e — a child's \u003ccode\u003eRelPath\u003c/code\u003e is the source file's \u003ccode\u003eRelPath\u003c/code\u003e joined\nwith its slug path (e.g. \u003ccode\u003eapi.openapi.yaml\u003c/code\u003e + \u003ccode\u003etags/billing/get-invoice\u003c/code\u003e), so a\nchild never collides with a plain page unless intended. The child's\n\u003ccode\u003eSourcePath\u003c/code\u003e is the artifact itself.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003eChild URL\u003c/strong\u003e — composed in a \u003cstrong\u003esecond ROUTE pass\u003c/strong\u003e: the root is resolved by\nthe normal three-tier routing first (frontmatter slug → route pattern →\nfilesystem mirror, honoring the index-file convention of\n\u003ca href=\"decisions/015-index-files-route-to-directory-root.adr/\"\u003e015\u003c/a\u003e), then each child's URL is\nthe root's resolved URL joined with its slug-path segments. The whole tree\ntherefore hangs beneath wherever the root routes.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003eEnvelopes\u003c/strong\u003e — each child carries its own envelope and nodes, so children flow\nthrough INDEX as ordinary pages and are seen \u003cstrong\u003enatively\u003c/strong\u003e by taxonomies,\ncollections, and pagination.\u003c/li\u003e\n\u003c/ul\u003e\n\u003cp\u003eSibling-slug collisions inside one tree (two children whose slug paths compose to\nthe same URL) and collisions between a tree page and any other page surface\nthrough the \u003cstrong\u003eexisting\u003c/strong\u003e ROUTE/INDEX collision detection as a \u003ccode\u003eGlobalFatal\u003c/code\u003e\n(\u003ca href=\"decisions/008-error-accumulation-three-severities.adr/\"\u003e008\u003c/a\u003e) — there is no\ntree-local collision check.\u003c/p\u003e\n\u003cp\u003eThis \u003cstrong\u003eretires \u0026quot;one file = one page\u0026quot; as a parse-contract invariant\u003c/strong\u003e, amending\n\u003ca href=\"decisions/004-page-as-mutable-pipeline-spine.adr/\"\u003e004\u003c/a\u003e: PARSE may now emit several\npages for one file, and the mutable-spine model extends to each of them.\u003c/p\u003e\n\u003cp\u003e\u003cstrong\u003eEnvelope convention for library tree parsers\u003c/strong\u003e (the engine stays agnostic):\nenvelope values are JSON-shaped so tree pages stay cache-eligible under\n\u003ca href=\"decisions/017-cache-stores-json-shaped-deep-copies.adr/\"\u003e017\u003c/a\u003e; a missing per-child\nlayout falls back to the base template silently; parsers never emit slugs or\nroutes.\u003c/p\u003e\n\u003cp\u003e\u003cstrong\u003eHost-facing surfaces, and the decisions they amend.\u003c/strong\u003e Two consumers of the\nparse contract are extended to the multi-page shape:\u003c/p\u003e\n\u003cul\u003e\n\u003cli\u003e\u003cstrong\u003eManifest (\u003ca href=\"decisions/014-manifest-as-host-integration-contract.adr/\"\u003e014\u003c/a\u003e).\u003c/strong\u003e Every\npage of a tree lists the \u003cstrong\u003eshared root artifact's \u003ccode\u003eRelPath\u003c/code\u003e\u003c/strong\u003e as its\n\u003ccode\u003esource_path\u003c/code\u003e — a deliberate, versioned move to \u003cem\u003emultiple manifest entries per\nsource\u003c/em\u003e, after which fuego-studio's \u003ccode\u003eSourcePath != \u0026quot;\u0026quot;\u003c/code\u003e editability guard treats\neach child as editable-as-the-artifact (clicking edit on an operation page opens\nthe spec that defines it). Root and children stay distinguishable by their\ndiffering \u003ccode\u003eurl\u003c/code\u003e/\u003ccode\u003eoutput_path\u003c/code\u003e; sorted-by-URL determinism is unchanged. This\namends ADR-014's single-entry-per-source assumption.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003eBuild cache (\u003ca href=\"decisions/017-cache-stores-json-shaped-deep-copies.adr/\"\u003e017\u003c/a\u003e).\u003c/strong\u003e The\ncache stores \u003cem\u003eall\u003c/em\u003e pages of a file under that file's content-hash entry\n(\u003ccode\u003eParsedPage.Tree\u003c/code\u003e), so an unchanged artifact restores its whole tree from cache\nand a changed one reparses and re-renders exactly its tree; RENDER narrowing\nre-renders a whole tree when (and only when) its artifact is reparsed, so an\nedit to an unrelated file leaves the tree untouched. Deep-copy isolation holds\nat both boundaries for every page of the tree. Degradation is per ENTRY: an\nordinary file degrades per page as ADR-017 specifies, but a tree with any\nnon-JSON-shaped child envelope drops the whole file's entry — a missing child on\na hit would silently change the output, so per-page degradation is structurally\nimpossible for a tree — a warning, never an error. The cache header version is\nbumped, so an older cache is a miss, never a decode error. Clean/incremental\nbyte-equivalence stays green (\u003ca href=\"decisions/012-opt-in-incremental-builds.adr/\"\u003e012\u003c/a\u003e).\nThis amends ADR-017's per-page-only degradation and single-page-per-entry\nstorage.\u003c/li\u003e\n\u003c/ul\u003e\n","raw":true},{"type":"consequences","content":"\u003cul\u003e\n\u003cli\u003e\u003cstrong\u003e+\u003c/strong\u003e One artifact becomes a routed section: an index plus a tree of real pages\nwith stable URLs, visible to taxonomies/collections/pagination like any\nhand-written page.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e+\u003c/strong\u003e Purely additive: \u003ccode\u003eTreeParser\u003c/code\u003e is optional, detected by interface\nassertion; existing parsers, fixtures, and the registration API are unchanged.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e+\u003c/strong\u003e Collisions reuse the one existing detector, so a duplicate operation slug\nor a child shadowing a real page fails the build the same way any URL clash\ndoes.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e−\u003c/strong\u003e PARSE is no longer one-page-per-file; code that assumed that invariant\n(and the cache/manifest contracts it fed) had to be revisited — done here for\nROUTE/RENDER, the build cache, and the manifest.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e−\u003c/strong\u003e A tree is cached and restored as a unit under one content hash, so one\nchild whose envelope holds a non-JSON-shaped value costs the whole artifact its\ncache reuse (not just that child) — the price of storing a multi-page file\nunder a single entry.\u003c/li\u003e\n\u003cli\u003eAmends \u003ca href=\"decisions/004-page-as-mutable-pipeline-spine.adr/\"\u003e004\u003c/a\u003e (parse contract),\n\u003ca href=\"decisions/014-manifest-as-host-integration-contract.adr/\"\u003e014\u003c/a\u003e (multiple manifest\nentries per source), and\n\u003ca href=\"decisions/017-cache-stores-json-shaped-deep-copies.adr/\"\u003e017\u003c/a\u003e (multi-page cache\nentries, per-entry degradation for trees); builds on the parser contract of\n\u003ca href=\"decisions/002-parser-owned-envelope-extraction.adr/\"\u003e002\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n","raw":true}],"url":"/decisions/019-treeparser-page-tree-expansion.adr/"}</script>
+  <script src="app.js"></script>
+</body>
+</html>
+

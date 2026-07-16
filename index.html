@@ -340,6 +340,44 @@
         </div>
       </a>
       
+      <a href="decisions/018-specificity-ordered-parser-dispatch.adr/" class="block p-3 rounded-lg bg-gray-900 border border-gray-800 hover:border-gray-600 transition-colors" data-search-item>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="text-xs font-mono text-gray-500">ADR-18</span>
+            <span class="text-sm text-white">Specificity-ordered parser dispatch across a shared resolver</span>
+          </div>
+          <div class="flex gap-1.5">
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#parsing</span>
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#routing</span>
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#architecture</span>
+            
+          </div>
+        </div>
+      </a>
+      
+      <a href="decisions/019-treeparser-page-tree-expansion.adr/" class="block p-3 rounded-lg bg-gray-900 border border-gray-800 hover:border-gray-600 transition-colors" data-search-item>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="text-xs font-mono text-gray-500">ADR-19</span>
+            <span class="text-sm text-white">TreeParser expands one artifact into a tree of real pages</span>
+          </div>
+          <div class="flex gap-1.5">
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#parsing</span>
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#routing</span>
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#core</span>
+            
+            <span class="px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-xs">#architecture</span>
+            
+          </div>
+        </div>
+      </a>
+      
     </div>
   </div>
 
@@ -348,7 +386,7 @@
 </div>
 
   </main>
-  <script type="application/json" id="fuego-data">{"envelope":{"accepted_adrs":[{"number":1,"status":"accepted","tags":["architecture","core","parsing"],"title":"A universal AST with free-form node types","url":"/decisions/001-universal-ast-free-form-nodes.adr/"},{"number":2,"status":"accepted","tags":["parsing","core","architecture"],"title":"Parsers own envelope extraction","url":"/decisions/002-parser-owned-envelope-extraction.adr/"},{"number":3,"status":"accepted","tags":["parsing","architecture"],"title":"No built-in parsers; two-tier parser precedence","url":"/decisions/003-no-built-in-parsers-two-tier-precedence.adr/"},{"number":4,"status":"accepted","tags":["architecture","core","pipeline"],"title":"core.Page is the mutable pipeline spine","url":"/decisions/004-page-as-mutable-pipeline-spine.adr/"},{"number":5,"status":"accepted","tags":["parsing","routing","architecture"],"title":"Parser dispatch by extension or filename, not frontmatter type","url":"/decisions/005-extension-filename-parser-dispatch.adr/"},{"number":6,"status":"accepted","tags":["discovery","parsing","architecture"],"title":"Content discovery is driven by registered parsers","url":"/decisions/006-content-discovery-driven-by-parsers.adr/"},{"number":7,"status":"accepted","tags":["hooks","architecture","extensibility"],"title":"Hooks are Go functions, not config","url":"/decisions/007-hooks-are-go-not-config.adr/"},{"number":8,"status":"accepted","tags":["errors","architecture","reliability"],"title":"Error accumulation with three severities, not fail-fast","url":"/decisions/008-error-accumulation-three-severities.adr/"},{"number":9,"status":"accepted","tags":["testing","determinism","quality"],"title":"Golden-file integration testing with enforced determinism","url":"/decisions/009-golden-file-determinism-testing.adr/"},{"number":10,"status":"accepted","tags":["taxonomies","collections","pipeline","architecture"],"title":"Taxonomies and collections are virtual pages","url":"/decisions/010-virtual-pages-for-taxonomies-collections.adr/"},{"number":11,"status":"accepted","tags":["packs","architecture","extensibility"],"title":"Format packs bundle a content format as one installable unit","url":"/decisions/011-format-packs-as-ecosystem-unit.adr/"},{"number":12,"status":"accepted","tags":["incremental","performance","reliability"],"title":"Incremental builds are opt-in and provably equivalent","url":"/decisions/012-opt-in-incremental-builds.adr/"},{"number":13,"status":"accepted","tags":["api","embedding","architecture"],"title":"A programmatic build API alongside the CLI","url":"/decisions/013-programmatic-api-alongside-cli.adr/"},{"number":14,"status":"accepted","tags":["manifest","integration","architecture"],"title":"The site manifest is the host-integration contract","url":"/decisions/014-manifest-as-host-integration-contract.adr/"},{"number":15,"status":"accepted","tags":["routing","pipeline"],"title":"Index files route to their directory root","url":"/decisions/015-index-files-route-to-directory-root.adr/"},{"number":16,"status":"accepted","tags":["render","quality","reliability"],"title":"Internal link checking resolves against the built output","url":"/decisions/016-internal-link-checking.adr/"},{"number":17,"status":"accepted","tags":["incremental","cache","packs"],"title":"The build cache stores JSON-shaped deep copies, degrading per page","url":"/decisions/017-cache-stores-json-shaped-deep-copies.adr/"}],"inactive_adrs":null,"proposed_adrs":null,"tbd_adrs":null,"title":"Home"},"nodes":null,"url":"/"}</script>
+  <script type="application/json" id="fuego-data">{"envelope":{"accepted_adrs":[{"number":1,"status":"accepted","tags":["architecture","core","parsing"],"title":"A universal AST with free-form node types","url":"/decisions/001-universal-ast-free-form-nodes.adr/"},{"number":2,"status":"accepted","tags":["parsing","core","architecture"],"title":"Parsers own envelope extraction","url":"/decisions/002-parser-owned-envelope-extraction.adr/"},{"number":3,"status":"accepted","tags":["parsing","architecture"],"title":"No built-in parsers; two-tier parser precedence","url":"/decisions/003-no-built-in-parsers-two-tier-precedence.adr/"},{"number":4,"status":"accepted","tags":["architecture","core","pipeline"],"title":"core.Page is the mutable pipeline spine","url":"/decisions/004-page-as-mutable-pipeline-spine.adr/"},{"number":5,"status":"accepted","tags":["parsing","routing","architecture"],"title":"Parser dispatch by extension or filename, not frontmatter type","url":"/decisions/005-extension-filename-parser-dispatch.adr/"},{"number":6,"status":"accepted","tags":["discovery","parsing","architecture"],"title":"Content discovery is driven by registered parsers","url":"/decisions/006-content-discovery-driven-by-parsers.adr/"},{"number":7,"status":"accepted","tags":["hooks","architecture","extensibility"],"title":"Hooks are Go functions, not config","url":"/decisions/007-hooks-are-go-not-config.adr/"},{"number":8,"status":"accepted","tags":["errors","architecture","reliability"],"title":"Error accumulation with three severities, not fail-fast","url":"/decisions/008-error-accumulation-three-severities.adr/"},{"number":9,"status":"accepted","tags":["testing","determinism","quality"],"title":"Golden-file integration testing with enforced determinism","url":"/decisions/009-golden-file-determinism-testing.adr/"},{"number":10,"status":"accepted","tags":["taxonomies","collections","pipeline","architecture"],"title":"Taxonomies and collections are virtual pages","url":"/decisions/010-virtual-pages-for-taxonomies-collections.adr/"},{"number":11,"status":"accepted","tags":["packs","architecture","extensibility"],"title":"Format packs bundle a content format as one installable unit","url":"/decisions/011-format-packs-as-ecosystem-unit.adr/"},{"number":12,"status":"accepted","tags":["incremental","performance","reliability"],"title":"Incremental builds are opt-in and provably equivalent","url":"/decisions/012-opt-in-incremental-builds.adr/"},{"number":13,"status":"accepted","tags":["api","embedding","architecture"],"title":"A programmatic build API alongside the CLI","url":"/decisions/013-programmatic-api-alongside-cli.adr/"},{"number":14,"status":"accepted","tags":["manifest","integration","architecture"],"title":"The site manifest is the host-integration contract","url":"/decisions/014-manifest-as-host-integration-contract.adr/"},{"number":15,"status":"accepted","tags":["routing","pipeline"],"title":"Index files route to their directory root","url":"/decisions/015-index-files-route-to-directory-root.adr/"},{"number":16,"status":"accepted","tags":["render","quality","reliability"],"title":"Internal link checking resolves against the built output","url":"/decisions/016-internal-link-checking.adr/"},{"number":17,"status":"accepted","tags":["incremental","cache","packs"],"title":"The build cache stores JSON-shaped deep copies, degrading per page","url":"/decisions/017-cache-stores-json-shaped-deep-copies.adr/"},{"number":18,"status":"accepted","tags":["parsing","routing","architecture"],"title":"Specificity-ordered parser dispatch across a shared resolver","url":"/decisions/018-specificity-ordered-parser-dispatch.adr/"},{"number":19,"status":"accepted","tags":["parsing","routing","core","architecture"],"title":"TreeParser expands one artifact into a tree of real pages","url":"/decisions/019-treeparser-page-tree-expansion.adr/"}],"inactive_adrs":null,"proposed_adrs":null,"tbd_adrs":null,"title":"Home"},"nodes":null,"url":"/"}</script>
   <script src="app.js"></script>
 </body>
 </html>

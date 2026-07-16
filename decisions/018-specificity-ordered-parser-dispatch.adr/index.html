@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Specificity-ordered parser dispatch across a shared resolver — ADR Documentation</title>
+  <base href="/gofuego/fuego/">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen">
+  <nav class="border-b border-gray-800 px-6 py-4">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <a href="." class="text-lg font-bold text-white hover:text-blue-400 transition-colors">ADR Documentation</a>
+      <div class="flex gap-6 text-sm text-gray-400">
+        <a href="." class="hover:text-white transition-colors">Home</a>
+        <a href="timeline" class="hover:text-white transition-colors">Timeline</a>
+        <a href="tags" class="hover:text-white transition-colors">Tags</a>
+        <a href="affects" class="hover:text-white transition-colors">Affected Files</a>
+      </div>
+    </div>
+  </nav>
+  <main class="max-w-4xl mx-auto px-6 py-8">
+    
+<article>
+  
+  <div class="mb-8">
+    <div class="flex items-center gap-3 mb-2">
+      <span class="text-sm font-mono text-gray-500">ADR-18</span>
+      
+      <span class="px-2 py-0.5 rounded text-xs font-semibold
+        bg-green-900 text-green-300
+        ">accepted</span>
+      
+    </div>
+    <h1 class="text-3xl font-bold text-white mb-4">Specificity-ordered parser dispatch across a shared resolver</h1>
+
+    
+    <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm text-gray-400 border-b border-gray-800 pb-4">
+      
+      <div><span class="text-gray-500">Author:</span> fabio</div>
+      
+      
+      <div><span class="text-gray-500">Proposed:</span> 2026-07-15</div>
+      
+      
+      <div><span class="text-gray-500">Approvers:</span> fabio</div>
+      
+      
+      <div><span class="text-gray-500">Accepted:</span> 2026-07-15</div>
+      
+      
+    </div>
+
+    
+    
+
+    
+    
+    <div class="mt-3 flex gap-2 flex-wrap">
+      
+      <a href="tags/parsing" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#parsing</a>
+      
+      <a href="tags/routing" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#routing</a>
+      
+      <a href="tags/architecture" class="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs hover:bg-gray-700 transition-colors">#architecture</a>
+      
+    </div>
+    
+  </div>
+
+  
+  <div class="prose prose-invert prose-sm max-w-none">
+    <div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Context</h2>
+  <div class="text-gray-300 leading-relaxed"><p><a href="decisions/005-extension-filename-parser-dispatch.adr/">005</a> settled <em>what</em> drives
+dispatch — a file's extension (matching <code>Parser.Type()</code>) or filename (matching
+<code>FilenameParser.Filenames()</code>), never a frontmatter <code>type</code>. It left the ordering
+between those two claim kinds unspecified, which was fine while every parser
+owned a distinct extension.</p>
+<p>The fuego-formats work breaks that assumption. A single site now registers many
+parsers whose claims overlap: a markdown parser claims <code>md</code>, and an ADR parser
+claims the compound suffix <code>*.adr.md</code>. Under the old dispatch a file's bare
+extension was checked <em>first</em>, so <code>guide.adr.md</code> matched <code>md</code> and rendered as
+plain markdown — the more specific <code>*.adr.md</code> claim never got a look. A platform
+engineer must also be able to point a brownfield parser at <code>*.api.yaml</code> without
+it fighting a generic <code>yaml</code> claim.</p>
+<p>Compounding this, the claim rule lived in <strong>two</strong> places — discovery
+classification (<code>internal/discover</code>, deciding content vs. asset) and parse
+dispatch (<code>internal/parse</code>, choosing the parser) — each with its own extension
+-then-filename logic. Two copies of a rule that must agree is a latent drift bug:
+a file could classify as content under one and dispatch differently under the
+other.</p>
+</div>
+</div>
+<div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Decision</h2>
+  <div class="text-gray-300 leading-relaxed"><p>The claim rule is extracted into one resolver module, <code>internal/dispatch</code>, that
+both DISCOVER and PARSE consume. Given the registered parser set and a file's
+base name it returns the winning parser type, or none (→ asset). DISCOVER records
+that type on the file entry; PARSE dispatches by that exact value, so a file is
+always parsed by the parser that classified it as content.</p>
+<p>Resolution is <strong>specificity-ordered</strong>:</p>
+<ol>
+<li><strong>Filename patterns are checked before bare extensions.</strong> <code>*.adr.md</code> beats
+<code>md</code>.</li>
+<li><strong>Among matching patterns, the longest pattern string wins</strong> — <code>*.adr.md</code>
+(8) beats <code>*.md</code> (4) beats <code>*</code> (1). Length is the specificity proxy.</li>
+<li><strong>Ties (equal-length patterns matching the same file) resolve by existing
+parser precedence</strong> — user-registered &gt; later pack &gt; earlier pack &gt;
+declarative — the same order the engine already uses to merge same-type
+parsers.</li>
+<li>If no pattern matches, the bare extension is looked up; an extension maps to
+exactly one registered parser, so extension claims never tie.</li>
+</ol>
+<p>A parser claims by exactly one kind. A parser that declares filename patterns
+(<code>FilenameParser</code> with a non-empty <code>Filenames()</code>) claims <strong>exactly those
+patterns</strong> — its <code>Type()</code> is not implicitly claimed as an extension. A parser
+without patterns claims its <code>Type()</code> as a bare extension. This makes claim
+overrides total: a markdown parser re-claimed as <code>README.md</code> claims only
+<code>README.md</code>, instead of silently keeping every <code>.md</code> file through its <code>md</code>
+type.</p>
+<p><code>page.Type</code> stays the matched parser's <code>Type()</code> (<code>adr</code> for a <code>*.adr.md</code> file);
+<code>page.Ext</code> stays the literal extension (<code>md</code>). No content sniffing is
+introduced — dispatch remains a pure function of the file name.</p>
+<p>This <strong>amends</strong> <a href="decisions/005-extension-filename-parser-dispatch.adr/">005</a> rather than
+superseding it: extension-or-filename dispatch, and the rejection of
+frontmatter-<code>type</code> dispatch, still hold. Only the ordering between the two claim
+kinds — previously extension-first, now pattern-first-by-specificity — changes.</p>
+</div>
+</div>
+<div class="mb-8">
+  <h2 class="text-xl font-semibold text-white mb-3 pb-2 border-b border-gray-800">Consequences</h2>
+  <div class="text-gray-300 leading-relaxed"><ul>
+<li><strong>+</strong> Many formats coexist in one site without shadowing: <code>*.adr.md</code> never
+silently renders as markdown, and a parser can be adopted against non-default
+suffixes (<code>*.api.yaml</code>) without renaming files.</li>
+<li><strong>+</strong> One resolver means discovery classification and parse dispatch cannot
+diverge — a file classified as content is dispatched by the identical rule.</li>
+<li><strong>+</strong> The ordering is total and deterministic (length, then precedence, then
+the extension map), so dispatch is reproducible build-to-build.</li>
+<li><strong>−</strong> A parser author must now understand specificity: a broad pattern (<code>*</code>)
+is silently outranked by any longer one, which is intended but can surprise.</li>
+<li><strong>−</strong> Precedence tie-breaking relies on the engine's registration order,
+which is invisible in the filesystem; sites that need a specific winner
+between two equal-length patterns must control registration order.</li>
+<li>Behavior is unchanged for every existing site — none registers overlapping
+claims today — and is locked in by the <code>dispatch-specificity</code> golden fixture
+and the resolver unit matrix, in the discipline of
+<a href="decisions/009-golden-file-determinism-testing.adr/">009</a>.</li>
+</ul>
+</div>
+</div>
+
+  </div>
+
+  
+  
+  <div class="mt-8 border-t border-gray-800 pt-6">
+    <h2 class="text-lg font-semibold text-white mb-3">Affected Files</h2>
+    <div class="space-y-1" data-affects-list>
+      
+      <div class="text-sm font-mono" data-affects-pattern="internal/dispatch/**">
+        <span class="text-gray-400">internal/dispatch/**</span>
+      </div>
+      
+      <div class="text-sm font-mono" data-affects-pattern="internal/discover/**">
+        <span class="text-gray-400">internal/discover/**</span>
+      </div>
+      
+      <div class="text-sm font-mono" data-affects-pattern="internal/parse/**">
+        <span class="text-gray-400">internal/parse/**</span>
+      </div>
+      
+    </div>
+  </div>
+  
+</article>
+
+  </main>
+  <script type="application/json" id="fuego-data">{"envelope":{"adr_number":18,"affects":["internal/dispatch/**","internal/discover/**","internal/parse/**"],"approvers":["fabio"],"author":["fabio"],"date_accepted":"2026-07-15","date_proposed":"2026-07-15","status":"accepted","tags":["parsing","routing","architecture"],"title":"Specificity-ordered parser dispatch across a shared resolver"},"nodes":[{"type":"context","content":"\u003cp\u003e\u003ca href=\"decisions/005-extension-filename-parser-dispatch.adr/\"\u003e005\u003c/a\u003e settled \u003cem\u003ewhat\u003c/em\u003e drives\ndispatch — a file's extension (matching \u003ccode\u003eParser.Type()\u003c/code\u003e) or filename (matching\n\u003ccode\u003eFilenameParser.Filenames()\u003c/code\u003e), never a frontmatter \u003ccode\u003etype\u003c/code\u003e. It left the ordering\nbetween those two claim kinds unspecified, which was fine while every parser\nowned a distinct extension.\u003c/p\u003e\n\u003cp\u003eThe fuego-formats work breaks that assumption. A single site now registers many\nparsers whose claims overlap: a markdown parser claims \u003ccode\u003emd\u003c/code\u003e, and an ADR parser\nclaims the compound suffix \u003ccode\u003e*.adr.md\u003c/code\u003e. Under the old dispatch a file's bare\nextension was checked \u003cem\u003efirst\u003c/em\u003e, so \u003ccode\u003eguide.adr.md\u003c/code\u003e matched \u003ccode\u003emd\u003c/code\u003e and rendered as\nplain markdown — the more specific \u003ccode\u003e*.adr.md\u003c/code\u003e claim never got a look. A platform\nengineer must also be able to point a brownfield parser at \u003ccode\u003e*.api.yaml\u003c/code\u003e without\nit fighting a generic \u003ccode\u003eyaml\u003c/code\u003e claim.\u003c/p\u003e\n\u003cp\u003eCompounding this, the claim rule lived in \u003cstrong\u003etwo\u003c/strong\u003e places — discovery\nclassification (\u003ccode\u003einternal/discover\u003c/code\u003e, deciding content vs. asset) and parse\ndispatch (\u003ccode\u003einternal/parse\u003c/code\u003e, choosing the parser) — each with its own extension\n-then-filename logic. Two copies of a rule that must agree is a latent drift bug:\na file could classify as content under one and dispatch differently under the\nother.\u003c/p\u003e\n","raw":true},{"type":"decision","content":"\u003cp\u003eThe claim rule is extracted into one resolver module, \u003ccode\u003einternal/dispatch\u003c/code\u003e, that\nboth DISCOVER and PARSE consume. Given the registered parser set and a file's\nbase name it returns the winning parser type, or none (→ asset). DISCOVER records\nthat type on the file entry; PARSE dispatches by that exact value, so a file is\nalways parsed by the parser that classified it as content.\u003c/p\u003e\n\u003cp\u003eResolution is \u003cstrong\u003especificity-ordered\u003c/strong\u003e:\u003c/p\u003e\n\u003col\u003e\n\u003cli\u003e\u003cstrong\u003eFilename patterns are checked before bare extensions.\u003c/strong\u003e \u003ccode\u003e*.adr.md\u003c/code\u003e beats\n\u003ccode\u003emd\u003c/code\u003e.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003eAmong matching patterns, the longest pattern string wins\u003c/strong\u003e — \u003ccode\u003e*.adr.md\u003c/code\u003e\n(8) beats \u003ccode\u003e*.md\u003c/code\u003e (4) beats \u003ccode\u003e*\u003c/code\u003e (1). Length is the specificity proxy.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003eTies (equal-length patterns matching the same file) resolve by existing\nparser precedence\u003c/strong\u003e — user-registered \u0026gt; later pack \u0026gt; earlier pack \u0026gt;\ndeclarative — the same order the engine already uses to merge same-type\nparsers.\u003c/li\u003e\n\u003cli\u003eIf no pattern matches, the bare extension is looked up; an extension maps to\nexactly one registered parser, so extension claims never tie.\u003c/li\u003e\n\u003c/ol\u003e\n\u003cp\u003eA parser claims by exactly one kind. A parser that declares filename patterns\n(\u003ccode\u003eFilenameParser\u003c/code\u003e with a non-empty \u003ccode\u003eFilenames()\u003c/code\u003e) claims \u003cstrong\u003eexactly those\npatterns\u003c/strong\u003e — its \u003ccode\u003eType()\u003c/code\u003e is not implicitly claimed as an extension. A parser\nwithout patterns claims its \u003ccode\u003eType()\u003c/code\u003e as a bare extension. This makes claim\noverrides total: a markdown parser re-claimed as \u003ccode\u003eREADME.md\u003c/code\u003e claims only\n\u003ccode\u003eREADME.md\u003c/code\u003e, instead of silently keeping every \u003ccode\u003e.md\u003c/code\u003e file through its \u003ccode\u003emd\u003c/code\u003e\ntype.\u003c/p\u003e\n\u003cp\u003e\u003ccode\u003epage.Type\u003c/code\u003e stays the matched parser's \u003ccode\u003eType()\u003c/code\u003e (\u003ccode\u003eadr\u003c/code\u003e for a \u003ccode\u003e*.adr.md\u003c/code\u003e file);\n\u003ccode\u003epage.Ext\u003c/code\u003e stays the literal extension (\u003ccode\u003emd\u003c/code\u003e). No content sniffing is\nintroduced — dispatch remains a pure function of the file name.\u003c/p\u003e\n\u003cp\u003eThis \u003cstrong\u003eamends\u003c/strong\u003e \u003ca href=\"decisions/005-extension-filename-parser-dispatch.adr/\"\u003e005\u003c/a\u003e rather than\nsuperseding it: extension-or-filename dispatch, and the rejection of\nfrontmatter-\u003ccode\u003etype\u003c/code\u003e dispatch, still hold. Only the ordering between the two claim\nkinds — previously extension-first, now pattern-first-by-specificity — changes.\u003c/p\u003e\n","raw":true},{"type":"consequences","content":"\u003cul\u003e\n\u003cli\u003e\u003cstrong\u003e+\u003c/strong\u003e Many formats coexist in one site without shadowing: \u003ccode\u003e*.adr.md\u003c/code\u003e never\nsilently renders as markdown, and a parser can be adopted against non-default\nsuffixes (\u003ccode\u003e*.api.yaml\u003c/code\u003e) without renaming files.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e+\u003c/strong\u003e One resolver means discovery classification and parse dispatch cannot\ndiverge — a file classified as content is dispatched by the identical rule.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e+\u003c/strong\u003e The ordering is total and deterministic (length, then precedence, then\nthe extension map), so dispatch is reproducible build-to-build.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e−\u003c/strong\u003e A parser author must now understand specificity: a broad pattern (\u003ccode\u003e*\u003c/code\u003e)\nis silently outranked by any longer one, which is intended but can surprise.\u003c/li\u003e\n\u003cli\u003e\u003cstrong\u003e−\u003c/strong\u003e Precedence tie-breaking relies on the engine's registration order,\nwhich is invisible in the filesystem; sites that need a specific winner\nbetween two equal-length patterns must control registration order.\u003c/li\u003e\n\u003cli\u003eBehavior is unchanged for every existing site — none registers overlapping\nclaims today — and is locked in by the \u003ccode\u003edispatch-specificity\u003c/code\u003e golden fixture\nand the resolver unit matrix, in the discipline of\n\u003ca href=\"decisions/009-golden-file-determinism-testing.adr/\"\u003e009\u003c/a\u003e.\u003c/li\u003e\n\u003c/ul\u003e\n","raw":true}],"url":"/decisions/018-specificity-ordered-parser-dispatch.adr/"}</script>
+  <script src="app.js"></script>
+</body>
+</html>
+
