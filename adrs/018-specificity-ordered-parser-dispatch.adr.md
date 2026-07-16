@@ -1,8 +1,10 @@
 ---
 title: Specificity-ordered parser dispatch across a shared resolver
-status: proposed
+status: accepted
 date_proposed: 2026-07-15
+date_accepted: 2026-07-15
 author: fabio
+approvers: [fabio]
 tags: [parsing, routing, architecture]
 affects:
   - internal/dispatch/**

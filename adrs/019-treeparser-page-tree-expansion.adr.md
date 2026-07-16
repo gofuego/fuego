@@ -1,7 +1,8 @@
 ---
 title: TreeParser expands one artifact into a tree of real pages
-status: proposed
+status: accepted
 date_proposed: 2026-07-15
+date_accepted: 2026-07-15
 author: fabio
 approvers: [fabio]
 tags: [parsing, routing, core, architecture]
