@@ -54,6 +54,14 @@ Resolution is **specificity-ordered**:
 4. If no pattern matches, the bare extension is looked up; an extension maps to
    exactly one registered parser, so extension claims never tie.
 
+A parser claims by exactly one kind. A parser that declares filename patterns
+(`FilenameParser` with a non-empty `Filenames()`) claims **exactly those
+patterns** — its `Type()` is not implicitly claimed as an extension. A parser
+without patterns claims its `Type()` as a bare extension. This makes claim
+overrides total: a markdown parser re-claimed as `README.md` claims only
+`README.md`, instead of silently keeping every `.md` file through its `md`
+type.
+
 `page.Type` stays the matched parser's `Type()` (`adr` for a `*.adr.md` file);
 `page.Ext` stays the literal extension (`md`). No content sniffing is
 introduced — dispatch remains a pure function of the file name.

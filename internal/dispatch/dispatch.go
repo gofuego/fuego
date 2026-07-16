@@ -4,6 +4,13 @@
 // a file classified as content is always parsed by the same parser that
 // classified it.
 //
+// A parser claims files by exactly one kind: a parser that declares filename
+// patterns (FilenameParser with a non-empty Filenames()) claims exactly those
+// patterns; a parser without patterns claims its Type() as a bare extension.
+// Patterns are the complete claim set — overriding a parser's patterns
+// replaces its claims entirely (a markdown parser given the pattern README.md
+// claims only README.md, not every .md file).
+//
 // The rule, in order:
 //
 //  1. Filename-pattern claims (a parser's FilenameParser.Filenames()) are
@@ -49,24 +56,32 @@ type patternClaim struct {
 }
 
 // NewResolver builds a resolver from parsers supplied in ascending precedence
-// order (lowest precedence first, highest last). A parser contributes an
-// extension claim keyed by Type(); if it implements core.FilenameParser it
-// also contributes a pattern claim per Filenames() entry. When two parsers
-// claim the same extension, the higher-precedence (later) one wins — matching
-// the engine's existing "user > later pack > earlier pack > declarative" merge.
+// order (lowest precedence first, highest last). A parser that declares
+// filename patterns (core.FilenameParser with a non-empty Filenames())
+// contributes a pattern claim per entry and nothing else — its Type() is not
+// implicitly claimed as an extension, so pattern claims are the parser's
+// complete claim set. A parser without patterns contributes one extension
+// claim keyed by Type(). When two parsers claim the same extension, the
+// higher-precedence (later) one wins — matching the engine's existing
+// "user > later pack > earlier pack > declarative" merge.
 func NewResolver(parsersInPrecedenceOrder []core.Parser) *Resolver {
 	r := &Resolver{exts: make(map[string]string)}
 
 	for prec, p := range parsersInPrecedenceOrder {
-		r.exts[p.Type()] = p.Type()
+		var pats []string
 		if fp, ok := p.(core.FilenameParser); ok {
-			for _, pat := range fp.Filenames() {
-				r.patterns = append(r.patterns, patternClaim{
-					pattern:    pat,
-					parserType: p.Type(),
-					prec:       prec,
-				})
-			}
+			pats = fp.Filenames()
+		}
+		if len(pats) == 0 {
+			r.exts[p.Type()] = p.Type()
+			continue
+		}
+		for _, pat := range pats {
+			r.patterns = append(r.patterns, patternClaim{
+				pattern:    pat,
+				parserType: p.Type(),
+				prec:       prec,
+			})
 		}
 	}
 

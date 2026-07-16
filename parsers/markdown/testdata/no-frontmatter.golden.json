@@ -1,0 +1,10 @@
+{
+  "envelope": {},
+  "nodes": [
+    {
+      "type": "html",
+      "content": "\u003cp\u003ePlain markdown without frontmatter.\u003c/p\u003e\n\u003cp\u003eSecond paragraph.\u003c/p\u003e\n",
+      "raw": true
+    }
+  ]
+}

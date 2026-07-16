@@ -122,7 +122,7 @@ Nodes can be marked `Raw: true` to pass their content through the default render
 
 ### AD-16: Specificity-ordered parser dispatch across a shared resolver (ADR-018)
 
-**Decision:** Filename-pattern claims are checked before bare-extension claims, in both discovery classification and parse dispatch; among multiple matching patterns the longest pattern string wins, ties resolving by existing parser precedence (user > later pack > earlier pack, declarative lowest). The claim logic lives in one resolver (`internal/dispatch`) consumed by both phases. `page.Type` remains the matched parser's `Type()`.
+**Decision:** Filename-pattern claims are checked before bare-extension claims, in both discovery classification and parse dispatch; among multiple matching patterns the longest pattern string wins, ties resolving by existing parser precedence (user > later pack > earlier pack, declarative lowest). A parser claims by exactly one kind: declared patterns are the parser's **complete** claim set (its `Type()` is not implicitly claimed as an extension); a parser without patterns claims `Type()` as a bare extension. The claim logic lives in one resolver (`internal/dispatch`) consumed by both phases. `page.Type` remains the matched parser's `Type()`.
 
 **Why:** With reusable format parsers, claims overlap: a markdown parser claims `md` while an ADR parser claims `*.adr.md`. Extension-first dispatch silently routed `guide.adr.md` to markdown — the more specific claim never got a look. Longest-pattern-wins is deterministic where registration order is not, and a single resolver keeps "is this content?" and "who parses it?" from drifting apart. Behavior is unchanged for sites without overlapping claims. This amends AD-4b/AD-4c (ADR-005/006 lineage).
 

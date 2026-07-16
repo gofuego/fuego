@@ -12,7 +12,8 @@ type extParser struct{ typ string }
 func (p extParser) Type() string                                     { return p.typ }
 func (p extParser) Parse([]byte) (core.Envelope, []core.Node, error) { return nil, nil, nil }
 
-// patParser claims a bare extension plus one or more filename patterns.
+// patParser claims one or more filename patterns; patterns are its complete
+// claim set (its Type is not an extension claim).
 type patParser struct {
 	typ      string
 	patterns []string
@@ -120,6 +121,33 @@ func TestResolveExtensionlessFilename(t *testing.T) {
 	}
 	if _, ok := r2.Resolve("Makefile"); ok {
 		t.Error("Makefile should not match Dockerfile* pattern")
+	}
+}
+
+// Declared patterns are a parser's complete claim set: a pattern parser's
+// Type() is not implicitly claimed as an extension. This is what makes claim
+// overrides total — a markdown parser re-claimed as README.md must not keep
+// claiming every .md file through its "md" type.
+func TestResolvePatternsAreCompleteClaimSet(t *testing.T) {
+	r := NewResolver([]core.Parser{
+		patParser{typ: "md", patterns: []string{"README.md"}},
+	})
+
+	if got, ok := r.Resolve("README.md"); !ok || got != "md" {
+		t.Errorf("README.md: got (%q,%v), want (\"md\",true)", got, ok)
+	}
+	if got, ok := r.Resolve("guide.md"); ok {
+		t.Errorf("guide.md should be an asset when the md parser claims only README.md, got parser %q", got)
+	}
+}
+
+// A FilenameParser reporting no patterns degrades to a plain extension claim
+// rather than claiming nothing.
+func TestResolveEmptyPatternsFallBackToExtension(t *testing.T) {
+	r := NewResolver([]core.Parser{patParser{typ: "md"}})
+
+	if got, ok := r.Resolve("guide.md"); !ok || got != "md" {
+		t.Errorf("guide.md: got (%q,%v), want (\"md\",true)", got, ok)
 	}
 }
 
