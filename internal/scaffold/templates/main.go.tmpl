@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/gofuego/fuego/engine"
-	"github.com/gofuego/fuego/parsers/markdown"
 {{- if .PackImport}}
 	"{{.PackImport}}"
 {{- end}}
@@ -14,9 +13,11 @@ import (
 func main() {
 	eng := engine.New()
 
-	// Fuego ships with zero built-in formats. Register the parsers you want.
-	// Markdown is a first-party, opt-in parser:
-	eng.Register(markdown.Parser())
+	// Fuego ships with zero built-in formats. This project's format parsers
+	// are registered in formats.go — a file the fuego CLI owns: manage it
+	// with `go run . formats add <name>` / `go run . formats sync`. Each
+	// installed format's contract is materialized under docs/formats/.
+	registerFormats(eng)
 {{- if .PackImport}}
 
 	// Format pack installed via `fuego init --pack`. It brings its own
