@@ -54,6 +54,7 @@ func newRootCmd(parsers map[string]core.Parser, hooks *core.Hooks, packs []core.
 		newServeCmd(parsers, hooks, packs, &configPath),
 		newConfigCmd(packs, &configPath),
 		newInitCmd(),
+		newFormatsCmd(),
 	)
 
 	return cmd

@@ -5,8 +5,10 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
+	"strings"
 	"unicode"
 
+	"github.com/gofuego/fuego/internal/formats"
 	"github.com/gofuego/fuego/internal/scaffold"
 	"github.com/spf13/cobra"
 )
@@ -14,6 +16,7 @@ import (
 func newInitCmd() *cobra.Command {
 	var packModule string
 	var packSymbol string
+	var formatList string
 
 	cmd := &cobra.Command{
 		Use:   "init <name>",
@@ -32,9 +35,15 @@ func newInitCmd() *cobra.Command {
 				return fmt.Errorf("resolving path: %w", err)
 			}
 
+			fmts, err := resolveFormatList(formatList)
+			if err != nil {
+				return err
+			}
+
 			data := scaffold.Data{
-				Name:   filepath.Base(dir),
-				Module: filepath.Base(dir),
+				Name:    filepath.Base(dir),
+				Module:  filepath.Base(dir),
+				Formats: fmts,
 			}
 
 			if packModule != "" {
@@ -55,6 +64,10 @@ func newInitCmd() *cobra.Command {
 			}
 
 			fmt.Fprintf(cmd.OutOrStdout(), "fuego: project %q created at %s\n", name, dir)
+			for _, f := range fmts {
+				fmt.Fprintf(cmd.OutOrStdout(), "  installed format %s (%s; contract in %s/%s)\n",
+					f.Name, f.ImportPath, formats.DocsDir, f.Name)
+			}
 			if packModule != "" {
 				fmt.Fprintf(cmd.OutOrStdout(), "  installed pack %s (wired in main.go)\n", packModule)
 			}
@@ -63,12 +76,40 @@ func newInitCmd() *cobra.Command {
 		},
 	}
 
+	cmd.Flags().StringVar(&formatList, "formats", "markdown",
+		"comma-separated format modules to register — short names (openapi, dbml, …), the markdown alias, or full package paths; the list is the exact set")
 	cmd.Flags().StringVar(&packModule, "pack", "",
 		"format pack module to install and wire in (e.g. github.com/gofuego/fuego-adr/adr)")
 	cmd.Flags().StringVar(&packSymbol, "pack-symbol", "",
 		"package identifier for the pack's Pack() call (default: the module's last path segment)")
 
 	return cmd
+}
+
+// resolveFormatList resolves a comma-separated --formats value into the exact
+// format set, rejecting duplicates by name.
+func resolveFormatList(list string) ([]formats.Format, error) {
+	var out []formats.Format
+	seen := map[string]bool{}
+	for _, name := range strings.Split(list, ",") {
+		name = strings.TrimSpace(name)
+		if name == "" {
+			continue
+		}
+		f, err := formats.Resolve(name)
+		if err != nil {
+			return nil, fmt.Errorf("--formats %s: %w (third-party paths needing a custom identifier: init first, then `fuego formats add %s --symbol <name>`)", name, err, name)
+		}
+		if seen[f.Name] {
+			return nil, fmt.Errorf("--formats lists %s twice", f.Name)
+		}
+		seen[f.Name] = true
+		out = append(out, f)
+	}
+	if len(out) == 0 {
+		return nil, fmt.Errorf("--formats resolved to an empty set")
+	}
+	return out, nil
 }
 
 // isGoIdentifier reports whether s is a valid Go identifier, so it can be used
